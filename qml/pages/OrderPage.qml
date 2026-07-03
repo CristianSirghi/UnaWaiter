@@ -154,7 +154,7 @@ Page {
             Item { Layout.fillWidth: true }
 
             Label {
-                text: root.fmt(root.orderTotal) + " RON"
+                text: root.fmt(root.orderTotal) + " MDL"
                 font.pixelSize: 18
                 font.bold: true
                 color: theme.primary
@@ -235,7 +235,7 @@ Page {
                             color: theme.textPrimary
                         }
                         Label {
-                            text: unit + "  ·  " + root.fmt(price) + " RON"
+                            text: unit + "  ·  " + root.fmt(price) + " MDL"
                             font.pixelSize: 12
                             color: theme.textSecondary
                         }
@@ -317,7 +317,7 @@ Page {
                 Label {
                     anchors.centerIn: parent
                     text: root.orderCount > 0
-                        ? "Trimite comanda · " + root.orderCount + " · " + root.fmt(root.orderTotal) + " RON"
+                        ? "Trimite comanda · " + root.orderCount + " · " + root.fmt(root.orderTotal) + " MDL"
                         : "Adaugă produse"
                     font.pixelSize: 15
                     font.bold: true
