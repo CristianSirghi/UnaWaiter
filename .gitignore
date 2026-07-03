@@ -1,0 +1,17 @@
+# Build output
+/build/
+/android/build/
+
+# Qt Creator user config
+UnaWaiter.pro.user
+*.pro.user
+*.pro.user.*
+
+# Local IDE config
+.vscode/
+
+# Android Gradle local cache
+/android/.gradle/
+
+# Claude Code local settings
+.claude/settings.local.json

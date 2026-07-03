@@ -1,0 +1,302 @@
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+
+Page {
+    id: root
+
+    property var theme
+    property bool showMineOnly: false
+
+    signal newTableRequested()
+
+    background: Rectangle {
+        color: theme.background
+    }
+
+    header: RowLayout {
+        height: 64
+
+        Item { Layout.preferredWidth: 16 }
+
+        Rectangle {
+            width: 36
+            height: 36
+            radius: 18
+            color: theme.primary
+
+            Label {
+                anchors.centerIn: parent
+                text: "W"
+                color: "white"
+                font.bold: true
+            }
+        }
+
+        Item { Layout.fillWidth: true }
+
+        // Hamburger menu — three stacked rectangles (font-independent).
+        Item {
+            Layout.preferredWidth: 24
+            Layout.preferredHeight: 24
+
+            Column {
+                anchors.centerIn: parent
+                spacing: 4
+
+                Rectangle { width: 22; height: 2.4; radius: 1.2; color: theme.textPrimary }
+                Rectangle { width: 22; height: 2.4; radius: 1.2; color: theme.textPrimary }
+                Rectangle { width: 22; height: 2.4; radius: 1.2; color: theme.textPrimary }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                anchors.margins: -8
+                onClicked: {}
+            }
+        }
+
+        Item { Layout.preferredWidth: 16 }
+    }
+
+    ListModel {
+        id: tablesModel
+        // Gol deocamdată — mesele/comenzile reale vin în pasul următor.
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 16
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+
+            Item { Layout.fillWidth: true }
+
+            Rectangle {
+                Layout.preferredWidth: 200
+                Layout.preferredHeight: 36
+                radius: 18
+                color: theme.surface
+                border.color: theme.border
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 3
+                    spacing: 0
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        radius: 15
+                        color: !root.showMineOnly ? "transparent" : theme.primary
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: "Ale mele"
+                            font.pixelSize: 13
+                            color: !root.showMineOnly ? theme.textPrimary : "white"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.showMineOnly = true
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        radius: 15
+                        color: root.showMineOnly ? "transparent" : theme.primary
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: "Toate"
+                            font.pixelSize: 13
+                            color: root.showMineOnly ? theme.textPrimary : "white"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.showMineOnly = false
+                        }
+                    }
+                }
+            }
+        }
+
+        Label {
+            text: "Sala"
+            font.pixelSize: 18
+            font.bold: true
+            color: theme.textPrimary
+            visible: tablesModel.count > 0
+        }
+
+        // Empty state — nicio comandă deschisă.
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            visible: tablesModel.count === 0
+            spacing: 8
+
+            Item { Layout.fillHeight: true }
+
+            // Iconiță bon desenată din forme (fără dependență de font).
+            Item {
+                Layout.alignment: Qt.AlignHCenter
+                width: 64
+                height: 72
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 6
+                    color: "transparent"
+                    border.width: 3
+                    border.color: theme.border
+                }
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 7
+                    Rectangle { width: 34; height: 3; radius: 1.5; color: theme.border }
+                    Rectangle { width: 34; height: 3; radius: 1.5; color: theme.border }
+                    Rectangle { width: 22; height: 3; radius: 1.5; color: theme.border }
+                }
+            }
+
+            Label {
+                Layout.alignment: Qt.AlignHCenter
+                text: "Nu există comenzi deschise"
+                font.pixelSize: 20
+                font.bold: true
+                color: theme.textPrimary
+            }
+
+            Label {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                text: "Nu există comenzi deschise. Vă rugăm să începeți una nouă."
+                font.pixelSize: 14
+                color: theme.textSecondary
+                wrapMode: Text.WordWrap
+            }
+
+            Item { Layout.fillHeight: true }
+        }
+
+        ListView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 12
+            visible: tablesModel.count > 0
+            model: tablesModel
+
+            delegate: Rectangle {
+                width: ListView.view.width
+                height: cardContent.implicitHeight + 28
+                radius: 14
+                color: theme.surface
+                border.color: theme.border
+
+                ColumnLayout {
+                    id: cardContent
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 6
+
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Label {
+                            text: tableName
+                            font.pixelSize: 16
+                            font.bold: true
+                            color: active ? theme.primary : theme.textSecondary
+                        }
+                        Item { Layout.fillWidth: true }
+                        Label {
+                            text: orderTime
+                            font.pixelSize: 13
+                            color: theme.textSecondary
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label {
+                            text: waiterName
+                            font.pixelSize: 13
+                            color: theme.textSecondary
+                        }
+                        Item { Layout.fillWidth: true }
+                        Label {
+                            text: orderNo
+                            font.pixelSize: 13
+                            font.bold: true
+                            color: theme.textPrimary
+                        }
+                    }
+
+                    Label {
+                        text: preview
+                        font.pixelSize: 13
+                        color: theme.textPrimary
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Item { Layout.fillHeight: true }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 1
+                        color: theme.border
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Label {
+                            text: "👤 " + guestCount
+                            font.pixelSize: 13
+                            color: theme.textSecondary
+                        }
+                        Item { Layout.fillWidth: true }
+                        Label {
+                            text: total
+                            font.pixelSize: 15
+                            font.bold: true
+                            color: theme.textPrimary
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        width: 56
+        height: 56
+        radius: 28
+        color: theme.primary
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 20
+
+        Label {
+            anchors.centerIn: parent
+            text: "+"
+            color: "white"
+            font.pixelSize: 28
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.newTableRequested()
+        }
+    }
+}

@@ -1,0 +1,164 @@
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+
+Page {
+    id: root
+
+    property var theme
+
+    signal tableSelected(string zone, int tableNumber)
+
+    background: Rectangle {
+        color: theme.background
+    }
+
+    header: RowLayout {
+        height: 56
+
+        Item { Layout.preferredWidth: 12 }
+
+        // Back arrow "<" — two rotated rectangles.
+        Item {
+            Layout.preferredWidth: 24
+            Layout.preferredHeight: 24
+
+            Rectangle {
+                x: 4; y: 12 - height / 2
+                width: 12; height: 2.4; radius: 1.2
+                color: theme.textPrimary
+                transformOrigin: Item.Left
+                rotation: -35
+            }
+            Rectangle {
+                x: 4; y: 12 - height / 2
+                width: 12; height: 2.4; radius: 1.2
+                color: theme.textPrimary
+                transformOrigin: Item.Left
+                rotation: 35
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                anchors.margins: -10
+                onClicked: root.StackView.view.pop()
+            }
+        }
+
+        Item { Layout.preferredWidth: 8 }
+
+        Label {
+            text: "Selectați masa"
+            font.pixelSize: 20
+            font.bold: true
+            color: theme.textPrimary
+        }
+
+        Item { Layout.fillWidth: true }
+        Item { Layout.preferredWidth: 12 }
+    }
+
+    Flickable {
+        anchors.fill: parent
+        contentWidth: width
+        contentHeight: contentCol.height
+        clip: true
+
+        Column {
+            id: contentCol
+            width: parent.width
+            topPadding: 16
+            bottomPadding: 24
+            spacing: 8
+
+            // Lățimea unui card de masă (3 coloane, margini 16, spațiu 12).
+            readonly property real cardSize: (width - 32 - 24) / 3
+
+            // ----- Sala -----
+            Label {
+                x: 16
+                text: "Sala"
+                font.pixelSize: 18
+                font.bold: true
+                color: theme.textPrimary
+            }
+
+            Grid {
+                x: 16
+                columns: 3
+                rowSpacing: 12
+                columnSpacing: 12
+
+                Repeater {
+                    model: 10
+
+                    Rectangle {
+                        width: contentCol.cardSize
+                        height: contentCol.cardSize
+                        radius: 14
+                        color: theme.surface
+                        border.width: 1.5
+                        border.color: theme.primary
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: index + 1
+                            font.pixelSize: 22
+                            font.bold: true
+                            color: theme.primary
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.tableSelected("Sala", index + 1)
+                        }
+                    }
+                }
+            }
+
+            Item { width: 1; height: 12 }
+
+            // ----- Terasă -----
+            Label {
+                x: 16
+                text: "Terasă"
+                font.pixelSize: 18
+                font.bold: true
+                color: theme.textPrimary
+            }
+
+            Grid {
+                x: 16
+                columns: 3
+                rowSpacing: 12
+                columnSpacing: 12
+
+                Repeater {
+                    model: 10
+
+                    Rectangle {
+                        width: contentCol.cardSize
+                        height: contentCol.cardSize
+                        radius: 14
+                        color: theme.surface
+                        border.width: 1.5
+                        border.color: theme.primary
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: index + 1
+                            font.pixelSize: 22
+                            font.bold: true
+                            color: theme.primary
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.tableSelected("Terasă", index + 1)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
