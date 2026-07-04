@@ -80,6 +80,8 @@ ApplicationWindow {
             settings: appSettings
             onNewTableRequested: stackView.push(selectTablePageComponent)
             onProfileRequested: stackView.push(profilePageComponent)
+            onSettingsRequested: stackView.push(settingsPageComponent)
+            onStockRequested: stackView.push(stockPageComponent)
         }
     }
 
@@ -89,6 +91,14 @@ ApplicationWindow {
         Pages.ProfilePage {
             theme: appTheme
             settings: appSettings
+        }
+    }
+
+    Component {
+        id: stockPageComponent
+
+        Pages.StockPage {
+            theme: appTheme
         }
     }
 

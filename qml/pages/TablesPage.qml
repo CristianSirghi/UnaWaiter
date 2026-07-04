@@ -12,6 +12,8 @@ Page {
 
     signal newTableRequested()
     signal profileRequested()
+    signal settingsRequested()
+    signal stockRequested()
 
     background: Rectangle {
         color: theme.background
@@ -47,10 +49,21 @@ Page {
 
         Components.IconHamburger {
             color: theme.textPrimary
-            onClicked: {}
+            onClicked: navDrawer.open()
         }
 
         Item { Layout.preferredWidth: 16 }
+    }
+
+    Components.AppDrawer {
+        id: navDrawer
+        theme: root.theme
+        settings: root.settings
+
+        onProfileRequested: root.profileRequested()
+        onSettingsRequested: root.settingsRequested()
+        onStockRequested: root.stockRequested()
+        onSignOutRequested: root.StackView.view.pop(null)
     }
 
     ListModel {

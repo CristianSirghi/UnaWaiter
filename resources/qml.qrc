@@ -1,11 +1,13 @@
 <RCC>
-    <!-- build rev 29 -->
+    <!-- build rev 32 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>
         <file alias="AppSettings.qml">../qml/AppSettings.qml</file>
         <file alias="icons/settings.png">icons/settings.png</file>
         <file alias="icons/settings_white.png">icons/settings_white.png</file>
+        <file alias="icons/logout.png">icons/logout.png</file>
+        <file alias="icons/logout_white.png">icons/logout_white.png</file>
         <file alias="i18n/waiter_en.qm">../translations/waiter_en.qm</file>
         <file alias="i18n/waiter_ro.qm">../translations/waiter_ro.qm</file>
         <file alias="i18n/waiter_ru.qm">../translations/waiter_ru.qm</file>
@@ -17,6 +19,10 @@
         <file alias="components/IconMinus.qml">../qml/components/IconMinus.qml</file>
         <file alias="components/IconSettings.qml">../qml/components/IconSettings.qml</file>
         <file alias="components/SegmentedControl.qml">../qml/components/SegmentedControl.qml</file>
+        <file alias="components/AppDrawer.qml">../qml/components/AppDrawer.qml</file>
+        <file alias="components/IconLogout.qml">../qml/components/IconLogout.qml</file>
+        <file alias="components/IconStock.qml">../qml/components/IconStock.qml</file>
+        <file alias="components/IconPerson.qml">../qml/components/IconPerson.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>
@@ -24,5 +30,6 @@
         <file alias="pages/OrderPage.qml">../qml/pages/OrderPage.qml</file>
         <file alias="pages/SettingsPage.qml">../qml/pages/SettingsPage.qml</file>
         <file alias="pages/ProfilePage.qml">../qml/pages/ProfilePage.qml</file>
+        <file alias="pages/StockPage.qml">../qml/pages/StockPage.qml</file>
     </qresource>
 </RCC>

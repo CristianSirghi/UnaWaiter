@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>AppDrawer</name>
+    <message>
+        <location filename="../qml/components/AppDrawer.qml" line="+112"/>
+        <source>Profile</source>
+        <translation type="unfinished">Profile</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Settings</source>
+        <translation>Settings</translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Stock</source>
+        <translation>Stock</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Sign out</source>
+        <translation>Sign out</translation>
+    </message>
+</context>
+<context>
     <name>LoginPage</name>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="+39"/>
@@ -152,9 +175,32 @@
     </message>
 </context>
 <context>
+    <name>StockPage</name>
+    <message>
+        <location filename="../qml/pages/StockPage.qml" line="+25"/>
+        <source>Out of stock</source>
+        <translation>Out of stock</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Low stock</source>
+        <translation>Low stock</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>In stock</source>
+        <translation>In stock</translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>Stock</source>
+        <translation>Stock</translation>
+    </message>
+</context>
+<context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+79"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+92"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>

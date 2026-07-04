@@ -3,11 +3,6 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQml 2.15
 
-// Control segmentat orizontal (ex: Mic/Mediu/Mare). Suportă tap direct pe o
-// opțiune și glisare cu degetul a pastilei colorate — la eliberare, pastila
-// se aliniază animat pe cea mai apropiată opțiune. O opțiune cu
-// `enabled: false` în model rămâne vizibilă dar nu poate fi selectată
-// (ex: "Dark · în curând").
 Item {
     id: root
 
@@ -18,10 +13,6 @@ Item {
 
     signal optionSelected(var value)
 
-    // Valoare fixă — servește doar ca punct de plecare stabil pentru layout-uri
-    // imbricate (Layout.fillWidth suprascrie oricum lățimea reală la runtime).
-    // Fără ea, ColumnLayout-urile imbricate din SettingsPage produceau un
-    // "Binding loop detected for property implicitWidth".
     implicitWidth: 240
     implicitHeight: 44
 
