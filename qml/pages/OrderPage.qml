@@ -111,13 +111,13 @@ Page {
                 spacing: 0
                 Label {
                     text: "Masa " + root.tableNumber
-                    font.pixelSize: 18
+                    font.pixelSize: 18 * theme.fontScale
                     font.bold: true
                     color: theme.textPrimary
                 }
                 Label {
                     text: root.zone
-                    font.pixelSize: 12
+                    font.pixelSize: 12 * theme.fontScale
                     color: theme.textSecondary
                 }
             }
@@ -126,7 +126,7 @@ Page {
 
             Label {
                 text: root.fmt(root.orderTotal) + " MDL"
-                font.pixelSize: 18
+                font.pixelSize: 18 * theme.fontScale
                 font.bold: true
                 color: theme.primary
             }
@@ -163,7 +163,7 @@ Page {
                     id: catLabel
                     anchors.centerIn: parent
                     text: modelData.cat
-                    font.pixelSize: 14
+                    font.pixelSize: 14 * theme.fontScale
                     color: index === root.currentCategory ? "white" : theme.textPrimary
                 }
 
@@ -202,12 +202,12 @@ Page {
                         spacing: 2
                         Label {
                             text: name
-                            font.pixelSize: 15
+                            font.pixelSize: 15 * theme.fontScale
                             color: theme.textPrimary
                         }
                         Label {
                             text: unit + "  ·  " + root.fmt(price) + " MDL"
-                            font.pixelSize: 12
+                            font.pixelSize: 12 * theme.fontScale
                             color: theme.textSecondary
                         }
                     }
@@ -216,7 +216,7 @@ Page {
                     Label {
                         visible: qty > 0
                         text: qty
-                        font.pixelSize: 15
+                        font.pixelSize: 15 * theme.fontScale
                         font.bold: true
                         color: theme.textPrimary
                         Layout.preferredWidth: 22
@@ -283,7 +283,7 @@ Page {
                     text: root.orderCount > 0
                         ? "Trimite comanda · " + root.orderCount + " · " + root.fmt(root.orderTotal) + " MDL"
                         : "Adaugă produse"
-                    font.pixelSize: 15
+                    font.pixelSize: 15 * theme.fontScale
                     font.bold: true
                     color: root.orderCount > 0 ? "white" : theme.textSecondary
                 }

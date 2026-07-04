@@ -81,7 +81,7 @@ Page {
                         Label {
                             anchors.centerIn: parent
                             text: "Ale mele"
-                            font.pixelSize: 13
+                            font.pixelSize: 13 * theme.fontScale
                             color: !root.showMineOnly ? theme.textPrimary : "white"
                         }
 
@@ -100,7 +100,7 @@ Page {
                         Label {
                             anchors.centerIn: parent
                             text: "Toate"
-                            font.pixelSize: 13
+                            font.pixelSize: 13 * theme.fontScale
                             color: root.showMineOnly ? theme.textPrimary : "white"
                         }
 
@@ -115,7 +115,7 @@ Page {
 
         Label {
             text: "Sala"
-            font.pixelSize: 18
+            font.pixelSize: 18 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
             visible: tablesModel.count > 0
@@ -155,7 +155,7 @@ Page {
             Label {
                 Layout.alignment: Qt.AlignHCenter
                 text: "Nu există comenzi deschise"
-                font.pixelSize: 20
+                font.pixelSize: 20 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
             }
@@ -165,7 +165,7 @@ Page {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 text: "Nu există comenzi deschise. Vă rugăm să începeți una nouă."
-                font.pixelSize: 14
+                font.pixelSize: 14 * theme.fontScale
                 color: theme.textSecondary
                 wrapMode: Text.WordWrap
             }
@@ -200,14 +200,14 @@ Page {
 
                         Label {
                             text: tableName
-                            font.pixelSize: 16
+                            font.pixelSize: 16 * theme.fontScale
                             font.bold: true
                             color: active ? theme.primary : theme.textSecondary
                         }
                         Item { Layout.fillWidth: true }
                         Label {
                             text: orderTime
-                            font.pixelSize: 13
+                            font.pixelSize: 13 * theme.fontScale
                             color: theme.textSecondary
                         }
                     }
@@ -216,13 +216,13 @@ Page {
                         Layout.fillWidth: true
                         Label {
                             text: waiterName
-                            font.pixelSize: 13
+                            font.pixelSize: 13 * theme.fontScale
                             color: theme.textSecondary
                         }
                         Item { Layout.fillWidth: true }
                         Label {
                             text: orderNo
-                            font.pixelSize: 13
+                            font.pixelSize: 13 * theme.fontScale
                             font.bold: true
                             color: theme.textPrimary
                         }
@@ -230,7 +230,7 @@ Page {
 
                     Label {
                         text: preview
-                        font.pixelSize: 13
+                        font.pixelSize: 13 * theme.fontScale
                         color: theme.textPrimary
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
@@ -249,13 +249,13 @@ Page {
 
                         Label {
                             text: "👤 " + guestCount
-                            font.pixelSize: 13
+                            font.pixelSize: 13 * theme.fontScale
                             color: theme.textSecondary
                         }
                         Item { Layout.fillWidth: true }
                         Label {
                             text: total
-                            font.pixelSize: 15
+                            font.pixelSize: 15 * theme.fontScale
                             font.bold: true
                             color: theme.textPrimary
                         }
@@ -278,7 +278,7 @@ Page {
             anchors.centerIn: parent
             text: "+"
             color: "white"
-            font.pixelSize: 28
+            font.pixelSize: 28 * theme.fontScale
         }
 
         MouseArea {

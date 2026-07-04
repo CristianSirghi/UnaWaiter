@@ -37,7 +37,7 @@ Page {
 
         Label {
             text: "Introduceți PIN-ul"
-            font.pixelSize: 28
+            font.pixelSize: 28 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
         }
@@ -100,7 +100,7 @@ Page {
                         visible: keyDelegate.isDigit
                         anchors.centerIn: parent
                         text: keyDelegate.keyValue
-                        font.pixelSize: 22
+                        font.pixelSize: 22 * theme.fontScale
                         color: theme.textPrimary
                     }
 

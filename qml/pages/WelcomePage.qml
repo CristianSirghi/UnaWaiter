@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../components" as Components
 
 Page {
     id: root
@@ -9,6 +10,7 @@ Page {
 
     signal authenticateRequested()
     signal demoRequested()
+    signal settingsRequested()
 
     background: Rectangle {
         color: theme.background
@@ -19,24 +21,35 @@ Page {
         anchors.margins: 24
         spacing: 24
 
-        Label {
-            text: "Bine ați venit"
-            font.pixelSize: 24
-            font.bold: true
-            color: theme.textPrimary
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
+                text: "Bine ați venit"
+                font.pixelSize: 24 * theme.fontScale
+                font.bold: true
+                color: theme.textPrimary
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Components.IconSettings {
+                color: theme.textPrimary
+                onClicked: root.settingsRequested()
+            }
         }
 
         Item { Layout.fillHeight: true; Layout.preferredHeight: 1 }
 
         Label {
             text: "🍴"
-            font.pixelSize: 56
+            font.pixelSize: 56 * theme.fontScale
             Layout.alignment: Qt.AlignHCenter
         }
 
         Label {
             text: "Bine ați venit"
-            font.pixelSize: 22
+            font.pixelSize: 22 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
             Layout.alignment: Qt.AlignHCenter
@@ -44,7 +57,7 @@ Page {
 
         Label {
             text: "Alegeți cum doriți să începeți"
-            font.pixelSize: 15
+            font.pixelSize: 15 * theme.fontScale
             color: theme.textSecondary
             Layout.alignment: Qt.AlignHCenter
         }
@@ -61,7 +74,7 @@ Page {
                 anchors.centerIn: parent
                 text: "Autentificare"
                 color: theme.primary
-                font.pixelSize: 16
+                font.pixelSize: 16 * theme.fontScale
                 font.bold: true
             }
 
@@ -82,7 +95,7 @@ Page {
                 anchors.centerIn: parent
                 text: "Demo"
                 color: theme.textPrimary
-                font.pixelSize: 16
+                font.pixelSize: 16 * theme.fontScale
                 font.bold: true
             }
 

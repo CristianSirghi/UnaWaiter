@@ -20,6 +20,10 @@ ApplicationWindow {
         id: appTheme
     }
 
+    AppSettings {
+        id: appSettings
+    }
+
     background: Rectangle {
         color: appTheme.background
     }
@@ -32,6 +36,16 @@ ApplicationWindow {
             theme: appTheme
             onAuthenticateRequested: stackView.push(loginPageComponent)
             onDemoRequested: stackView.push(loginPageComponent)
+            onSettingsRequested: stackView.push(settingsPageComponent)
+        }
+    }
+
+    Component {
+        id: settingsPageComponent
+
+        Pages.SettingsPage {
+            theme: appTheme
+            settings: appSettings
         }
     }
 

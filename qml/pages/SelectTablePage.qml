@@ -28,7 +28,7 @@ Page {
 
         Label {
             text: "Selectați masa"
-            font.pixelSize: 20
+            font.pixelSize: 20 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
         }
@@ -57,7 +57,7 @@ Page {
             Label {
                 x: 16
                 text: "Sala"
-                font.pixelSize: 18
+                font.pixelSize: 18 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
             }
@@ -82,7 +82,7 @@ Page {
                         Label {
                             anchors.centerIn: parent
                             text: index + 1
-                            font.pixelSize: 22
+                            font.pixelSize: 22 * theme.fontScale
                             font.bold: true
                             color: theme.primary
                         }
@@ -101,7 +101,7 @@ Page {
             Label {
                 x: 16
                 text: "Terasă"
-                font.pixelSize: 18
+                font.pixelSize: 18 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
             }
@@ -126,7 +126,7 @@ Page {
                         Label {
                             anchors.centerIn: parent
                             text: index + 1
-                            font.pixelSize: 22
+                            font.pixelSize: 22 * theme.fontScale
                             font.bold: true
                             color: theme.primary
                         }

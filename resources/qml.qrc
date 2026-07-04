@@ -1,18 +1,23 @@
 <RCC>
-    <!-- build rev 8 -->
+    <!-- build rev 14 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>
+        <file alias="AppSettings.qml">../qml/AppSettings.qml</file>
+        <file alias="icons/settings.png">icons/settings.png</file>
         <file alias="components/BackButton.qml">../qml/components/BackButton.qml</file>
         <file alias="components/IconClose.qml">../qml/components/IconClose.qml</file>
         <file alias="components/IconCheck.qml">../qml/components/IconCheck.qml</file>
         <file alias="components/IconHamburger.qml">../qml/components/IconHamburger.qml</file>
         <file alias="components/IconPlus.qml">../qml/components/IconPlus.qml</file>
         <file alias="components/IconMinus.qml">../qml/components/IconMinus.qml</file>
+        <file alias="components/IconSettings.qml">../qml/components/IconSettings.qml</file>
+        <file alias="components/SegmentedControl.qml">../qml/components/SegmentedControl.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>
         <file alias="pages/SelectTablePage.qml">../qml/pages/SelectTablePage.qml</file>
         <file alias="pages/OrderPage.qml">../qml/pages/OrderPage.qml</file>
+        <file alias="pages/SettingsPage.qml">../qml/pages/SettingsPage.qml</file>
     </qresource>
 </RCC>

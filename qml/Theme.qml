@@ -9,4 +9,9 @@ QtObject {
     readonly property color border: "#E1E4E8"
     readonly property color success: "#2E9E4A"
     readonly property color keyBackground: "#E7E9ED"
+
+    // Multiplicator global de mărime a textului, setat din SettingsPage
+    // (Mic 0.9 / Mediu 1.0 / Mare 1.15). Toate `font.pixelSize` din pagini
+    // se înmulțesc cu el, așa că schimbarea aici se reflectă peste tot.
+    property real fontScale: 1.0
 }
