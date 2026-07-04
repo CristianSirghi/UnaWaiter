@@ -27,7 +27,7 @@ Page {
         Item { Layout.preferredWidth: 8 }
 
         Label {
-            text: "Selectați masa"
+            text: qsTr("Select table")
             font.pixelSize: 20 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
@@ -56,7 +56,7 @@ Page {
             // ----- Sala -----
             Label {
                 x: 16
-                text: "Sala"
+                text: qsTr("Hall")
                 font.pixelSize: 18 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
@@ -89,7 +89,7 @@ Page {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.tableSelected("Sala", index + 1)
+                            onClicked: root.tableSelected("hall", index + 1)
                         }
                     }
                 }
@@ -100,7 +100,7 @@ Page {
             // ----- Terasă -----
             Label {
                 x: 16
-                text: "Terasă"
+                text: qsTr("Terrace")
                 font.pixelSize: 18 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
@@ -133,7 +133,7 @@ Page {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.tableSelected("Terasă", index + 1)
+                            onClicked: root.tableSelected("terrace", index + 1)
                         }
                     }
                 }

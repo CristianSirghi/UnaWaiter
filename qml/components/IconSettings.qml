@@ -6,6 +6,7 @@ Item {
     id: root
 
     property color color: "black"
+    property bool dark: false
 
     signal clicked()
 
@@ -17,7 +18,7 @@ Item {
         anchors.centerIn: parent
         width: parent.width
         height: parent.height
-        source: "qrc:/icons/settings.png"
+        source: root.dark ? "qrc:/icons/settings_white.png" : "qrc:/icons/settings.png"
         fillMode: Image.PreserveAspectFit
         smooth: true
         mipmap: true

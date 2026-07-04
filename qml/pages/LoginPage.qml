@@ -36,7 +36,7 @@ Page {
         spacing: 28
 
         Label {
-            text: "Introduceți PIN-ul"
+            text: qsTr("Enter PIN")
             font.pixelSize: 28 * theme.fontScale
             font.bold: true
             color: theme.textPrimary

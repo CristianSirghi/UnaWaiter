@@ -25,7 +25,7 @@ Page {
             Layout.fillWidth: true
 
             Label {
-                text: "Bine ați venit"
+                text: qsTr("Welcome")
                 font.pixelSize: 24 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
@@ -35,6 +35,7 @@ Page {
 
             Components.IconSettings {
                 color: theme.textPrimary
+                dark: theme.darkMode
                 onClicked: root.settingsRequested()
             }
         }
@@ -48,7 +49,7 @@ Page {
         }
 
         Label {
-            text: "Bine ați venit"
+            text: qsTr("Welcome")
             font.pixelSize: 22 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
@@ -56,7 +57,7 @@ Page {
         }
 
         Label {
-            text: "Alegeți cum doriți să începeți"
+            text: qsTr("Choose how you'd like to start")
             font.pixelSize: 15 * theme.fontScale
             color: theme.textSecondary
             Layout.alignment: Qt.AlignHCenter
@@ -72,7 +73,7 @@ Page {
 
             Label {
                 anchors.centerIn: parent
-                text: "Autentificare"
+                text: qsTr("Sign in")
                 color: theme.primary
                 font.pixelSize: 16 * theme.fontScale
                 font.bold: true
@@ -93,7 +94,7 @@ Page {
 
             Label {
                 anchors.centerIn: parent
-                text: "Demo"
+                text: qsTr("Demo")
                 color: theme.textPrimary
                 font.pixelSize: 16 * theme.fontScale
                 font.bold: true

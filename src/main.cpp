@@ -1,5 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
+
+#include "translationmanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -10,6 +13,9 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     engine.addImportPath(QStringLiteral("qrc:/"));
+
+    TranslationManager translationManager(&engine);
+    engine.rootContext()->setContextProperty(QStringLiteral("translationManager"), &translationManager);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(

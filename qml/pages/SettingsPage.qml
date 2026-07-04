@@ -26,7 +26,7 @@ Page {
         Item { Layout.preferredWidth: 8 }
 
         Label {
-            text: "Setări"
+            text: qsTr("Settings")
             font.pixelSize: 20 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
@@ -47,7 +47,7 @@ Page {
             spacing: 10
 
             Label {
-                text: "Limbă"
+                text: qsTr("Language")
                 font.pixelSize: 16 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
@@ -64,14 +64,6 @@ Page {
                 ]
                 onOptionSelected: root.settings.language = value
             }
-
-            Label {
-                Layout.fillWidth: true
-                text: "Traducerile complete vor fi adăugate ulterior."
-                font.pixelSize: 12 * theme.fontScale
-                color: theme.textSecondary
-                wrapMode: Text.WordWrap
-            }
         }
 
         // ----- Temă -----
@@ -80,7 +72,7 @@ Page {
             spacing: 10
 
             Label {
-                text: "Temă"
+                text: qsTr("Theme")
                 font.pixelSize: 16 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
@@ -89,12 +81,12 @@ Page {
             Components.SegmentedControl {
                 Layout.fillWidth: true
                 theme: root.theme
-                currentValue: "light"
+                currentValue: root.theme.darkMode ? "dark" : "light"
                 options: [
-                    { label: "Light", value: "light" },
-                    { label: "Dark · în curând", value: "dark", enabled: false }
+                    { label: qsTr("Light"), value: "light" },
+                    { label: qsTr("Dark"), value: "dark" }
                 ]
-                onOptionSelected: {}
+                onOptionSelected: root.theme.darkMode = (value === "dark")
             }
         }
 
@@ -104,7 +96,7 @@ Page {
             spacing: 10
 
             Label {
-                text: "Mărime text"
+                text: qsTr("Text size")
                 font.pixelSize: 16 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
@@ -115,9 +107,9 @@ Page {
                 theme: root.theme
                 currentValue: root.theme.fontScale
                 options: [
-                    { label: "Mic", value: 0.9 },
-                    { label: "Mediu", value: 1.0 },
-                    { label: "Mare", value: 1.15 }
+                    { label: qsTr("Small"), value: 0.9 },
+                    { label: qsTr("Medium"), value: 1.0 },
+                    { label: qsTr("Large"), value: 1.15 }
                 ]
                 onOptionSelected: root.theme.fontScale = value
             }

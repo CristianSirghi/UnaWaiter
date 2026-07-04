@@ -48,6 +48,12 @@ Page {
         return v.toFixed(2).replace(".", ",")
     }
 
+    // "zone" e un cod intern ("hall"/"terrace"), nu textul afișat — așa
+    // rămâne corect indiferent de limba curentă a interfeței.
+    function zoneLabel() {
+        return zone === "terrace" ? qsTr("Terrace") : qsTr("Hall")
+    }
+
     function populateCategory(i) {
         productsModel.clear()
         var items = menuData[i].items
@@ -110,13 +116,13 @@ Page {
             ColumnLayout {
                 spacing: 0
                 Label {
-                    text: "Masa " + root.tableNumber
+                    text: qsTr("Table %1").arg(root.tableNumber)
                     font.pixelSize: 18 * theme.fontScale
                     font.bold: true
                     color: theme.textPrimary
                 }
                 Label {
-                    text: root.zone
+                    text: root.zoneLabel()
                     font.pixelSize: 12 * theme.fontScale
                     color: theme.textSecondary
                 }
@@ -125,7 +131,7 @@ Page {
             Item { Layout.fillWidth: true }
 
             Label {
-                text: root.fmt(root.orderTotal) + " MDL"
+                text: qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
                 font.pixelSize: 18 * theme.fontScale
                 font.bold: true
                 color: theme.primary
@@ -206,7 +212,7 @@ Page {
                             color: theme.textPrimary
                         }
                         Label {
-                            text: unit + "  ·  " + root.fmt(price) + " MDL"
+                            text: qsTr("%1  ·  %2 MDL").arg(unit).arg(root.fmt(price))
                             font.pixelSize: 12 * theme.fontScale
                             color: theme.textSecondary
                         }
@@ -281,8 +287,8 @@ Page {
                 Label {
                     anchors.centerIn: parent
                     text: root.orderCount > 0
-                        ? "Trimite comanda · " + root.orderCount + " · " + root.fmt(root.orderTotal) + " MDL"
-                        : "Adaugă produse"
+                        ? qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
+                        : qsTr("Add products")
                     font.pixelSize: 15 * theme.fontScale
                     font.bold: true
                     color: root.orderCount > 0 ? "white" : theme.textSecondary

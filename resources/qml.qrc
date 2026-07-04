@@ -1,10 +1,14 @@
 <RCC>
-    <!-- build rev 14 -->
+    <!-- build rev 19 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>
         <file alias="AppSettings.qml">../qml/AppSettings.qml</file>
         <file alias="icons/settings.png">icons/settings.png</file>
+        <file alias="icons/settings_white.png">icons/settings_white.png</file>
+        <file alias="i18n/waiter_en.qm">../translations/waiter_en.qm</file>
+        <file alias="i18n/waiter_ro.qm">../translations/waiter_ro.qm</file>
+        <file alias="i18n/waiter_ru.qm">../translations/waiter_ru.qm</file>
         <file alias="components/BackButton.qml">../qml/components/BackButton.qml</file>
         <file alias="components/IconClose.qml">../qml/components/IconClose.qml</file>
         <file alias="components/IconCheck.qml">../qml/components/IconCheck.qml</file>

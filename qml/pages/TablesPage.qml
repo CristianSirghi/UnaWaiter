@@ -80,7 +80,7 @@ Page {
 
                         Label {
                             anchors.centerIn: parent
-                            text: "Ale mele"
+                            text: qsTr("Mine")
                             font.pixelSize: 13 * theme.fontScale
                             color: !root.showMineOnly ? theme.textPrimary : "white"
                         }
@@ -99,7 +99,7 @@ Page {
 
                         Label {
                             anchors.centerIn: parent
-                            text: "Toate"
+                            text: qsTr("All")
                             font.pixelSize: 13 * theme.fontScale
                             color: root.showMineOnly ? theme.textPrimary : "white"
                         }
@@ -114,7 +114,7 @@ Page {
         }
 
         Label {
-            text: "Sala"
+            text: qsTr("Hall")
             font.pixelSize: 18 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
@@ -154,7 +154,7 @@ Page {
 
             Label {
                 Layout.alignment: Qt.AlignHCenter
-                text: "Nu există comenzi deschise"
+                text: qsTr("No open orders")
                 font.pixelSize: 20 * theme.fontScale
                 font.bold: true
                 color: theme.textPrimary
@@ -164,7 +164,7 @@ Page {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
-                text: "Nu există comenzi deschise. Vă rugăm să începeți una nouă."
+                text: qsTr("There are no open orders. Please start a new one.")
                 font.pixelSize: 14 * theme.fontScale
                 color: theme.textSecondary
                 wrapMode: Text.WordWrap

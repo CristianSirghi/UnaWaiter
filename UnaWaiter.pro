@@ -5,10 +5,19 @@ CONFIG += release
 INCLUDEPATH += \
     src
 
+HEADERS += \
+    src/translationmanager.h
+
 SOURCES += \
-    src/main.cpp
+    src/main.cpp \
+    src/translationmanager.cpp
 
 RESOURCES += resources/qml.qrc
+
+TRANSLATIONS += \
+    translations/waiter_en.ts \
+    translations/waiter_ro.ts \
+    translations/waiter_ru.ts
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 #QML_IMPORT_PATH =

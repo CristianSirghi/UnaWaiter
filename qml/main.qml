@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import Qt.labs.settings 1.0
 import "pages" as Pages
 
 ApplicationWindow {
@@ -22,6 +23,18 @@ ApplicationWindow {
 
     AppSettings {
         id: appSettings
+
+        // Aplică limba curentă la pornire și de fiecare dată când se schimbă
+        // din Setări — translationManager e expus din C++ (main.cpp).
+        onLanguageChanged: translationManager.setLanguage(language)
+        Component.onCompleted: translationManager.setLanguage(language)
+    }
+
+    Settings {
+        // Persistă alegerile din Setări (limbă/temă/mărime text) între lansări ale aplicației.
+        property alias language: appSettings.language
+        property alias darkMode: appTheme.darkMode
+        property alias fontScale: appTheme.fontScale
     }
 
     background: Rectangle {
