@@ -31,10 +31,11 @@ ApplicationWindow {
     }
 
     Settings {
-        // Persistă alegerile din Setări (limbă/temă/mărime text) între lansări ale aplicației.
+        // Persistă alegerile din Setări (limbă/temă/mărime text/nume chelner) între lansări.
         property alias language: appSettings.language
         property alias darkMode: appTheme.darkMode
         property alias fontScale: appTheme.fontScale
+        property alias waiterName: appSettings.waiterName
     }
 
     background: Rectangle {
@@ -76,7 +77,18 @@ ApplicationWindow {
 
         Pages.TablesPage {
             theme: appTheme
+            settings: appSettings
             onNewTableRequested: stackView.push(selectTablePageComponent)
+            onProfileRequested: stackView.push(profilePageComponent)
+        }
+    }
+
+    Component {
+        id: profilePageComponent
+
+        Pages.ProfilePage {
+            theme: appTheme
+            settings: appSettings
         }
     }
 

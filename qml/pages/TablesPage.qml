@@ -7,9 +7,11 @@ Page {
     id: root
 
     property var theme
+    property var settings
     property bool showMineOnly: true
 
     signal newTableRequested()
+    signal profileRequested()
 
     background: Rectangle {
         color: theme.background
@@ -28,9 +30,16 @@ Page {
 
             Label {
                 anchors.centerIn: parent
-                text: "W"
+                text: root.settings.waiterName.length > 0
+                    ? root.settings.waiterName.charAt(0).toUpperCase()
+                    : "W"
                 color: "white"
                 font.bold: true
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: root.profileRequested()
             }
         }
 

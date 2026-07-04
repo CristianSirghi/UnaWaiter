@@ -95,13 +95,21 @@ Item {
             Label {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                Layout.minimumWidth: 0
+                // Forțează o "greutate" egală pentru toate etichetele — altfel
+                // Layout.fillWidth împarte spațiul proporțional cu lățimea
+                // naturală a fiecărui text (Layout.preferredWidth implicit =
+                // implicitWidth), nu în treimi egale ca pastila.
+                Layout.preferredWidth: 1
                 horizontalAlignment: root.labelHorizontalAlignment
                 verticalAlignment: Text.AlignVCenter
                 leftPadding: horizontalAlignment === Text.AlignLeft ? 14 : 0
+                rightPadding: 0
                 text: modelData.label
                 font.pixelSize: 13 * root.theme.fontScale
                 color: index === root.currentIndex ? "white" : root.theme.textPrimary
                 opacity: (modelData.enabled !== false) ? 1.0 : 0.4
+                elide: Text.ElideRight
             }
         }
     }

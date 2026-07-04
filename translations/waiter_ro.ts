@@ -48,6 +48,44 @@
     </message>
 </context>
 <context>
+    <name>ProfilePage</name>
+    <message>
+        <location filename="../qml/pages/ProfilePage.qml" line="+39"/>
+        <source>Profile</source>
+        <translation>Profil</translation>
+    </message>
+    <message>
+        <location line="+92"/>
+        <source>Sign out</source>
+        <translation>Deconectare</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Tables served</source>
+        <translation>Mese servite</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Day</source>
+        <translation>Zi</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Week</source>
+        <translation>Săpt.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Month</source>
+        <translation>Lună</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Includes completed orders assigned to you.</source>
+        <translation>Sunt incluse comenzile finalizate alocate dvs.</translation>
+    </message>
+</context>
+<context>
     <name>SelectTablePage</name>
     <message>
         <location filename="../qml/pages/SelectTablePage.qml" line="+30"/>
@@ -116,17 +154,17 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+83"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+79"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+1"/>
         <source>All</source>
         <translation>Toate</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+7"/>
         <source>Hall</source>
         <translation>Sala</translation>
     </message>
@@ -145,7 +183,7 @@
     <name>WelcomePage</name>
     <message>
         <location filename="../qml/pages/WelcomePage.qml" line="+28"/>
-        <location line="+23"/>
+        <location line="+24"/>
         <source>Welcome</source>
         <translation>Bine ați venit</translation>
     </message>

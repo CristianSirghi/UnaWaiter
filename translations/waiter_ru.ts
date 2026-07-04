@@ -48,6 +48,44 @@
     </message>
 </context>
 <context>
+    <name>ProfilePage</name>
+    <message>
+        <location filename="../qml/pages/ProfilePage.qml" line="+39"/>
+        <source>Profile</source>
+        <translation type="unfinished">Профиль</translation>
+    </message>
+    <message>
+        <location line="+92"/>
+        <source>Sign out</source>
+        <translation type="unfinished">Выйти</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Tables served</source>
+        <translation type="unfinished">Обслуженные столы</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Day</source>
+        <translation type="unfinished">День</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Week</source>
+        <translation type="unfinished">Нед.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Month</source>
+        <translation type="unfinished">Месяц</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Includes completed orders assigned to you.</source>
+        <translation type="unfinished">Включены завершённые заказы, закреплённые за вами.</translation>
+    </message>
+</context>
+<context>
     <name>SelectTablePage</name>
     <message>
         <location filename="../qml/pages/SelectTablePage.qml" line="+30"/>
@@ -116,17 +154,17 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+83"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+79"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+1"/>
         <source>All</source>
         <translation>Все</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+7"/>
         <source>Hall</source>
         <translation>Зал</translation>
     </message>
@@ -145,7 +183,7 @@
     <name>WelcomePage</name>
     <message>
         <location filename="../qml/pages/WelcomePage.qml" line="+28"/>
-        <location line="+23"/>
+        <location line="+24"/>
         <source>Welcome</source>
         <translation>Добро пожаловать</translation>
     </message>

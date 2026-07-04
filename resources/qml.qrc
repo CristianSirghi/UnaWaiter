@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 24 -->
+    <!-- build rev 29 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>
@@ -23,5 +23,6 @@
         <file alias="pages/SelectTablePage.qml">../qml/pages/SelectTablePage.qml</file>
         <file alias="pages/OrderPage.qml">../qml/pages/OrderPage.qml</file>
         <file alias="pages/SettingsPage.qml">../qml/pages/SettingsPage.qml</file>
+        <file alias="pages/ProfilePage.qml">../qml/pages/ProfilePage.qml</file>
     </qresource>
 </RCC>
