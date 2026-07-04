@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../components" as Components
 
 Page {
     id: root
@@ -35,25 +36,9 @@ Page {
 
         Item { Layout.fillWidth: true }
 
-        // Hamburger menu — three stacked rectangles (font-independent).
-        Item {
-            Layout.preferredWidth: 24
-            Layout.preferredHeight: 24
-
-            Column {
-                anchors.centerIn: parent
-                spacing: 4
-
-                Rectangle { width: 22; height: 2.4; radius: 1.2; color: theme.textPrimary }
-                Rectangle { width: 22; height: 2.4; radius: 1.2; color: theme.textPrimary }
-                Rectangle { width: 22; height: 2.4; radius: 1.2; color: theme.textPrimary }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                anchors.margins: -8
-                onClicked: {}
-            }
+        Components.IconHamburger {
+            color: theme.textPrimary
+            onClicked: {}
         }
 
         Item { Layout.preferredWidth: 16 }
@@ -204,7 +189,9 @@ Page {
 
                 ColumnLayout {
                     id: cardContent
-                    anchors.fill: parent
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     anchors.margins: 14
                     spacing: 6
 

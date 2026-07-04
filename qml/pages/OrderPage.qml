@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../components" as Components
 
 Page {
     id: root
@@ -37,12 +38,11 @@ Page {
 
     property int currentCategory: 0
 
-    // Cantități per produs (cheie = nume) + preț pentru total.
+    // Cantități per produs (cheie = nume, persistă la schimbarea categoriei) + preț pentru total.
     property var qtyStore: ({})
     property var priceOf: ({})
     property int orderCount: 0
     property real orderTotal: 0
-    property int orderRevision: 0   // forțează reevaluarea badge-urilor
 
     function fmt(v) {
         return v.toFixed(2).replace(".", ",")
@@ -55,32 +55,25 @@ Page {
             productsModel.append({
                 name: items[k].name,
                 unit: items[k].unit,
-                price: items[k].price
+                price: items[k].price,
+                qty: root.qtyStore[items[k].name] ? root.qtyStore[items[k].name] : 0
             })
         }
     }
 
-    function qtyFor(name) {
-        return qtyStore[name] ? qtyStore[name] : 0
-    }
+    // index = poziția rândului în productsModel (categoria curentă), pentru
+    // a putea actualiza direct rolul "qty" și primi notificare corectă de la model.
+    function changeQty(index, name, delta) {
+        var oldQty = qtyStore[name] ? qtyStore[name] : 0
+        var newQty = oldQty + delta
+        if (newQty < 0) newQty = 0
 
-    function changeQty(name, delta) {
-        var q = (qtyStore[name] ? qtyStore[name] : 0) + delta
-        if (q < 0) q = 0
-        qtyStore[name] = q
-        recompute()
-    }
+        qtyStore[name] = newQty
+        productsModel.setProperty(index, "qty", newQty)
 
-    function recompute() {
-        var count = 0
-        var total = 0
-        for (var key in qtyStore) {
-            count += qtyStore[key]
-            total += qtyStore[key] * (priceOf[key] ? priceOf[key] : 0)
-        }
-        orderCount = count
-        orderTotal = total
-        orderRevision++
+        var qtyDelta = newQty - oldQty
+        orderCount += qtyDelta
+        orderTotal += qtyDelta * (priceOf[name] ? priceOf[name] : 0)
     }
 
     Component.onCompleted: {
@@ -107,31 +100,9 @@ Page {
             anchors.leftMargin: 12
             anchors.rightMargin: 16
 
-            // Back
-            Item {
-                Layout.preferredWidth: 24
-                Layout.preferredHeight: 24
-
-                Rectangle {
-                    x: 4; y: 12 - height / 2
-                    width: 12; height: 2.4; radius: 1.2
-                    color: theme.textPrimary
-                    transformOrigin: Item.Left
-                    rotation: -35
-                }
-                Rectangle {
-                    x: 4; y: 12 - height / 2
-                    width: 12; height: 2.4; radius: 1.2
-                    color: theme.textPrimary
-                    transformOrigin: Item.Left
-                    rotation: 35
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: -10
-                    onClicked: root.StackView.view.pop()
-                }
+            Components.BackButton {
+                color: theme.textPrimary
+                onClicked: root.StackView.view.pop()
             }
 
             Item { Layout.preferredWidth: 8 }
@@ -243,8 +214,8 @@ Page {
 
                     // Cantitatea curentă (dacă > 0) + controale
                     Label {
-                        visible: (root.orderRevision, root.qtyFor(name)) > 0
-                        text: (root.orderRevision, root.qtyFor(name))
+                        visible: qty > 0
+                        text: qty
                         font.pixelSize: 15
                         font.bold: true
                         color: theme.textPrimary
@@ -254,17 +225,16 @@ Page {
 
                     // Buton minus (doar când există cantitate)
                     Rectangle {
-                        visible: (root.orderRevision, root.qtyFor(name)) > 0
+                        visible: qty > 0
                         width: 34; height: 34; radius: 17
                         color: theme.keyBackground
-                        Rectangle {
+                        Components.IconMinus {
                             anchors.centerIn: parent
-                            width: 14; height: 2.4; radius: 1.2
                             color: theme.textPrimary
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.changeQty(name, -1)
+                            onClicked: root.changeQty(index, name, -1)
                         }
                     }
 
@@ -272,19 +242,13 @@ Page {
                     Rectangle {
                         width: 34; height: 34; radius: 17
                         color: theme.primary
-                        Rectangle {
+                        Components.IconPlus {
                             anchors.centerIn: parent
-                            width: 14; height: 2.4; radius: 1.2
-                            color: "white"
-                        }
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 2.4; height: 14; radius: 1.2
                             color: "white"
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.changeQty(name, 1)
+                            onClicked: root.changeQty(index, name, 1)
                         }
                     }
                 }

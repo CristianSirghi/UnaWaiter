@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../components" as Components
 
 Page {
     id: root
@@ -18,31 +19,9 @@ Page {
 
         Item { Layout.preferredWidth: 12 }
 
-        // Back arrow "<" — two rotated rectangles.
-        Item {
-            Layout.preferredWidth: 24
-            Layout.preferredHeight: 24
-
-            Rectangle {
-                x: 4; y: 12 - height / 2
-                width: 12; height: 2.4; radius: 1.2
-                color: theme.textPrimary
-                transformOrigin: Item.Left
-                rotation: -35
-            }
-            Rectangle {
-                x: 4; y: 12 - height / 2
-                width: 12; height: 2.4; radius: 1.2
-                color: theme.textPrimary
-                transformOrigin: Item.Left
-                rotation: 35
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                anchors.margins: -10
-                onClicked: root.StackView.view.pop()
-            }
+        Components.BackButton {
+            color: theme.textPrimary
+            onClicked: root.StackView.view.pop()
         }
 
         Item { Layout.preferredWidth: 8 }

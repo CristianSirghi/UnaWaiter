@@ -1,8 +1,14 @@
 <RCC>
-    <!-- build rev 7 -->
+    <!-- build rev 8 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>
+        <file alias="components/BackButton.qml">../qml/components/BackButton.qml</file>
+        <file alias="components/IconClose.qml">../qml/components/IconClose.qml</file>
+        <file alias="components/IconCheck.qml">../qml/components/IconCheck.qml</file>
+        <file alias="components/IconHamburger.qml">../qml/components/IconHamburger.qml</file>
+        <file alias="components/IconPlus.qml">../qml/components/IconPlus.qml</file>
+        <file alias="components/IconMinus.qml">../qml/components/IconMinus.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>

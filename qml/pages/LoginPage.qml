@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../components" as Components
 
 Page {
     id: root
@@ -20,31 +21,9 @@ Page {
 
         Item { Layout.preferredWidth: 16 }
 
-        // Back arrow "<" — two rotated rectangles meeting at a left vertex.
-        Item {
-            Layout.preferredWidth: 22
-            Layout.preferredHeight: 22
-
-            Rectangle {
-                x: 4; y: 10 - height / 2
-                width: 12; height: 2.4; radius: 1.2
-                color: theme.textPrimary
-                transformOrigin: Item.Left
-                rotation: -35
-            }
-            Rectangle {
-                x: 4; y: 10 - height / 2
-                width: 12; height: 2.4; radius: 1.2
-                color: theme.textPrimary
-                transformOrigin: Item.Left
-                rotation: 35
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                anchors.margins: -10
-                onClicked: root.StackView.view.pop()
-            }
+        Components.BackButton {
+            color: theme.textPrimary
+            onClicked: root.StackView.view.pop()
         }
 
         Item { Layout.fillWidth: true }
@@ -125,48 +104,16 @@ Page {
                         color: theme.textPrimary
                     }
 
-                    // Delete "X" — two crossed rectangles.
-                    Item {
+                    Components.IconClose {
                         visible: keyDelegate.isDelete
                         anchors.centerIn: parent
-                        width: 20
-                        height: 20
-
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 20; height: 2.6; radius: 1.3
-                            color: theme.textPrimary
-                            rotation: 45
-                        }
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 20; height: 2.6; radius: 1.3
-                            color: theme.textPrimary
-                            rotation: -45
-                        }
+                        color: theme.textPrimary
                     }
 
-                    // Confirm checkmark — two rotated rectangles from a bottom vertex.
-                    Item {
+                    Components.IconCheck {
                         visible: keyDelegate.isConfirm
                         anchors.centerIn: parent
-                        width: 24
-                        height: 20
-
-                        Rectangle {
-                            x: 6; y: 14 - height / 2
-                            width: 6; height: 2.6; radius: 1.3
-                            color: keyDelegate.isConfirmEnabled ? theme.primary : theme.textSecondary
-                            transformOrigin: Item.Left
-                            rotation: -135
-                        }
-                        Rectangle {
-                            x: 6; y: 14 - height / 2
-                            width: 17; height: 2.6; radius: 1.3
-                            color: keyDelegate.isConfirmEnabled ? theme.primary : theme.textSecondary
-                            transformOrigin: Item.Left
-                            rotation: -43
-                        }
+                        color: keyDelegate.isConfirmEnabled ? theme.primary : theme.textSecondary
                     }
 
                     MouseArea {
