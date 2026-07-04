@@ -7,7 +7,7 @@ Page {
     id: root
 
     property var theme
-    property bool showMineOnly: false
+    property bool showMineOnly: true
 
     signal newTableRequested()
 
@@ -60,56 +60,17 @@ Page {
 
             Item { Layout.fillWidth: true }
 
-            Rectangle {
+            Components.SegmentedControl {
                 Layout.preferredWidth: 200
                 Layout.preferredHeight: 36
-                radius: 18
-                color: theme.surface
-                border.color: theme.border
-
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.margins: 3
-                    spacing: 0
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: 15
-                        color: !root.showMineOnly ? "transparent" : theme.primary
-
-                        Label {
-                            anchors.centerIn: parent
-                            text: qsTr("Mine")
-                            font.pixelSize: 13 * theme.fontScale
-                            color: !root.showMineOnly ? theme.textPrimary : "white"
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: root.showMineOnly = true
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: 15
-                        color: root.showMineOnly ? "transparent" : theme.primary
-
-                        Label {
-                            anchors.centerIn: parent
-                            text: qsTr("All")
-                            font.pixelSize: 13 * theme.fontScale
-                            color: root.showMineOnly ? theme.textPrimary : "white"
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: root.showMineOnly = false
-                        }
-                    }
-                }
+                theme: root.theme
+                labelHorizontalAlignment: Text.AlignLeft
+                currentValue: root.showMineOnly ? "mine" : "all"
+                options: [
+                    { label: qsTr("Mine"), value: "mine" },
+                    { label: qsTr("All"), value: "all" }
+                ]
+                onOptionSelected: root.showMineOnly = (value === "mine")
             }
         }
 

@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQml 2.15
 
 // Control segmentat orizontal (ex: Mic/Mediu/Mare). Suportă tap direct pe o
 // opțiune și glisare cu degetul a pastilei colorate — la eliberare, pastila
@@ -13,9 +14,15 @@ Item {
     property var theme
     property var options: []       // [{ label, value, enabled? }]
     property var currentValue
+    property int labelHorizontalAlignment: Text.AlignHCenter
 
     signal optionSelected(var value)
 
+    // Valoare fixă — servește doar ca punct de plecare stabil pentru layout-uri
+    // imbricate (Layout.fillWidth suprascrie oricum lățimea reală la runtime).
+    // Fără ea, ColumnLayout-urile imbricate din SettingsPage produceau un
+    // "Binding loop detected for property implicitWidth".
+    implicitWidth: 240
     implicitHeight: 44
 
     readonly property int segmentCount: options.length
@@ -74,6 +81,7 @@ Item {
         property: "x"
         value: root.currentIndex * root.segmentWidth + 3
         when: !dragArea.drag.active
+        restoreMode: Binding.RestoreBinding
     }
 
     RowLayout {
@@ -87,8 +95,9 @@ Item {
             Label {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: root.labelHorizontalAlignment
                 verticalAlignment: Text.AlignVCenter
+                leftPadding: horizontalAlignment === Text.AlignLeft ? 14 : 0
                 text: modelData.label
                 font.pixelSize: 13 * root.theme.fontScale
                 color: index === root.currentIndex ? "white" : root.theme.textPrimary
