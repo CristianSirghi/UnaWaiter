@@ -48,7 +48,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+64"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+81"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -58,31 +58,42 @@
         <translation>Sala</translation>
     </message>
     <message>
-        <location line="+60"/>
-        <location line="+70"/>
-        <location line="+342"/>
+        <location line="+130"/>
+        <location line="+75"/>
+        <location line="+455"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
     <message>
-        <location line="-411"/>
+        <location line="-529"/>
         <source>Waiter</source>
         <translation>Chelner</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <location line="+81"/>
-        <location line="+241"/>
+        <location line="+4"/>
+        <location line="+85"/>
+        <location line="+346"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-160"/>
+        <location line="-264"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+21"/>
+        <source>Add-ons · %1</source>
+        <translation>Adaosuri · %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+401"/>
+        <source>Add-ons</source>
+        <translation>Adaosuri</translation>
+    </message>
+    <message>
+        <location line="-247"/>
         <source>%1 products selected</source>
         <translation>%1 produse selectate</translation>
     </message>
@@ -92,7 +103,7 @@
         <translation>Niciun produs selectat</translation>
     </message>
     <message>
-        <location line="+154"/>
+        <location line="+180"/>
         <source>Delete order?</source>
         <translation>Ștergeți comanda?</translation>
     </message>
@@ -107,7 +118,17 @@
         <translation>Șterge</translation>
     </message>
     <message>
-        <location line="-22"/>
+        <location line="+117"/>
+        <source>+%1 MDL</source>
+        <translation>+%1 MDL</translation>
+    </message>
+    <message>
+        <location line="+64"/>
+        <source>Done</source>
+        <translation>Gata</translation>
+    </message>
+    <message>
+        <location line="-207"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Trimite comanda · %1 · %2 MDL</translation>
     </message>

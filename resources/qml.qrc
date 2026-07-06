@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 38 -->
+    <!-- build rev 39 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>

@@ -12,6 +12,8 @@ QtObject {
     // Produsele comandate per masă (cheie = tableKey), separat de ordersModel
     // ca să putem reîncărca o comandă existentă în OrderPage la editare.
     property var itemsByKey: ({})
+    // Adaosurile per masă: { tableKey: { numeProdus: { numeAdaos: cantitate } } }.
+    property var addonsByKey: ({})
 
     function keyFor(zone, tableNumber) {
         return zone + "-" + tableNumber
@@ -52,9 +54,15 @@ QtObject {
         return idx >= 0 ? ordersModel.get(idx).guestCount : 1
     }
 
+    // Adaosurile salvate pentru o masă (obiect gol dacă nu există comandă deschisă).
+    function addonsFor(zone, tableNumber) {
+        var key = keyFor(zone, tableNumber)
+        return addonsByKey[key] ? addonsByKey[key] : ({})
+    }
+
     // Trimite (sau înlocuiește) comanda deschisă pentru o masă. Întoarce numărul comenzii
     // (păstrat neschimbat dacă se editează o comandă deja trimisă).
-    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, guestCount, total) {
+    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, addonMap, guestCount, total) {
         var key = keyFor(zone, tableNumber)
         var idx = indexForKey(key)
         var orderNo = idx >= 0 ? ordersModel.get(idx).orderNo : ("#" + nextOrderNo)
@@ -62,6 +70,7 @@ QtObject {
             nextOrderNo += 1
 
         itemsByKey[key] = itemsMap
+        addonsByKey[key] = addonMap
 
         var entry = {
             tableKey: key,
@@ -100,5 +109,6 @@ QtObject {
         if (idx >= 0)
             ordersModel.remove(idx)
         delete itemsByKey[key]
+        delete addonsByKey[key]
     }
 }
