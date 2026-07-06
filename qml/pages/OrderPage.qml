@@ -53,6 +53,8 @@ Page {
     property var priceOf: ({})
     property int orderCount: 0
     property real orderTotal: 0
+    // Numărul de oaspeți la masă (minim 1), ales de chelner și salvat cu comanda.
+    property int guestCount: 1
 
     function fmt(v) {
         return v.toFixed(2).replace(".", ",")
@@ -124,7 +126,7 @@ Page {
             qsTr("Table %1").arg(root.tableNumber),
             root.settings.waiterName.length > 0 ? root.settings.waiterName : qsTr("Waiter"),
             root.qtyStore,
-            1,
+            root.guestCount,
             qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
         )
         root.done()
@@ -161,6 +163,7 @@ Page {
             root.qtyStore = loadedQty
             root.orderCount = count
             root.orderTotal = total
+            root.guestCount = root.store.guestsFor(root.zone, root.tableNumber)
         }
 
         populateCategory(currentCategory)
@@ -373,28 +376,85 @@ Page {
                         anchors.fill: parent
                         anchors.leftMargin: 16
                         anchors.rightMargin: 16
+                        spacing: 10
 
-                        Label {
-                            Layout.fillWidth: true
-                            text: root.orderCount > 0
-                                ? qsTr("%1 products selected").arg(root.orderCount)
-                                : qsTr("No products selected")
-                            font.pixelSize: 14 * theme.fontScale
-                            font.bold: true
-                            color: theme.textPrimary
-                        }
-
-                        Components.IconChevron {
+                        // Selector oaspeți (butoane proprii, minim 1).
+                        RowLayout {
                             Layout.alignment: Qt.AlignVCenter
-                            color: theme.textSecondary
-                            expanded: root.summaryExpanded
-                        }
-                    }
+                            spacing: 6
 
-                    MouseArea {
-                        anchors.fill: parent
-                        enabled: root.orderCount > 0
-                        onClicked: root.summaryExpanded = !root.summaryExpanded
+                            Components.IconPerson {
+                                Layout.preferredWidth: 18
+                                Layout.preferredHeight: 18
+                                color: theme.textSecondary
+                            }
+
+                            Rectangle {
+                                width: 26; height: 26; radius: 13
+                                color: theme.keyBackground
+                                opacity: root.guestCount > 1 ? 1 : 0.4
+                                Components.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: if (root.guestCount > 1) root.guestCount -= 1
+                                }
+                            }
+
+                            Label {
+                                text: root.guestCount
+                                Layout.preferredWidth: 16
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pixelSize: 15 * theme.fontScale
+                                font.bold: true
+                                color: theme.textPrimary
+                            }
+
+                            Rectangle {
+                                width: 26; height: 26; radius: 13
+                                color: theme.primary
+                                Components.IconPlus { anchors.centerIn: parent; color: "white" }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: root.guestCount += 1
+                                }
+                            }
+                        }
+
+                        // Zonă de extindere (rezumat produse) — MouseArea proprie,
+                        // separată de butoanele de oaspeți ca să nu se suprapună.
+                        Item {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 8
+
+                                Label {
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignRight
+                                    text: root.orderCount > 0
+                                        ? qsTr("%1 products selected").arg(root.orderCount)
+                                        : qsTr("No products selected")
+                                    font.pixelSize: 14 * theme.fontScale
+                                    font.bold: true
+                                    color: theme.textPrimary
+                                    elide: Text.ElideRight
+                                }
+
+                                Components.IconChevron {
+                                    Layout.alignment: Qt.AlignVCenter
+                                    color: theme.textSecondary
+                                    expanded: root.summaryExpanded
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: root.orderCount > 0
+                                onClicked: root.summaryExpanded = !root.summaryExpanded
+                            }
+                        }
                     }
                 }
 

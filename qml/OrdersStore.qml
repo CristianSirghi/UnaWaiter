@@ -46,6 +46,12 @@ QtObject {
         return itemsByKey[key] ? itemsByKey[key] : ({})
     }
 
+    // Numărul de oaspeți salvat pentru o masă (1 dacă nu există comandă deschisă).
+    function guestsFor(zone, tableNumber) {
+        var idx = indexForKey(keyFor(zone, tableNumber))
+        return idx >= 0 ? ordersModel.get(idx).guestCount : 1
+    }
+
     // Trimite (sau înlocuiește) comanda deschisă pentru o masă. Întoarce numărul comenzii
     // (păstrat neschimbat dacă se editează o comandă deja trimisă).
     function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, guestCount, total) {
