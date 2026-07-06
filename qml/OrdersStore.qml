@@ -1,0 +1,83 @@
+import QtQuick 2.15
+
+// Comenzile active, ținute în memorie cât timp rulează aplicația.
+// Va fi înlocuit cu apeluri reale către Oracle (via PHP) — până atunci,
+// "Trimite comanda" scrie aici, iar TablesPage citește de aici.
+QtObject {
+    id: root
+
+    property ListModel ordersModel: ListModel {}
+    property int nextOrderNo: 441
+
+    // Produsele comandate per masă (cheie = tableKey), separat de ordersModel
+    // ca să putem reîncărca o comandă existentă în OrderPage la editare.
+    property var itemsByKey: ({})
+
+    function keyFor(zone, tableNumber) {
+        return zone + "-" + tableNumber
+    }
+
+    function indexForKey(key) {
+        for (var i = 0; i < ordersModel.count; ++i) {
+            if (ordersModel.get(i).tableKey === key)
+                return i
+        }
+        return -1
+    }
+
+    function buildPreview(itemsMap) {
+        var parts = []
+        for (var name in itemsMap) {
+            if (itemsMap[name] > 0)
+                parts.push(name + " x" + itemsMap[name])
+        }
+        return parts.join(", ")
+    }
+
+    // Produsele salvate pentru o masă (obiect gol dacă nu există comandă deschisă).
+    function itemsFor(zone, tableNumber) {
+        var key = keyFor(zone, tableNumber)
+        return itemsByKey[key] ? itemsByKey[key] : ({})
+    }
+
+    // Trimite (sau înlocuiește) comanda deschisă pentru o masă. Întoarce numărul comenzii
+    // (păstrat neschimbat dacă se editează o comandă deja trimisă).
+    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, guestCount, total) {
+        var key = keyFor(zone, tableNumber)
+        var idx = indexForKey(key)
+        var orderNo = idx >= 0 ? ordersModel.get(idx).orderNo : ("#" + nextOrderNo)
+        if (idx < 0)
+            nextOrderNo += 1
+
+        itemsByKey[key] = itemsMap
+
+        var entry = {
+            tableKey: key,
+            zone: zone,
+            tableNumber: tableNumber,
+            tableName: tableName,
+            active: true,
+            orderTime: Qt.formatTime(new Date(), "hh:mm"),
+            waiterName: waiterName,
+            orderNo: orderNo,
+            preview: buildPreview(itemsMap),
+            guestCount: guestCount,
+            total: total
+        }
+
+        if (idx >= 0)
+            ordersModel.set(idx, entry)
+        else
+            ordersModel.append(entry)
+
+        return orderNo
+    }
+
+    function removeOrder(zone, tableNumber) {
+        var key = keyFor(zone, tableNumber)
+        var idx = indexForKey(key)
+        if (idx >= 0)
+            ordersModel.remove(idx)
+        delete itemsByKey[key]
+    }
+}

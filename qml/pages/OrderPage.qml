@@ -7,6 +7,8 @@ Page {
     id: root
 
     property var theme
+    property var settings
+    property var store
     property string zone: ""
     property int tableNumber: 0
 
@@ -37,6 +39,8 @@ Page {
     ]
 
     property int currentCategory: 0
+    property bool summaryExpanded: false
+    readonly property int summaryMaxRows: 5
 
     // Cantități per produs (cheie = nume, persistă la schimbarea categoriei) + preț pentru total.
     property var qtyStore: ({})
@@ -67,19 +71,57 @@ Page {
         }
     }
 
-    // index = poziția rândului în productsModel (categoria curentă), pentru
-    // a putea actualiza direct rolul "qty" și primi notificare corectă de la model.
-    function changeQty(index, name, delta) {
+    // Reconstruiește lista de produse selectate (pentru panoul "Comandă curentă"),
+    // afișată separat de lista completă a categoriei curente.
+    function rebuildSelectedModel() {
+        selectedModel.clear()
+        for (var name in root.qtyStore) {
+            var qty = root.qtyStore[name]
+            if (qty > 0) {
+                selectedModel.append({
+                    name: name,
+                    qty: qty,
+                    price: root.priceOf[name] ? root.priceOf[name] : 0
+                })
+            }
+        }
+    }
+
+    // Modifică cantitatea unui produs după nume — folosită atât din lista
+    // completă a categoriei curente, cât și din panoul "Comandă curentă".
+    function adjustQty(name, delta) {
         var oldQty = qtyStore[name] ? qtyStore[name] : 0
         var newQty = oldQty + delta
         if (newQty < 0) newQty = 0
+        if (newQty === oldQty) return
 
         qtyStore[name] = newQty
-        productsModel.setProperty(index, "qty", newQty)
+
+        for (var i = 0; i < productsModel.count; ++i) {
+            if (productsModel.get(i).name === name) {
+                productsModel.setProperty(i, "qty", newQty)
+                break
+            }
+        }
 
         var qtyDelta = newQty - oldQty
         orderCount += qtyDelta
         orderTotal += qtyDelta * (priceOf[name] ? priceOf[name] : 0)
+
+        rebuildSelectedModel()
+    }
+
+    function submitOrder() {
+        root.store.submitOrder(
+            root.zone,
+            root.tableNumber,
+            qsTr("Table %1").arg(root.tableNumber),
+            root.settings.waiterName.length > 0 ? root.settings.waiterName : qsTr("Waiter"),
+            root.qtyStore,
+            1,
+            qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
+        )
+        root.StackView.view.pop()
     }
 
     Component.onCompleted: {
@@ -89,7 +131,28 @@ Page {
             for (var k = 0; k < menuData[i].items.length; ++k)
                 map[menuData[i].items[k].name] = menuData[i].items[k].price
         priceOf = map
+
+        // Dacă masa are deja o comandă trimisă, o reîncărcăm pentru editare.
+        var existing = root.store ? root.store.itemsFor(root.zone, root.tableNumber) : ({})
+        var loadedQty = {}
+        var count = 0
+        var total = 0
+        var hasExisting = false
+        for (var name in existing) {
+            hasExisting = true
+            var qty = existing[name]
+            loadedQty[name] = qty
+            count += qty
+            total += qty * (priceOf[name] ? priceOf[name] : 0)
+        }
+        if (hasExisting) {
+            root.qtyStore = loadedQty
+            root.orderCount = count
+            root.orderTotal = total
+        }
+
         populateCategory(currentCategory)
+        rebuildSelectedModel()
     }
 
     background: Rectangle {
@@ -240,7 +303,7 @@ Page {
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.changeQty(index, name, -1)
+                            onClicked: root.adjustQty(name, -1)
                         }
                     }
 
@@ -254,7 +317,7 @@ Page {
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.changeQty(index, name, 1)
+                            onClicked: root.adjustQty(name, 1)
                         }
                     }
                 }
@@ -265,6 +328,129 @@ Page {
                     anchors.right: parent.right
                     height: 1
                     color: theme.border
+                }
+            }
+        }
+
+        // Panou "Comandă curentă" — rezumatul produselor deja selectate, ca
+        // chelnerul să poată revedea comanda cu clientul înainte de trimitere.
+        Rectangle {
+            id: summaryPanel
+            Layout.fillWidth: true
+            Layout.preferredHeight: root.summaryExpanded
+                ? 48 + Math.min(selectedModel.count, root.summaryMaxRows) * 44
+                : 48
+            color: theme.surface
+            clip: true
+
+            Behavior on Layout.preferredHeight { NumberAnimation { duration: 120 } }
+
+            Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: theme.border }
+
+            ListModel { id: selectedModel }
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 0
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 48
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 16
+                        anchors.rightMargin: 16
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: root.orderCount > 0
+                                ? qsTr("%1 products selected").arg(root.orderCount)
+                                : qsTr("No products selected")
+                            font.pixelSize: 14 * theme.fontScale
+                            font.bold: true
+                            color: theme.textPrimary
+                        }
+
+                        Components.IconChevron {
+                            Layout.alignment: Qt.AlignVCenter
+                            color: theme.textSecondary
+                            expanded: root.summaryExpanded
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: root.orderCount > 0
+                        onClicked: root.summaryExpanded = !root.summaryExpanded
+                    }
+                }
+
+                ListView {
+                    visible: root.summaryExpanded
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.min(selectedModel.count, root.summaryMaxRows) * 44
+                    clip: true
+                    model: selectedModel
+
+                    delegate: Rectangle {
+                        width: ListView.view.width
+                        height: 44
+                        color: theme.surface
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 16
+                            anchors.rightMargin: 16
+                            spacing: 8
+
+                            Label {
+                                text: name
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                font.pixelSize: 14 * theme.fontScale
+                                color: theme.textPrimary
+                            }
+
+                            Rectangle {
+                                width: 26; height: 26; radius: 13
+                                color: theme.keyBackground
+                                Components.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
+                                MouseArea { anchors.fill: parent; onClicked: root.adjustQty(name, -1) }
+                            }
+
+                            Label {
+                                text: qty
+                                Layout.preferredWidth: 18
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pixelSize: 14 * theme.fontScale
+                                color: theme.textPrimary
+                            }
+
+                            Rectangle {
+                                width: 26; height: 26; radius: 13
+                                color: theme.primary
+                                Components.IconPlus { anchors.centerIn: parent; color: "white" }
+                                MouseArea { anchors.fill: parent; onClicked: root.adjustQty(name, 1) }
+                            }
+
+                            Label {
+                                text: qsTr("%1 MDL").arg(root.fmt(qty * price))
+                                horizontalAlignment: Text.AlignRight
+                                font.pixelSize: 14 * theme.fontScale
+                                font.bold: true
+                                color: theme.textPrimary
+                            }
+                        }
+
+                        Rectangle {
+                            anchors.bottom: parent.bottom
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            height: 1
+                            color: theme.border
+                        }
+                    }
                 }
             }
         }
@@ -297,9 +483,7 @@ Page {
                 MouseArea {
                     anchors.fill: parent
                     enabled: root.orderCount > 0
-                    onClicked: {
-                        // Pasul următor: trimitere la bucătărie + în UAMenu.
-                    }
+                    onClicked: root.submitOrder()
                 }
             }
         }

@@ -1,9 +1,10 @@
 <RCC>
-    <!-- build rev 32 -->
+    <!-- build rev 34 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>
         <file alias="AppSettings.qml">../qml/AppSettings.qml</file>
+        <file alias="OrdersStore.qml">../qml/OrdersStore.qml</file>
         <file alias="icons/settings.png">icons/settings.png</file>
         <file alias="icons/settings_white.png">icons/settings_white.png</file>
         <file alias="icons/logout.png">icons/logout.png</file>
@@ -23,6 +24,7 @@
         <file alias="components/IconLogout.qml">../qml/components/IconLogout.qml</file>
         <file alias="components/IconStock.qml">../qml/components/IconStock.qml</file>
         <file alias="components/IconPerson.qml">../qml/components/IconPerson.qml</file>
+        <file alias="components/IconChevron.qml">../qml/components/IconChevron.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>

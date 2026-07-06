@@ -21,6 +21,10 @@ ApplicationWindow {
         id: appTheme
     }
 
+    OrdersStore {
+        id: ordersStore
+    }
+
     AppSettings {
         id: appSettings
 
@@ -78,7 +82,9 @@ ApplicationWindow {
         Pages.TablesPage {
             theme: appTheme
             settings: appSettings
+            store: ordersStore
             onNewTableRequested: stackView.push(selectTablePageComponent)
+            onOrderOpened: stackView.push(orderPageComponent, { zone: zone, tableNumber: tableNumber })
             onProfileRequested: stackView.push(profilePageComponent)
             onSettingsRequested: stackView.push(settingsPageComponent)
             onStockRequested: stackView.push(stockPageComponent)
@@ -118,6 +124,8 @@ ApplicationWindow {
 
         Pages.OrderPage {
             theme: appTheme
+            settings: appSettings
+            store: ordersStore
         }
     }
 }

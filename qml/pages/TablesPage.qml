@@ -8,9 +8,11 @@ Page {
 
     property var theme
     property var settings
+    property var store
     property bool showMineOnly: true
 
     signal newTableRequested()
+    signal orderOpened(string zone, int tableNumber)
     signal profileRequested()
     signal settingsRequested()
     signal stockRequested()
@@ -66,11 +68,6 @@ Page {
         onSignOutRequested: root.StackView.view.pop(null)
     }
 
-    ListModel {
-        id: tablesModel
-        // Gol deocamdată — mesele/comenzile reale vin în pasul următor.
-    }
-
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16
@@ -101,14 +98,14 @@ Page {
             font.pixelSize: 18 * theme.fontScale
             font.bold: true
             color: theme.textPrimary
-            visible: tablesModel.count > 0
+            visible: root.store.ordersModel.count > 0
         }
 
         // Empty state — nicio comandă deschisă.
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            visible: tablesModel.count === 0
+            visible: root.store.ordersModel.count === 0
             spacing: 8
 
             Item { Layout.fillHeight: true }
@@ -160,8 +157,8 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 12
-            visible: tablesModel.count > 0
-            model: tablesModel
+            visible: root.store.ordersModel.count > 0
+            model: root.store.ordersModel
 
             delegate: Rectangle {
                 width: ListView.view.width
@@ -169,6 +166,11 @@ Page {
                 radius: 14
                 color: theme.surface
                 border.color: theme.border
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.orderOpened(zone, tableNumber)
+                }
 
                 ColumnLayout {
                     id: cardContent

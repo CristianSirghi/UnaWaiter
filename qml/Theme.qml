@@ -11,6 +11,7 @@ QtObject {
     readonly property color textSecondary: darkMode ? "#9AA0A8" : "#6B7280"
     readonly property color border: darkMode ? "#2A2D33" : "#E1E4E8"
     readonly property color success: darkMode ? "#3FC463" : "#2E9E4A"
+    readonly property color danger: darkMode ? "#E57373" : "#E53935"
     readonly property color keyBackground: darkMode ? "#282B33" : "#E7E9ED"
 
     // Multiplicator global de mărime a textului, setat din SettingsPage
