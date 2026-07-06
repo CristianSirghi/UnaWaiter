@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 34 -->
+    <!-- build rev 37 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="Theme.qml">../qml/Theme.qml</file>
@@ -25,6 +25,8 @@
         <file alias="components/IconStock.qml">../qml/components/IconStock.qml</file>
         <file alias="components/IconPerson.qml">../qml/components/IconPerson.qml</file>
         <file alias="components/IconChevron.qml">../qml/components/IconChevron.qml</file>
+        <file alias="components/IconTrash.qml">../qml/components/IconTrash.qml</file>
+        <file alias="components/ConfirmDialog.qml">../qml/components/ConfirmDialog.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>

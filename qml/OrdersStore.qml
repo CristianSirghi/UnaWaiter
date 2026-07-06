@@ -17,6 +17,12 @@ QtObject {
         return zone + "-" + tableNumber
     }
 
+    // Ordinea zonelor în listă: sala înaintea terasei. Ține comenzile grupate
+    // pe zonă, ca antetele de secțiune din TablesPage să nu se repete.
+    function zoneRank(zone) {
+        return zone === "terrace" ? 1 : 0
+    }
+
     function indexForKey(key) {
         for (var i = 0; i < ordersModel.count; ++i) {
             if (ordersModel.get(i).tableKey === key)
@@ -65,10 +71,19 @@ QtObject {
             total: total
         }
 
-        if (idx >= 0)
+        if (idx >= 0) {
             ordersModel.set(idx, entry)
-        else
-            ordersModel.append(entry)
+        } else {
+            // Inserăm după celelalte comenzi din aceeași zonă, înaintea zonei următoare.
+            var pos = ordersModel.count
+            for (var j = 0; j < ordersModel.count; ++j) {
+                if (zoneRank(ordersModel.get(j).zone) > zoneRank(zone)) {
+                    pos = j
+                    break
+                }
+            }
+            ordersModel.insert(pos, entry)
+        }
 
         return orderNo
     }

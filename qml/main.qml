@@ -11,6 +11,10 @@ ApplicationWindow {
     height: 860
     title: "UnaWaiter"
 
+    // Referință la pagina de mese, ca să putem reveni direct la ea din OrderPage
+    // (fluxul de comandă nouă trece prin SelectTablePage, deci un simplu pop nu ajunge).
+    property var tablesPage: null
+
     readonly property bool isDesktopPlatform: Qt.platform.os === "windows"
         || Qt.platform.os === "osx"
         || Qt.platform.os === "linux"
@@ -72,7 +76,7 @@ ApplicationWindow {
 
         Pages.LoginPage {
             theme: appTheme
-            onLoginConfirmed: stackView.push(tablesPageComponent)
+            onLoginConfirmed: appWindow.tablesPage = stackView.push(tablesPageComponent)
         }
     }
 
@@ -126,6 +130,9 @@ ApplicationWindow {
             theme: appTheme
             settings: appSettings
             store: ordersStore
+            // După trimitere/ștergere revenim direct la lista de mese, sărind
+            // peste SelectTablePage când comanda a fost creată nou.
+            onDone: stackView.pop(appWindow.tablesPage)
         }
     }
 }

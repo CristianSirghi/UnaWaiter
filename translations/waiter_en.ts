@@ -4,9 +4,9 @@
 <context>
     <name>AppDrawer</name>
     <message>
-        <location filename="../qml/components/AppDrawer.qml" line="+112"/>
+        <location filename="../qml/components/AppDrawer.qml" line="+101"/>
         <source>Profile</source>
-        <translation type="unfinished">Profile</translation>
+        <translation>Profile</translation>
     </message>
     <message>
         <location line="+38"/>
@@ -25,6 +25,19 @@
     </message>
 </context>
 <context>
+    <name>ConfirmDialog</name>
+    <message>
+        <location filename="../qml/components/ConfirmDialog.qml" line="+27"/>
+        <source>Confirm</source>
+        <translation>Confirm</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+</context>
+<context>
     <name>LoginPage</name>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="+39"/>
@@ -35,7 +48,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+54"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+64"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -45,22 +58,56 @@
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+65"/>
+        <location line="+60"/>
+        <location line="+70"/>
+        <location line="+342"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="-411"/>
+        <source>Waiter</source>
+        <translation>Waiter</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <location line="+81"/>
+        <location line="+241"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="-160"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+90"/>
+        <source>%1 products selected</source>
+        <translation>%1 products selected</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No products selected</source>
+        <translation>No products selected</translation>
+    </message>
+    <message>
+        <location line="+154"/>
+        <source>Delete order?</source>
+        <translation>Delete order?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The order for %1 will be removed.</source>
+        <translation>The order for %1 will be removed.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Delete</source>
+        <translation>Delete</translation>
+    </message>
+    <message>
+        <location line="-22"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -200,7 +247,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+92"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+105"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -210,12 +257,32 @@
         <translation>All</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="-83"/>
         <source>Hall</source>
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+0"/>
+        <source>Terrace</source>
+        <translation>Terrace</translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Sign out?</source>
+        <translation>Sign out?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You will be logged out of your profile.</source>
+        <translation>You will be logged out of your profile.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Sign out</source>
+        <translation>Sign out</translation>
+    </message>
+    <message>
+        <location line="+63"/>
         <source>No open orders</source>
         <translation>No open orders</translation>
     </message>

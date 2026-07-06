@@ -17,6 +17,12 @@ Page {
     signal settingsRequested()
     signal stockRequested()
 
+    // "zone" e cod intern ("hall"/"terrace") — îl traducem la afișare, ca
+    // antetele de secțiune să rămână corecte în orice limbă.
+    function zoneLabel(zone) {
+        return zone === "terrace" ? qsTr("Terrace") : qsTr("Hall")
+    }
+
     background: Rectangle {
         color: theme.background
     }
@@ -65,7 +71,17 @@ Page {
         onProfileRequested: root.profileRequested()
         onSettingsRequested: root.settingsRequested()
         onStockRequested: root.stockRequested()
-        onSignOutRequested: root.StackView.view.pop(null)
+        onSignOutRequested: signOutDialog.open()
+    }
+
+    Components.ConfirmDialog {
+        id: signOutDialog
+        theme: root.theme
+        title: qsTr("Sign out?")
+        message: qsTr("You will be logged out of your profile.")
+        confirmText: qsTr("Sign out")
+        destructive: true
+        onConfirmed: root.StackView.view.pop(null)
     }
 
     ColumnLayout {
@@ -91,14 +107,6 @@ Page {
                 ]
                 onOptionSelected: root.showMineOnly = (value === "mine")
             }
-        }
-
-        Label {
-            text: qsTr("Hall")
-            font.pixelSize: 18 * theme.fontScale
-            font.bold: true
-            color: theme.textPrimary
-            visible: root.store.ordersModel.count > 0
         }
 
         // Empty state — nicio comandă deschisă.
@@ -157,8 +165,21 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 12
+            clip: true
             visible: root.store.ordersModel.count > 0
             model: root.store.ordersModel
+
+            // Grupăm cardurile pe zonă (Sala / Terasă), cu un antet per grup.
+            section.property: "zone"
+            section.delegate: Label {
+                width: ListView.view.width
+                topPadding: 4
+                bottomPadding: 8
+                text: root.zoneLabel(section)
+                font.pixelSize: 18 * theme.fontScale
+                font.bold: true
+                color: theme.textPrimary
+            }
 
             delegate: Rectangle {
                 width: ListView.view.width
@@ -182,6 +203,7 @@ Page {
 
                     RowLayout {
                         Layout.fillWidth: true
+                        spacing: 8
 
                         Label {
                             text: tableName
@@ -189,6 +211,24 @@ Page {
                             font.bold: true
                             color: active ? theme.primary : theme.textSecondary
                         }
+
+                        // Etichetă zonă (Sala / Terasă) — distinge masa 1 din sală de masa 1 de pe terasă.
+                        Rectangle {
+                            Layout.alignment: Qt.AlignVCenter
+                            implicitWidth: zoneTag.implicitWidth + 16
+                            implicitHeight: zoneTag.implicitHeight + 6
+                            radius: height / 2
+                            color: theme.keyBackground
+
+                            Label {
+                                id: zoneTag
+                                anchors.centerIn: parent
+                                text: root.zoneLabel(zone)
+                                font.pixelSize: 11 * theme.fontScale
+                                color: theme.textSecondary
+                            }
+                        }
+
                         Item { Layout.fillWidth: true }
                         Label {
                             text: orderTime

@@ -12,6 +12,10 @@ Page {
     property string zone: ""
     property int tableNumber: 0
 
+    // Semnalăm către main.qml că am terminat (trimis sau șters) — el ne readuce
+    // la lista de mese, indiferent câte pagini sunt pe stivă.
+    signal done()
+
     // ---- Meniu mock (până vine backend-ul Oracle) ----
     readonly property var menuData: [
         { cat: "Blini", items: [
@@ -41,6 +45,8 @@ Page {
     property int currentCategory: 0
     property bool summaryExpanded: false
     readonly property int summaryMaxRows: 5
+    // true dacă masa are deja o comandă trimisă (deschisă din TablesPage) — arată butonul de ștergere.
+    property bool isEditing: false
 
     // Cantități per produs (cheie = nume, persistă la schimbarea categoriei) + preț pentru total.
     property var qtyStore: ({})
@@ -121,7 +127,12 @@ Page {
             1,
             qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
         )
-        root.StackView.view.pop()
+        root.done()
+    }
+
+    function deleteOrder() {
+        root.store.removeOrder(root.zone, root.tableNumber)
+        root.done()
     }
 
     Component.onCompleted: {
@@ -146,6 +157,7 @@ Page {
             total += qty * (priceOf[name] ? priceOf[name] : 0)
         }
         if (hasExisting) {
+            root.isEditing = true
             root.qtyStore = loadedQty
             root.orderCount = count
             root.orderTotal = total
@@ -455,7 +467,7 @@ Page {
             }
         }
 
-        // Bara de jos — trimite comanda
+        // Bara de jos — ștergere (doar la editare) + trimite comanda
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 72
@@ -463,29 +475,75 @@ Page {
 
             Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: theme.border }
 
-            Rectangle {
-                anchors.centerIn: parent
-                width: parent.width - 32
-                height: 48
-                radius: 24
-                color: root.orderCount > 0 ? theme.primary : theme.border
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
+                spacing: 12
 
-                Label {
-                    anchors.centerIn: parent
-                    text: root.orderCount > 0
-                        ? qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
-                        : qsTr("Add products")
-                    font.pixelSize: 15 * theme.fontScale
-                    font.bold: true
-                    color: root.orderCount > 0 ? "white" : theme.textSecondary
+                // Buton ștergere comandă (contur roșu; deschide dialogul de confirmare).
+                Rectangle {
+                    visible: root.isEditing
+                    Layout.preferredWidth: 48
+                    Layout.preferredHeight: 48
+                    radius: 24
+                    color: "transparent"
+                    border.width: 1.5
+                    border.color: theme.danger
+
+                    Components.IconTrash {
+                        anchors.centerIn: parent
+                        color: theme.danger
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: deleteDialog.open()
+                    }
                 }
 
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: root.orderCount > 0
-                    onClicked: root.submitOrder()
+                // Butonul principal — trimite comanda.
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 48
+                    radius: 24
+                    color: root.orderCount > 0 ? theme.primary : theme.border
+
+                    Label {
+                        anchors.fill: parent
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        text: root.orderCount > 0
+                            ? qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
+                            : qsTr("Add products")
+                        font.pixelSize: 15 * theme.fontScale
+                        font.bold: true
+                        color: root.orderCount > 0 ? "white" : theme.textSecondary
+                        // Textul lung se micșorează ca să încapă în buton, în loc să iasă pe margini.
+                        fontSizeMode: Text.HorizontalFit
+                        minimumPixelSize: 10
+                        elide: Text.ElideRight
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: root.orderCount > 0
+                        onClicked: root.submitOrder()
+                    }
                 }
             }
         }
+    }
+
+    Components.ConfirmDialog {
+        id: deleteDialog
+        theme: root.theme
+        title: qsTr("Delete order?")
+        message: qsTr("The order for %1 will be removed.").arg(qsTr("Table %1").arg(root.tableNumber))
+        confirmText: qsTr("Delete")
+        destructive: true
+        onConfirmed: root.deleteOrder()
     }
 }
