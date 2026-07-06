@@ -187,6 +187,26 @@ Page {
         rebuildSelectedModel()
     }
 
+    // Construiește lista de adaosuri a unui produs (cu cantitățile curente) pentru AddonSheet.
+    function addonListFor(productName) {
+        var list = []
+        for (var ci = 0; ci < menuData.length; ++ci) {
+            var items = menuData[ci].items
+            for (var ii = 0; ii < items.length; ++ii) {
+                if (items[ii].name === productName && items[ii].addons) {
+                    var addons = items[ii].addons
+                    for (var ai = 0; ai < addons.length; ++ai) {
+                        var a = addons[ai]
+                        var cur = (addonStore[productName] && addonStore[productName][a.name])
+                            ? addonStore[productName][a.name] : 0
+                        list.push({ name: a.name, price: a.price, qty: cur })
+                    }
+                }
+            }
+        }
+        return list
+    }
+
     // Modifică cantitatea unui adaos legat de un produs (necesită produsul-părinte prezent).
     function adjustAddon(parent, addonName, delta) {
         if ((qtyStore[parent] ? qtyStore[parent] : 0) <= 0) return
@@ -410,7 +430,7 @@ Page {
 
                             MouseArea {
                                 anchors.fill: parent
-                                onClicked: addonSheet.openFor(name)
+                                onClicked: addonSheet.openWith(name, root.addonListFor(name))
                             }
                         }
                     }
@@ -744,193 +764,10 @@ Page {
         onConfirmed: root.deleteOrder()
     }
 
-    // Panou de jos pentru alegerea adaosurilor unui produs. Strâns legat de starea
-    // paginii (addonStore), deci îl ținem inline, nu ca un component generic.
-    Popup {
+    // Sheet de jos pentru alegerea adaosurilor unui produs (vezi components/AddonSheet.qml).
+    Components.AddonSheet {
         id: addonSheet
-
-        property string parentName: ""
-
-        // Populează sheet-ul cu adaosurile produsului și cantitățile curente.
-        function openFor(productName) {
-            addonSheet.parentName = productName
-            addonSheetModel.clear()
-            for (var ci = 0; ci < root.menuData.length; ++ci) {
-                var items = root.menuData[ci].items
-                for (var ii = 0; ii < items.length; ++ii) {
-                    if (items[ii].name === productName && items[ii].addons) {
-                        var addons = items[ii].addons
-                        for (var ai = 0; ai < addons.length; ++ai) {
-                            var a = addons[ai]
-                            var cur = (root.addonStore[productName] && root.addonStore[productName][a.name])
-                                ? root.addonStore[productName][a.name] : 0
-                            addonSheetModel.append({ name: a.name, price: a.price, qty: cur })
-                        }
-                    }
-                }
-            }
-            addonSheet.open()
-        }
-
-        parent: Overlay.overlay
-        modal: true
-        dim: true
-        padding: 0
-        width: parent ? parent.width : 400
-        x: 0
-        y: parent ? parent.height - height : 0
-        height: sheetContent.implicitHeight
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-        Overlay.modal: Rectangle { color: "#99000000" }
-
-        background: Rectangle {
-            color: root.theme.surface
-            radius: 16
-        }
-
-        contentItem: ColumnLayout {
-            id: sheetContent
-            spacing: 0
-
-            // Antet: numele produsului + închidere
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.margins: 16
-                Layout.bottomMargin: 8
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 2
-                    Label {
-                        text: qsTr("Add-ons")
-                        font.pixelSize: 12 * root.theme.fontScale
-                        color: root.theme.textSecondary
-                    }
-                    Label {
-                        text: addonSheet.parentName
-                        font.pixelSize: 17 * root.theme.fontScale
-                        font.bold: true
-                        color: root.theme.textPrimary
-                        elide: Text.ElideRight
-                        Layout.fillWidth: true
-                    }
-                }
-
-                Components.IconClose {
-                    color: root.theme.textSecondary
-                    MouseArea {
-                        anchors.fill: parent
-                        anchors.margins: -10
-                        onClicked: addonSheet.close()
-                    }
-                }
-            }
-
-            Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.border }
-
-            ListView {
-                Layout.fillWidth: true
-                Layout.preferredHeight: Math.min(addonSheetModel.count, 5) * 56
-                clip: true
-                interactive: addonSheetModel.count > 5
-                model: ListModel { id: addonSheetModel }
-
-                delegate: Rectangle {
-                    width: ListView.view.width
-                    height: 56
-                    color: root.theme.surface
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 16
-                        anchors.rightMargin: 16
-                        spacing: 10
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 2
-                            Label {
-                                text: name
-                                font.pixelSize: 15 * root.theme.fontScale
-                                color: root.theme.textPrimary
-                            }
-                            Label {
-                                text: qsTr("+%1 MDL").arg(root.fmt(price))
-                                font.pixelSize: 12 * root.theme.fontScale
-                                color: root.theme.textSecondary
-                            }
-                        }
-
-                        Rectangle {
-                            visible: qty > 0
-                            width: 30; height: 30; radius: 15
-                            color: root.theme.keyBackground
-                            Components.IconMinus { anchors.centerIn: parent; color: root.theme.textPrimary }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    root.adjustAddon(addonSheet.parentName, name, -1)
-                                    addonSheetModel.setProperty(index, "qty", model.qty - 1)
-                                }
-                            }
-                        }
-
-                        Label {
-                            visible: qty > 0
-                            text: qty
-                            Layout.preferredWidth: 18
-                            horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 15 * root.theme.fontScale
-                            font.bold: true
-                            color: root.theme.textPrimary
-                        }
-
-                        Rectangle {
-                            width: 30; height: 30; radius: 15
-                            color: root.theme.primary
-                            Components.IconPlus { anchors.centerIn: parent; color: "white" }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    root.adjustAddon(addonSheet.parentName, name, 1)
-                                    addonSheetModel.setProperty(index, "qty", model.qty + 1)
-                                }
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        anchors.bottom: parent.bottom
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        height: 1
-                        color: root.theme.border
-                    }
-                }
-            }
-
-            // Buton "Gata"
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.margins: 16
-                Layout.preferredHeight: 48
-                radius: 24
-                color: root.theme.primary
-
-                Label {
-                    anchors.centerIn: parent
-                    text: qsTr("Done")
-                    font.pixelSize: 15 * root.theme.fontScale
-                    font.bold: true
-                    color: "white"
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: addonSheet.close()
-                }
-            }
-        }
+        theme: root.theme
+        onAddonAdjusted: root.adjustAddon(addonSheet.productName, addonName, delta)
     }
 }

@@ -39,6 +39,27 @@ Popup {
     width: Math.min(320, (parent ? parent.width : 320) - 48)
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
+    // Dialogul e centrat (anchors.centerIn), nu ancorat jos ca AddonSheet, deci
+    // aici scale + fade se potrivește mai bine decât o alunecare — "apare" din
+    // centru în loc să urce de undeva.
+    //
+    // IMPORTANT: scale se animă pe contentItem/background, NU pe root (popup-ul
+    // însuși). anchors.centerIn se calculează pe geometria lui root — dacă am
+    // anima scale acolo, ultima valoare animată (0.9) rămâne "lipită" de root
+    // după închidere, iar centrarea următoare se calculează cu acel scale rezidual,
+    // deplasând popup-ul cu exact jumătate din diferența de mărime (confirmat din
+    // log: 272×(1-0.9)/2 = 13.6px, 165×(1-0.9)/2 = 8.25px — exact deriva observată).
+    enter: Transition {
+        NumberAnimation { target: root.contentItem; property: "scale"; from: 0.9; to: 1.0; duration: 160; easing.type: Easing.OutCubic }
+        NumberAnimation { target: root.background; property: "scale"; from: 0.9; to: 1.0; duration: 160; easing.type: Easing.OutCubic }
+        NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 140 }
+    }
+    exit: Transition {
+        NumberAnimation { target: root.contentItem; property: "scale"; from: 1.0; to: 0.9; duration: 120; easing.type: Easing.InCubic }
+        NumberAnimation { target: root.background; property: "scale"; from: 1.0; to: 0.9; duration: 120; easing.type: Easing.InCubic }
+        NumberAnimation { property: "opacity"; from: 1; to: 0; duration: 110 }
+    }
+
     Overlay.modal: Rectangle {
         color: "#99000000"
     }

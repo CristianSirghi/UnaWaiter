@@ -2,6 +2,24 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>AddonSheet</name>
+    <message>
+        <location filename="../qml/components/AddonSheet.qml" line="+72"/>
+        <source>Add-ons</source>
+        <translation>Add-ons</translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>+%1 MDL</source>
+        <translation>+%1 MDL</translation>
+    </message>
+    <message>
+        <location line="+64"/>
+        <source>Done</source>
+        <translation>Done</translation>
+    </message>
+</context>
+<context>
     <name>AppDrawer</name>
     <message>
         <location filename="../qml/components/AppDrawer.qml" line="+101"/>
@@ -58,7 +76,7 @@
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+130"/>
+        <location line="+150"/>
         <location line="+75"/>
         <location line="+455"/>
         <source>Table %1</source>
@@ -88,12 +106,11 @@
     </message>
     <message>
         <location line="+1"/>
-        <location line="+401"/>
         <source>Add-ons</source>
         <translation>Add-ons</translation>
     </message>
     <message>
-        <location line="-247"/>
+        <location line="+154"/>
         <source>%1 products selected</source>
         <translation>%1 products selected</translation>
     </message>
@@ -118,17 +135,15 @@
         <translation>Delete</translation>
     </message>
     <message>
-        <location line="+117"/>
         <source>+%1 MDL</source>
-        <translation>+%1 MDL</translation>
+        <translation type="vanished">+%1 MDL</translation>
     </message>
     <message>
-        <location line="+64"/>
         <source>Done</source>
-        <translation>Done</translation>
+        <translation type="vanished">Done</translation>
     </message>
     <message>
-        <location line="-207"/>
+        <location line="-26"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
