@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../components" as Components
+import "../components/controls" as Components
 
 // Pagina de administrare: setari de sistem (server PHP + imprimanta de retea),
 // setate o data de administrator/la instalare. Separata de Setari (Aspect),

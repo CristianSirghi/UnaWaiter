@@ -1,7 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../components" as Components
+import "../components/controls" as Components
+import "../components/icons" as Icons
 
 Page {
     id: root
@@ -453,7 +454,7 @@ Page {
                         Layout.alignment: Qt.AlignVCenter
                         width: 34; height: 34; radius: 17
                         color: theme.keyBackground
-                        Components.IconMinus {
+                        Icons.IconMinus {
                             anchors.centerIn: parent
                             color: theme.textPrimary
                         }
@@ -468,7 +469,7 @@ Page {
                         Layout.alignment: Qt.AlignVCenter
                         width: 34; height: 34; radius: 17
                         color: theme.primary
-                        Components.IconPlus {
+                        Icons.IconPlus {
                             anchors.centerIn: parent
                             color: "white"
                         }
@@ -525,7 +526,7 @@ Page {
                             Layout.alignment: Qt.AlignVCenter
                             spacing: 6
 
-                            Components.IconPerson {
+                            Icons.IconPerson {
                                 Layout.preferredWidth: 18
                                 Layout.preferredHeight: 18
                                 color: theme.textSecondary
@@ -535,7 +536,7 @@ Page {
                                 width: 26; height: 26; radius: 13
                                 color: theme.keyBackground
                                 opacity: root.guestCount > 1 ? 1 : 0.4
-                                Components.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
+                                Icons.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: if (root.guestCount > 1) root.guestCount -= 1
@@ -554,7 +555,7 @@ Page {
                             Rectangle {
                                 width: 26; height: 26; radius: 13
                                 color: theme.primary
-                                Components.IconPlus { anchors.centerIn: parent; color: "white" }
+                                Icons.IconPlus { anchors.centerIn: parent; color: "white" }
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: root.guestCount += 1
@@ -584,7 +585,7 @@ Page {
                                     elide: Text.ElideRight
                                 }
 
-                                Components.IconChevron {
+                                Icons.IconChevron {
                                     Layout.alignment: Qt.AlignVCenter
                                     color: theme.textSecondary
                                     expanded: root.summaryExpanded
@@ -638,7 +639,7 @@ Page {
                             Rectangle {
                                 width: 26; height: 26; radius: 13
                                 color: theme.keyBackground
-                                Components.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
+                                Icons.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: isAddon ? root.adjustAddon(parentName, name, -1) : root.adjustQty(name, -1)
@@ -656,7 +657,7 @@ Page {
                             Rectangle {
                                 width: 26; height: 26; radius: 13
                                 color: theme.primary
-                                Components.IconPlus { anchors.centerIn: parent; color: "white" }
+                                Icons.IconPlus { anchors.centerIn: parent; color: "white" }
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: isAddon ? root.adjustAddon(parentName, name, 1) : root.adjustQty(name, 1)
@@ -708,7 +709,7 @@ Page {
                     border.width: 1.5
                     border.color: theme.danger
 
-                    Components.IconTrash {
+                    Icons.IconTrash {
                         anchors.centerIn: parent
                         color: theme.danger
                     }

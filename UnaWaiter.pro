@@ -3,16 +3,18 @@ CONFIG += release
 
 # Include paths for C++ headers
 INCLUDEPATH += \
-    src
+    src \
+    src/core \
+    src/printing
 
 HEADERS += \
-    src/translationmanager.h \
-    src/printermanager.h
+    src/core/translationmanager.h \
+    src/printing/printermanager.h
 
 SOURCES += \
     src/main.cpp \
-    src/translationmanager.cpp \
-    src/printermanager.cpp
+    src/core/translationmanager.cpp \
+    src/printing/printermanager.cpp
 
 RESOURCES += resources/qml.qrc
 

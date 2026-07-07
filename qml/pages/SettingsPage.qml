@@ -1,7 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../components" as Components
+import "../components/controls" as Components
+import "../components/icons" as Icons
 
 // Setari de aspect, pe care le poate schimba orice chelner (limba, tema,
 // marime text). Setarile de sistem (server, imprimanta) sunt pe pagina
@@ -164,7 +165,7 @@ Page {
                     anchors.rightMargin: 16
                     spacing: 12
 
-                    Components.IconSettings {
+                    Icons.IconSettings {
                         Layout.preferredWidth: 22
                         Layout.preferredHeight: 22
                         dark: theme.darkMode
@@ -188,7 +189,7 @@ Page {
                         }
                     }
 
-                    Components.IconChevron {
+                    Icons.IconChevron {
                         Layout.preferredWidth: 16
                         Layout.preferredHeight: 16
                         color: theme.textSecondary

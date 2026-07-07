@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../icons"
 
 // Meniu lateral (hamburger) — Profil / Setări / Stocuri / Deconectare.
 // Folosește Drawer-ul standard Qt Quick Controls (edge-swipe, dimming,

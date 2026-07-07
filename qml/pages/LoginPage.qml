@@ -1,7 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../components" as Components
+import "../components/controls" as Components
+import "../components/icons" as Icons
 
 Page {
     id: root
@@ -104,13 +105,13 @@ Page {
                         color: theme.textPrimary
                     }
 
-                    Components.IconClose {
+                    Icons.IconClose {
                         visible: keyDelegate.isDelete
                         anchors.centerIn: parent
                         color: theme.textPrimary
                     }
 
-                    Components.IconCheck {
+                    Icons.IconCheck {
                         visible: keyDelegate.isConfirm
                         anchors.centerIn: parent
                         color: keyDelegate.isConfirmEnabled ? theme.primary : theme.textSecondary

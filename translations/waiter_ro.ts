@@ -4,7 +4,7 @@
 <context>
     <name>AddonSheet</name>
     <message>
-        <location filename="../qml/components/AddonSheet.qml" line="+85"/>
+        <location filename="../qml/components/controls/AddonSheet.qml" line="+86"/>
         <source>Add-ons</source>
         <translation>Adaosuri</translation>
     </message>
@@ -101,7 +101,7 @@
 <context>
     <name>AppDrawer</name>
     <message>
-        <location filename="../qml/components/AppDrawer.qml" line="+101"/>
+        <location filename="../qml/components/controls/AppDrawer.qml" line="+102"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
@@ -124,7 +124,7 @@
 <context>
     <name>ConfirmDialog</name>
     <message>
-        <location filename="../qml/components/ConfirmDialog.qml" line="+27"/>
+        <location filename="../qml/components/controls/ConfirmDialog.qml" line="+27"/>
         <source>Confirm</source>
         <translation>Confirmă</translation>
     </message>
@@ -137,7 +137,7 @@
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+39"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+40"/>
         <source>Enter PIN</source>
         <translation>Introduceți PIN-ul</translation>
     </message>
@@ -145,7 +145,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+81"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+82"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -235,7 +235,7 @@
 <context>
     <name>PrinterDiscoveryDialog</name>
     <message>
-        <location filename="../qml/components/PrinterDiscoveryDialog.qml" line="+104"/>
+        <location filename="../qml/components/controls/PrinterDiscoveryDialog.qml" line="+104"/>
         <source>Find printer</source>
         <translation>Caută imprimantă</translation>
     </message>
@@ -303,7 +303,7 @@
 <context>
     <name>PrinterManager</name>
     <message>
-        <location filename="../src/printermanager.cpp" line="+77"/>
+        <location filename="../src/printing/printermanager.cpp" line="+77"/>
         <source>Invalid printer port.</source>
         <translation>Port de imprimantă invalid.</translation>
     </message>
@@ -417,7 +417,7 @@
         <translation type="vanished">Imprimantă selectată: %1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+35"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+36"/>
         <source>Settings</source>
         <translation>Setări</translation>
     </message>
@@ -555,7 +555,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+105"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+106"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>

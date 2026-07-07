@@ -1,7 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../components" as Components
+import "../components/controls" as Components
+import "../components/icons" as Icons
 
 Page {
     id: root
@@ -55,7 +56,7 @@ Page {
 
         Item { Layout.fillWidth: true }
 
-        Components.IconHamburger {
+        Icons.IconHamburger {
             color: theme.textPrimary
             onClicked: navDrawer.open()
         }

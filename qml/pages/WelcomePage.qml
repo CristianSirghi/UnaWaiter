@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../components" as Components
+import "../components/icons" as Icons
 
 Page {
     id: root
@@ -33,7 +33,7 @@ Page {
 
             Item { Layout.fillWidth: true }
 
-            Components.IconSettings {
+            Icons.IconSettings {
                 color: theme.textPrimary
                 dark: theme.darkMode
                 onClicked: root.settingsRequested()

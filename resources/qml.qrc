@@ -1,10 +1,10 @@
 <RCC>
-    <!-- build rev 48 -->
+    <!-- build rev 49 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
-        <file alias="Theme.qml">../qml/Theme.qml</file>
-        <file alias="AppSettings.qml">../qml/AppSettings.qml</file>
-        <file alias="OrdersStore.qml">../qml/OrdersStore.qml</file>
+        <file alias="theme/Theme.qml">../qml/theme/Theme.qml</file>
+        <file alias="app/AppSettings.qml">../qml/app/AppSettings.qml</file>
+        <file alias="app/OrdersStore.qml">../qml/app/OrdersStore.qml</file>
         <file alias="icons/settings.png">icons/settings.png</file>
         <file alias="icons/settings_white.png">icons/settings_white.png</file>
         <file alias="icons/logout.png">icons/logout.png</file>
@@ -12,24 +12,24 @@
         <file alias="i18n/waiter_en.qm">../translations/waiter_en.qm</file>
         <file alias="i18n/waiter_ro.qm">../translations/waiter_ro.qm</file>
         <file alias="i18n/waiter_ru.qm">../translations/waiter_ru.qm</file>
-        <file alias="components/BackButton.qml">../qml/components/BackButton.qml</file>
-        <file alias="components/IconClose.qml">../qml/components/IconClose.qml</file>
-        <file alias="components/IconCheck.qml">../qml/components/IconCheck.qml</file>
-        <file alias="components/IconHamburger.qml">../qml/components/IconHamburger.qml</file>
-        <file alias="components/IconPlus.qml">../qml/components/IconPlus.qml</file>
-        <file alias="components/IconMinus.qml">../qml/components/IconMinus.qml</file>
-        <file alias="components/IconSettings.qml">../qml/components/IconSettings.qml</file>
-        <file alias="components/SegmentedControl.qml">../qml/components/SegmentedControl.qml</file>
-        <file alias="components/AppDrawer.qml">../qml/components/AppDrawer.qml</file>
-        <file alias="components/IconLogout.qml">../qml/components/IconLogout.qml</file>
-        <file alias="components/IconStock.qml">../qml/components/IconStock.qml</file>
-        <file alias="components/IconPerson.qml">../qml/components/IconPerson.qml</file>
-        <file alias="components/IconChevron.qml">../qml/components/IconChevron.qml</file>
-        <file alias="components/IconTrash.qml">../qml/components/IconTrash.qml</file>
-        <file alias="components/ConfirmDialog.qml">../qml/components/ConfirmDialog.qml</file>
-        <file alias="components/AddonSheet.qml">../qml/components/AddonSheet.qml</file>
-        <file alias="components/TextInputField.qml">../qml/components/TextInputField.qml</file>
-        <file alias="components/PrinterDiscoveryDialog.qml">../qml/components/PrinterDiscoveryDialog.qml</file>
+        <file alias="components/icons/IconClose.qml">../qml/components/icons/IconClose.qml</file>
+        <file alias="components/icons/IconCheck.qml">../qml/components/icons/IconCheck.qml</file>
+        <file alias="components/icons/IconHamburger.qml">../qml/components/icons/IconHamburger.qml</file>
+        <file alias="components/icons/IconPlus.qml">../qml/components/icons/IconPlus.qml</file>
+        <file alias="components/icons/IconMinus.qml">../qml/components/icons/IconMinus.qml</file>
+        <file alias="components/icons/IconSettings.qml">../qml/components/icons/IconSettings.qml</file>
+        <file alias="components/icons/IconLogout.qml">../qml/components/icons/IconLogout.qml</file>
+        <file alias="components/icons/IconStock.qml">../qml/components/icons/IconStock.qml</file>
+        <file alias="components/icons/IconPerson.qml">../qml/components/icons/IconPerson.qml</file>
+        <file alias="components/icons/IconChevron.qml">../qml/components/icons/IconChevron.qml</file>
+        <file alias="components/icons/IconTrash.qml">../qml/components/icons/IconTrash.qml</file>
+        <file alias="components/controls/BackButton.qml">../qml/components/controls/BackButton.qml</file>
+        <file alias="components/controls/SegmentedControl.qml">../qml/components/controls/SegmentedControl.qml</file>
+        <file alias="components/controls/AppDrawer.qml">../qml/components/controls/AppDrawer.qml</file>
+        <file alias="components/controls/ConfirmDialog.qml">../qml/components/controls/ConfirmDialog.qml</file>
+        <file alias="components/controls/AddonSheet.qml">../qml/components/controls/AddonSheet.qml</file>
+        <file alias="components/controls/TextInputField.qml">../qml/components/controls/TextInputField.qml</file>
+        <file alias="components/controls/PrinterDiscoveryDialog.qml">../qml/components/controls/PrinterDiscoveryDialog.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>

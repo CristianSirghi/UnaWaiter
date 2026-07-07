@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../icons"
 
 // Panou de jos pentru alegerea adaosurilor unui produs.
 // Nu deține starea comenzii: primește lista de adaosuri prin openWith(...) și
