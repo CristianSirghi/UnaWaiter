@@ -4,7 +4,7 @@
 <context>
     <name>AddonSheet</name>
     <message>
-        <location filename="../qml/components/AddonSheet.qml" line="+72"/>
+        <location filename="../qml/components/AddonSheet.qml" line="+85"/>
         <source>Add-ons</source>
         <translation>Add-ons</translation>
     </message>
@@ -154,6 +154,128 @@
     </message>
 </context>
 <context>
+    <name>PrinterDiscoveryDialog</name>
+    <message>
+        <location filename="../qml/components/PrinterDiscoveryDialog.qml" line="+104"/>
+        <source>Find printer</source>
+        <translation>Find printer</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Network %1</source>
+        <translation>Network %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Local network</source>
+        <translation>Local network</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Scanning %1/%2</source>
+        <translation>Scanning %1/%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 printers found</source>
+        <translation>%1 printers found</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>SCANNING</source>
+        <translation>SCANNING</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>READY</source>
+        <translation>READY</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Raw TCP printer</source>
+        <translation>Raw TCP printer</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Scanning...</source>
+        <translation>Scanning...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No printers found</source>
+        <translation>No printers found</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Rescan</source>
+        <translation>Rescan</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Use</source>
+        <translation>Use</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterManager</name>
+    <message>
+        <location filename="../src/printermanager.cpp" line="+77"/>
+        <source>Invalid printer port.</source>
+        <translation>Invalid printer port.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No local Wi-Fi network was found for scanning.</source>
+        <translation>No local Wi-Fi network was found for scanning.</translation>
+    </message>
+    <message>
+        <location line="+264"/>
+        <source>Raw printer candidate %1:%2</source>
+        <translation>Raw printer candidate %1:%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 %2:%3</source>
+        <translation>%1 %2:%3</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Printer IP address is not set.</source>
+        <translation>Printer IP address is not set.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Could not connect to printer %1:%2.</source>
+        <translation>Could not connect to printer %1:%2.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+10"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Failed to send data to printer.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>IP address is empty.</source>
+        <translation>IP address is empty.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Printer connected successfully.</source>
+        <translation>Printer connected successfully.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not connect to printer. Check IP and network.</source>
+        <translation>Could not connect to printer. Check IP and network.</translation>
+    </message>
+</context>
+<context>
     <name>ProfilePage</name>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="+39"/>
@@ -212,12 +334,17 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+29"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+33"/>
+        <source>Printer selected: %1</source>
+        <translation>Printer selected: %1</translation>
+    </message>
+    <message>
+        <location line="+21"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+39"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
@@ -255,6 +382,72 @@
         <location line="+1"/>
         <source>Large</source>
         <translation>Large</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Server</source>
+        <translation>Server</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>https://server/oracle_waiter.php</source>
+        <translation>https://server/oracle_waiter.php</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Printer</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>No printer selected</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Printer IP</source>
+        <translation>Printer IP</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Search printers</source>
+        <translation>Search printers</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Testing...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Print test receipt</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Printing...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Test receipt sent.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Failed to send data to printer.</translation>
     </message>
 </context>
 <context>

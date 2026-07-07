@@ -44,6 +44,11 @@ ApplicationWindow {
         property alias darkMode: appTheme.darkMode
         property alias fontScale: appTheme.fontScale
         property alias waiterName: appSettings.waiterName
+        // Server + imprimantă (setate din secțiunile noi din Setări).
+        property alias serverUrl: appSettings.serverUrl
+        property alias printerIp: appSettings.printerIp
+        property alias printerPort: appSettings.printerPort
+        property alias printerName: appSettings.printerName
     }
 
     background: Rectangle {

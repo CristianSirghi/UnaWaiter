@@ -3,6 +3,7 @@
 #include <QQmlContext>
 
 #include "translationmanager.h"
+#include "printermanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +17,9 @@ int main(int argc, char *argv[])
 
     TranslationManager translationManager(&engine);
     engine.rootContext()->setContextProperty(QStringLiteral("translationManager"), &translationManager);
+
+    PrinterManager printerManager;
+    engine.rootContext()->setContextProperty(QStringLiteral("printerManager"), &printerManager);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(

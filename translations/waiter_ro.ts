@@ -4,7 +4,7 @@
 <context>
     <name>AddonSheet</name>
     <message>
-        <location filename="../qml/components/AddonSheet.qml" line="+72"/>
+        <location filename="../qml/components/AddonSheet.qml" line="+85"/>
         <source>Add-ons</source>
         <translation>Adaosuri</translation>
     </message>
@@ -154,6 +154,128 @@
     </message>
 </context>
 <context>
+    <name>PrinterDiscoveryDialog</name>
+    <message>
+        <location filename="../qml/components/PrinterDiscoveryDialog.qml" line="+104"/>
+        <source>Find printer</source>
+        <translation>Caută imprimantă</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Network %1</source>
+        <translation>Rețea %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Local network</source>
+        <translation>Rețea locală</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Scanning %1/%2</source>
+        <translation>Scanare %1/%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 printers found</source>
+        <translation>%1 imprimante găsite</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>SCANNING</source>
+        <translation>SCANARE</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>READY</source>
+        <translation>GATA</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Raw TCP printer</source>
+        <translation>Imprimantă TCP</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Scanning...</source>
+        <translation>Se scanează...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No printers found</source>
+        <translation>Nicio imprimantă găsită</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Cancel</source>
+        <translation>Anulează</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Rescan</source>
+        <translation>Rescanează</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Use</source>
+        <translation>Folosește</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterManager</name>
+    <message>
+        <location filename="../src/printermanager.cpp" line="+77"/>
+        <source>Invalid printer port.</source>
+        <translation>Port de imprimantă invalid.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No local Wi-Fi network was found for scanning.</source>
+        <translation>Nu s-a găsit nicio rețea Wi-Fi locală pentru scanare.</translation>
+    </message>
+    <message>
+        <location line="+264"/>
+        <source>Raw printer candidate %1:%2</source>
+        <translation>Candidat imprimantă %1:%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 %2:%3</source>
+        <translation>%1 %2:%3</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Printer IP address is not set.</source>
+        <translation>Adresa IP a imprimantei nu este setată.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Could not connect to printer %1:%2.</source>
+        <translation>Nu s-a putut conecta la imprimanta %1:%2.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+10"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Trimiterea datelor către imprimantă a eșuat.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>IP address is empty.</source>
+        <translation>Adresa IP este goală.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Printer connected successfully.</source>
+        <translation>Imprimanta s-a conectat cu succes.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not connect to printer. Check IP and network.</source>
+        <translation>Nu s-a putut conecta la imprimantă. Verificați IP-ul și rețeaua.</translation>
+    </message>
+</context>
+<context>
     <name>ProfilePage</name>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="+39"/>
@@ -212,12 +334,17 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+29"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+33"/>
+        <source>Printer selected: %1</source>
+        <translation>Imprimantă selectată: %1</translation>
+    </message>
+    <message>
+        <location line="+21"/>
         <source>Settings</source>
         <translation>Setări</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+39"/>
         <source>Language</source>
         <translation>Limbă</translation>
     </message>
@@ -255,6 +382,72 @@
         <location line="+1"/>
         <source>Large</source>
         <translation>Mare</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Server</source>
+        <translation>Server</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>https://server/oracle_waiter.php</source>
+        <translation>https://server/oracle_waiter.php</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Imprimantă</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>Nicio imprimantă selectată</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Printer IP</source>
+        <translation>IP imprimantă</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Search printers</source>
+        <translation>Caută imprimante</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Se testează...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Tipărește bon de test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Se tipărește...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Bonul de test a fost trimis.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Trimiterea datelor către imprimantă a eșuat.</translation>
     </message>
 </context>
 <context>

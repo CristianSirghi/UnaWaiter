@@ -4,7 +4,7 @@
 <context>
     <name>AddonSheet</name>
     <message>
-        <location filename="../qml/components/AddonSheet.qml" line="+72"/>
+        <location filename="../qml/components/AddonSheet.qml" line="+85"/>
         <source>Add-ons</source>
         <translation>Добавки</translation>
     </message>
@@ -154,6 +154,128 @@
     </message>
 </context>
 <context>
+    <name>PrinterDiscoveryDialog</name>
+    <message>
+        <location filename="../qml/components/PrinterDiscoveryDialog.qml" line="+104"/>
+        <source>Find printer</source>
+        <translation>Найти принтер</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Network %1</source>
+        <translation>Сеть %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Local network</source>
+        <translation>Локальная сеть</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Scanning %1/%2</source>
+        <translation>Сканирование %1/%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 printers found</source>
+        <translation>Найдено принтеров: %1</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>SCANNING</source>
+        <translation>СКАНИРОВАНИЕ</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>READY</source>
+        <translation>ГОТОВО</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Raw TCP printer</source>
+        <translation>TCP-принтер</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Scanning...</source>
+        <translation>Сканирование...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No printers found</source>
+        <translation>Принтеры не найдены</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Rescan</source>
+        <translation>Сканировать снова</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Use</source>
+        <translation>Выбрать</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterManager</name>
+    <message>
+        <location filename="../src/printermanager.cpp" line="+77"/>
+        <source>Invalid printer port.</source>
+        <translation>Неверный порт принтера.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No local Wi-Fi network was found for scanning.</source>
+        <translation>Локальная Wi-Fi сеть для сканирования не найдена.</translation>
+    </message>
+    <message>
+        <location line="+264"/>
+        <source>Raw printer candidate %1:%2</source>
+        <translation>Найденный принтер %1:%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 %2:%3</source>
+        <translation>%1 %2:%3</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Printer IP address is not set.</source>
+        <translation>IP-адрес принтера не указан.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Could not connect to printer %1:%2.</source>
+        <translation>Не удалось подключиться к принтеру %1:%2.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+10"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Не удалось отправить данные на принтер.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>IP address is empty.</source>
+        <translation>IP-адрес не указан.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Printer connected successfully.</source>
+        <translation>Принтер успешно подключен.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not connect to printer. Check IP and network.</source>
+        <translation>Не удалось подключиться к принтеру. Проверьте IP и сеть.</translation>
+    </message>
+</context>
+<context>
     <name>ProfilePage</name>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="+39"/>
@@ -212,12 +334,17 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+29"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+33"/>
+        <source>Printer selected: %1</source>
+        <translation>Принтер выбран: %1</translation>
+    </message>
+    <message>
+        <location line="+21"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+39"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
@@ -255,6 +382,72 @@
         <location line="+1"/>
         <source>Large</source>
         <translation>Крупный</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Server</source>
+        <translation>Сервер</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>https://server/oracle_waiter.php</source>
+        <translation>https://server/oracle_waiter.php</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Принтер</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>Принтер не выбран</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Printer IP</source>
+        <translation>IP принтера</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Port</source>
+        <translation>Порт</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Search printers</source>
+        <translation>Найти принтеры</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Проверка...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Печать тестового чека</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Печать...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Тестовый чек отправлен.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Не удалось отправить данные на принтер.</translation>
     </message>
 </context>
 <context>

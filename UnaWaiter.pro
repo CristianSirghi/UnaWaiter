@@ -1,4 +1,4 @@
-QT += quick qml gui core
+QT += quick qml gui core network
 CONFIG += release
 
 # Include paths for C++ headers
@@ -6,11 +6,13 @@ INCLUDEPATH += \
     src
 
 HEADERS += \
-    src/translationmanager.h
+    src/translationmanager.h \
+    src/printermanager.h
 
 SOURCES += \
     src/main.cpp \
-    src/translationmanager.cpp
+    src/translationmanager.cpp \
+    src/printermanager.cpp
 
 RESOURCES += resources/qml.qrc
 
