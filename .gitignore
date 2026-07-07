@@ -15,6 +15,3 @@ UnaWaiter.pro.user
 
 # Claude Code local settings
 .claude/settings.local.json
-
-# Compiled translations (regenerated from .ts via lrelease)
-translations/*.qm
