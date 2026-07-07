@@ -20,6 +20,85 @@
     </message>
 </context>
 <context>
+    <name>AdminPage</name>
+    <message>
+        <location filename="../qml/pages/AdminPage.qml" line="+24"/>
+        <source>Printer selected: %1</source>
+        <translation>Принтер выбран: %1</translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>Administration</source>
+        <translation>Администрирование</translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Server</source>
+        <translation>Сервер</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>https://server/oracle_waiter.php</source>
+        <translation>https://server/oracle_waiter.php</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Принтер</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>Принтер не выбран</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Printer IP</source>
+        <translation>IP принтера</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Port</source>
+        <translation>Порт</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Search printers</source>
+        <translation>Найти принтеры</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Проверка...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Печать тестового чека</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Печать...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Тестовый чек отправлен.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Не удалось отправить данные на принтер.</translation>
+    </message>
+</context>
+<context>
     <name>AppDrawer</name>
     <message>
         <location filename="../qml/components/AppDrawer.qml" line="+101"/>
@@ -334,17 +413,21 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+33"/>
         <source>Printer selected: %1</source>
-        <translation>Принтер выбран: %1</translation>
+        <translation type="vanished">Принтер выбран: %1</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+35"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+26"/>
+        <source>Appearance</source>
+        <translation>Оформление</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
@@ -384,70 +467,66 @@
         <translation>Крупный</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+40"/>
+        <source>Administration</source>
+        <translation>Администрирование</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Server, printer</source>
+        <translation>Сервер, принтер</translation>
+    </message>
+    <message>
         <source>Server</source>
-        <translation>Сервер</translation>
+        <translation type="vanished">Сервер</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>https://server/oracle_waiter.php</source>
-        <translation>https://server/oracle_waiter.php</translation>
+        <translation type="vanished">https://server/oracle_waiter.php</translation>
     </message>
     <message>
-        <location line="+12"/>
-        <location line="+37"/>
         <source>Printer</source>
-        <translation>Принтер</translation>
+        <translation type="vanished">Принтер</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No printer selected</source>
-        <translation>Принтер не выбран</translation>
+        <translation type="vanished">Принтер не выбран</translation>
     </message>
     <message>
-        <location line="+28"/>
         <source>Printer IP</source>
-        <translation>IP принтера</translation>
+        <translation type="vanished">IP принтера</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location line="+22"/>
         <source>Search printers</source>
-        <translation>Найти принтеры</translation>
+        <translation type="vanished">Найти принтеры</translation>
     </message>
     <message>
-        <location line="+21"/>
         <source>Test</source>
-        <translation>Проверить</translation>
+        <translation type="vanished">Проверить</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>Testing...</source>
-        <translation>Проверка...</translation>
+        <translation type="vanished">Проверка...</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Print test receipt</source>
-        <translation>Печать тестового чека</translation>
+        <translation type="vanished">Печать тестового чека</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>Printing...</source>
-        <translation>Печать...</translation>
+        <translation type="vanished">Печать...</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Test receipt sent.</source>
-        <translation>Тестовый чек отправлен.</translation>
+        <translation type="vanished">Тестовый чек отправлен.</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Failed to send data to printer.</source>
-        <translation>Не удалось отправить данные на принтер.</translation>
+        <translation type="vanished">Не удалось отправить данные на принтер.</translation>
     </message>
 </context>
 <context>

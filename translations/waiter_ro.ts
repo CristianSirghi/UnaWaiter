@@ -20,6 +20,85 @@
     </message>
 </context>
 <context>
+    <name>AdminPage</name>
+    <message>
+        <location filename="../qml/pages/AdminPage.qml" line="+24"/>
+        <source>Printer selected: %1</source>
+        <translation>Imprimantă selectată: %1</translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>Administration</source>
+        <translation>Administrare</translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Server</source>
+        <translation>Server</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>https://server/oracle_waiter.php</source>
+        <translation>https://server/oracle_waiter.php</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Imprimantă</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>Nicio imprimantă selectată</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Printer IP</source>
+        <translation>IP imprimantă</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Search printers</source>
+        <translation>Caută imprimante</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Se testează...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Tipărește bon de test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Se tipărește...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Bonul de test a fost trimis.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Trimiterea datelor către imprimantă a eșuat.</translation>
+    </message>
+</context>
+<context>
     <name>AppDrawer</name>
     <message>
         <location filename="../qml/components/AppDrawer.qml" line="+101"/>
@@ -334,17 +413,21 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+33"/>
         <source>Printer selected: %1</source>
-        <translation>Imprimantă selectată: %1</translation>
+        <translation type="vanished">Imprimantă selectată: %1</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+35"/>
         <source>Settings</source>
         <translation>Setări</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+26"/>
+        <source>Appearance</source>
+        <translation>Aspect</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Language</source>
         <translation>Limbă</translation>
     </message>
@@ -384,70 +467,66 @@
         <translation>Mare</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+40"/>
+        <source>Administration</source>
+        <translation>Administrare</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Server, printer</source>
+        <translation>Server, imprimantă</translation>
+    </message>
+    <message>
         <source>Server</source>
-        <translation>Server</translation>
+        <translation type="vanished">Server</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>https://server/oracle_waiter.php</source>
-        <translation>https://server/oracle_waiter.php</translation>
+        <translation type="vanished">https://server/oracle_waiter.php</translation>
     </message>
     <message>
-        <location line="+12"/>
-        <location line="+37"/>
         <source>Printer</source>
-        <translation>Imprimantă</translation>
+        <translation type="vanished">Imprimantă</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No printer selected</source>
-        <translation>Nicio imprimantă selectată</translation>
+        <translation type="vanished">Nicio imprimantă selectată</translation>
     </message>
     <message>
-        <location line="+28"/>
         <source>Printer IP</source>
-        <translation>IP imprimantă</translation>
+        <translation type="vanished">IP imprimantă</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Port</source>
-        <translation>Port</translation>
+        <translation type="vanished">Port</translation>
     </message>
     <message>
-        <location line="+22"/>
         <source>Search printers</source>
-        <translation>Caută imprimante</translation>
+        <translation type="vanished">Caută imprimante</translation>
     </message>
     <message>
-        <location line="+21"/>
         <source>Test</source>
-        <translation>Test</translation>
+        <translation type="vanished">Test</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>Testing...</source>
-        <translation>Se testează...</translation>
+        <translation type="vanished">Se testează...</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Print test receipt</source>
-        <translation>Tipărește bon de test</translation>
+        <translation type="vanished">Tipărește bon de test</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>Printing...</source>
-        <translation>Se tipărește...</translation>
+        <translation type="vanished">Se tipărește...</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Test receipt sent.</source>
-        <translation>Bonul de test a fost trimis.</translation>
+        <translation type="vanished">Bonul de test a fost trimis.</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Failed to send data to printer.</source>
-        <translation>Trimiterea datelor către imprimantă a eșuat.</translation>
+        <translation type="vanished">Trimiterea datelor către imprimantă a eșuat.</translation>
     </message>
 </context>
 <context>

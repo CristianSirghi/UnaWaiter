@@ -73,6 +73,16 @@ ApplicationWindow {
         Pages.SettingsPage {
             theme: appTheme
             settings: appSettings
+            onAdminRequested: stackView.push(adminPageComponent)
+        }
+    }
+
+    Component {
+        id: adminPageComponent
+
+        Pages.AdminPage {
+            theme: appTheme
+            settings: appSettings
         }
     }
 
