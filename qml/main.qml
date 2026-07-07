@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
-import Qt.labs.settings 1.0
 import "theme"
 import "app"
 import "pages" as Pages
@@ -23,38 +22,21 @@ ApplicationWindow {
 
     visibility: isDesktopPlatform ? Window.AutomaticVisibility : Window.AutomaticVisibility
 
-    Theme {
-        id: appTheme
-    }
+    // Theme / AppSettings / OrdersStore sunt acum singleton-uri (qml/theme, qml/app),
+    // accesate direct oriunde — nu se mai instanțiază și nu se mai pasează prin proprietăți.
+    // Aplică limba curentă la pornire și când se schimbă din Setări
+    // (translationManager e expus din C++, main.cpp).
+    Component.onCompleted: translationManager.setLanguage(AppSettings.language)
 
-    OrdersStore {
-        id: ordersStore
-    }
-
-    AppSettings {
-        id: appSettings
-
-        // Aplică limba curentă la pornire și de fiecare dată când se schimbă
-        // din Setări — translationManager e expus din C++ (main.cpp).
-        onLanguageChanged: translationManager.setLanguage(language)
-        Component.onCompleted: translationManager.setLanguage(language)
-    }
-
-    Settings {
-        // Persistă alegerile din Setări (limbă/temă/mărime text/nume chelner) între lansări.
-        property alias language: appSettings.language
-        property alias darkMode: appTheme.darkMode
-        property alias fontScale: appTheme.fontScale
-        property alias waiterName: appSettings.waiterName
-        // Server + imprimantă (setate din secțiunile noi din Setări).
-        property alias serverUrl: appSettings.serverUrl
-        property alias printerIp: appSettings.printerIp
-        property alias printerPort: appSettings.printerPort
-        property alias printerName: appSettings.printerName
+    Connections {
+        target: AppSettings
+        function onLanguageChanged() {
+            translationManager.setLanguage(AppSettings.language)
+        }
     }
 
     background: Rectangle {
-        color: appTheme.background
+        color: Theme.background
     }
 
     StackView {
@@ -62,7 +44,6 @@ ApplicationWindow {
         anchors.fill: parent
 
         initialItem: Pages.WelcomePage {
-            theme: appTheme
             onAuthenticateRequested: stackView.push(loginPageComponent)
             onDemoRequested: stackView.push(loginPageComponent)
             onSettingsRequested: stackView.push(settingsPageComponent)
@@ -73,8 +54,6 @@ ApplicationWindow {
         id: settingsPageComponent
 
         Pages.SettingsPage {
-            theme: appTheme
-            settings: appSettings
             onAdminRequested: stackView.push(adminPageComponent)
         }
     }
@@ -82,17 +61,13 @@ ApplicationWindow {
     Component {
         id: adminPageComponent
 
-        Pages.AdminPage {
-            theme: appTheme
-            settings: appSettings
-        }
+        Pages.AdminPage {}
     }
 
     Component {
         id: loginPageComponent
 
         Pages.LoginPage {
-            theme: appTheme
             onLoginConfirmed: appWindow.tablesPage = stackView.push(tablesPageComponent)
         }
     }
@@ -101,9 +76,6 @@ ApplicationWindow {
         id: tablesPageComponent
 
         Pages.TablesPage {
-            theme: appTheme
-            settings: appSettings
-            store: ordersStore
             onNewTableRequested: stackView.push(selectTablePageComponent)
             onOrderOpened: stackView.push(orderPageComponent, { zone: zone, tableNumber: tableNumber })
             onProfileRequested: stackView.push(profilePageComponent)
@@ -115,25 +87,19 @@ ApplicationWindow {
     Component {
         id: profilePageComponent
 
-        Pages.ProfilePage {
-            theme: appTheme
-            settings: appSettings
-        }
+        Pages.ProfilePage {}
     }
 
     Component {
         id: stockPageComponent
 
-        Pages.StockPage {
-            theme: appTheme
-        }
+        Pages.StockPage {}
     }
 
     Component {
         id: selectTablePageComponent
 
         Pages.SelectTablePage {
-            theme: appTheme
             onTableSelected: function(zone, tableNumber) {
                 stackView.push(orderPageComponent, { zone: zone, tableNumber: tableNumber })
             }
@@ -144,9 +110,6 @@ ApplicationWindow {
         id: orderPageComponent
 
         Pages.OrderPage {
-            theme: appTheme
-            settings: appSettings
-            store: ordersStore
             // După trimitere/ștergere revenim direct la lista de mese, sărind
             // peste SelectTablePage când comanda a fost creată nou.
             onDone: stackView.pop(appWindow.tablesPage)

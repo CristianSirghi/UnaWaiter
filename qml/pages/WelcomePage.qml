@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/icons" as Icons
@@ -6,14 +7,13 @@ import "../components/icons" as Icons
 Page {
     id: root
 
-    property var theme
 
     signal authenticateRequested()
     signal demoRequested()
     signal settingsRequested()
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     ColumnLayout {
@@ -26,16 +26,16 @@ Page {
 
             Label {
                 text: qsTr("Welcome")
-                font.pixelSize: 24 * theme.fontScale
+                font.pixelSize: 24 * Theme.fontScale
                 font.bold: true
-                color: theme.textPrimary
+                color: Theme.textPrimary
             }
 
             Item { Layout.fillWidth: true }
 
             Icons.IconSettings {
-                color: theme.textPrimary
-                dark: theme.darkMode
+                color: Theme.textPrimary
+                dark: Theme.darkMode
                 onClicked: root.settingsRequested()
             }
         }
@@ -44,22 +44,22 @@ Page {
 
         Label {
             text: "🍴"
-            font.pixelSize: 56 * theme.fontScale
+            font.pixelSize: 56 * Theme.fontScale
             Layout.alignment: Qt.AlignHCenter
         }
 
         Label {
             text: qsTr("Welcome")
-            font.pixelSize: 22 * theme.fontScale
+            font.pixelSize: 22 * Theme.fontScale
             font.bold: true
-            color: theme.textPrimary
+            color: Theme.textPrimary
             Layout.alignment: Qt.AlignHCenter
         }
 
         Label {
             text: qsTr("Choose how you'd like to start")
-            font.pixelSize: 15 * theme.fontScale
-            color: theme.textSecondary
+            font.pixelSize: 15 * Theme.fontScale
+            color: Theme.textSecondary
             Layout.alignment: Qt.AlignHCenter
         }
 
@@ -69,13 +69,13 @@ Page {
             Layout.fillWidth: true
             Layout.preferredHeight: 52
             radius: 26
-            color: theme.surface
+            color: Theme.surface
 
             Label {
                 anchors.centerIn: parent
                 text: qsTr("Sign in")
-                color: theme.primary
-                font.pixelSize: 16 * theme.fontScale
+                color: Theme.primary
+                font.pixelSize: 16 * Theme.fontScale
                 font.bold: true
             }
 
@@ -90,13 +90,13 @@ Page {
             Layout.preferredHeight: 52
             radius: 26
             color: "transparent"
-            border.color: theme.border
+            border.color: Theme.border
 
             Label {
                 anchors.centerIn: parent
                 text: qsTr("Demo")
-                color: theme.textPrimary
-                font.pixelSize: 16 * theme.fontScale
+                color: Theme.textPrimary
+                font.pixelSize: 16 * Theme.fontScale
                 font.bold: true
             }
 

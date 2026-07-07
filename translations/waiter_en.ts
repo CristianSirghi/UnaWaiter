@@ -4,7 +4,7 @@
 <context>
     <name>AddonSheet</name>
     <message>
-        <location filename="../qml/components/controls/AddonSheet.qml" line="+86"/>
+        <location filename="../qml/components/controls/AddonSheet.qml" line="+85"/>
         <source>Add-ons</source>
         <translation>Add-ons</translation>
     </message>
@@ -37,7 +37,7 @@
         <translation>Server</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+9"/>
         <source>https://server/oracle_waiter.php</source>
         <translation>https://server/oracle_waiter.php</translation>
     </message>
@@ -53,12 +53,12 @@
         <translation>No printer selected</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+27"/>
         <source>Printer IP</source>
         <translation>Printer IP</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+8"/>
         <source>Port</source>
         <translation>Port</translation>
     </message>
@@ -124,7 +124,7 @@
 <context>
     <name>ConfirmDialog</name>
     <message>
-        <location filename="../qml/components/controls/ConfirmDialog.qml" line="+27"/>
+        <location filename="../qml/components/controls/ConfirmDialog.qml" line="+26"/>
         <source>Confirm</source>
         <translation>Confirm</translation>
     </message>
@@ -145,7 +145,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+82"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+81"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -157,12 +157,12 @@
     <message>
         <location line="+150"/>
         <location line="+75"/>
-        <location line="+455"/>
+        <location line="+454"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-529"/>
+        <location line="-528"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
@@ -199,7 +199,7 @@
         <translation>No products selected</translation>
     </message>
     <message>
-        <location line="+180"/>
+        <location line="+179"/>
         <source>Delete order?</source>
         <translation>Delete order?</translation>
     </message>
@@ -222,7 +222,7 @@
         <translation type="vanished">Done</translation>
     </message>
     <message>
-        <location line="-26"/>
+        <location line="-25"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -235,7 +235,7 @@
 <context>
     <name>PrinterDiscoveryDialog</name>
     <message>
-        <location filename="../qml/components/controls/PrinterDiscoveryDialog.qml" line="+104"/>
+        <location filename="../qml/components/controls/PrinterDiscoveryDialog.qml" line="+103"/>
         <source>Find printer</source>
         <translation>Find printer</translation>
     </message>
@@ -372,7 +372,7 @@
         <translation>Tables served</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+16"/>
         <source>Day</source>
         <translation>Day</translation>
     </message>
@@ -432,12 +432,12 @@
         <translation>Language</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+24"/>
         <source>Theme</source>
         <translation>Theme</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+10"/>
         <source>Light</source>
         <translation>Light</translation>
     </message>
@@ -452,7 +452,7 @@
         <translation>Text size</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+10"/>
         <source>Small</source>
         <translation>Small</translation>
     </message>
@@ -555,7 +555,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+106"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+101"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -565,7 +565,7 @@
         <translation>All</translation>
     </message>
     <message>
-        <location line="-83"/>
+        <location line="-79"/>
         <source>Hall</source>
         <translation>Hall</translation>
     </message>
@@ -575,7 +575,7 @@
         <translation>Terrace</translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+54"/>
         <source>Sign out?</source>
         <translation>Sign out?</translation>
     </message>
@@ -590,7 +590,7 @@
         <translation>Sign out</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+62"/>
         <source>No open orders</source>
         <translation>No open orders</translation>
     </message>

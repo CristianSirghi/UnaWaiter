@@ -1,6 +1,8 @@
+pragma Singleton
 import QtQuick 2.15
 
-// Comenzile active, ținute în memorie cât timp rulează aplicația.
+// Comenzile active, ținute în memorie cât timp rulează aplicația (singleton
+// global, accesat ca `OrdersStore.submitOrder(...)` — import "../app").
 // Va fi înlocuit cu apeluri reale către Oracle (via PHP) — până atunci,
 // "Trimite comanda" scrie aici, iar TablesPage citește de aici.
 QtObject {

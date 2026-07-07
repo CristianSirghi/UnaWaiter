@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -7,14 +8,13 @@ import "../components/icons" as Icons
 Page {
     id: root
 
-    property var theme
     property int pinLength: 4
     property string enteredPin: ""
 
     signal loginConfirmed()
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     header: RowLayout {
@@ -23,7 +23,7 @@ Page {
         Item { Layout.preferredWidth: 16 }
 
         Components.BackButton {
-            color: theme.textPrimary
+            color: Theme.textPrimary
             onClicked: root.StackView.view.pop()
         }
 
@@ -38,9 +38,9 @@ Page {
 
         Label {
             text: qsTr("Enter PIN")
-            font.pixelSize: 28 * theme.fontScale
+            font.pixelSize: 28 * Theme.fontScale
             font.bold: true
-            color: theme.textPrimary
+            color: Theme.textPrimary
         }
 
         RowLayout {
@@ -55,10 +55,10 @@ Page {
                     height: 56
                     radius: 10
                     color: index < root.enteredPin.length
-                        ? Qt.rgba(theme.primary.r, theme.primary.g, theme.primary.b, 0.12)
+                        ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
                         : "transparent"
                     border.width: index === root.enteredPin.length ? 2 : 1
-                    border.color: index === root.enteredPin.length ? theme.primary : theme.border
+                    border.color: index === root.enteredPin.length ? Theme.primary : Theme.border
 
                     Rectangle {
                         visible: index < root.enteredPin.length
@@ -66,7 +66,7 @@ Page {
                         width: 12
                         height: 12
                         radius: 6
-                        color: theme.primary
+                        color: Theme.primary
                     }
                 }
             }
@@ -88,7 +88,7 @@ Page {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 64
                     radius: 12
-                    color: theme.keyBackground
+                    color: Theme.keyBackground
 
                     readonly property string keyValue: modelData
                     readonly property bool isDigit: keyValue.length === 1 && keyValue >= "0" && keyValue <= "9"
@@ -101,20 +101,20 @@ Page {
                         visible: keyDelegate.isDigit
                         anchors.centerIn: parent
                         text: keyDelegate.keyValue
-                        font.pixelSize: 22 * theme.fontScale
-                        color: theme.textPrimary
+                        font.pixelSize: 22 * Theme.fontScale
+                        color: Theme.textPrimary
                     }
 
                     Icons.IconClose {
                         visible: keyDelegate.isDelete
                         anchors.centerIn: parent
-                        color: theme.textPrimary
+                        color: Theme.textPrimary
                     }
 
                     Icons.IconCheck {
                         visible: keyDelegate.isConfirm
                         anchors.centerIn: parent
-                        color: keyDelegate.isConfirmEnabled ? theme.primary : theme.textSecondary
+                        color: keyDelegate.isConfirmEnabled ? Theme.primary : Theme.textSecondary
                     }
 
                     MouseArea {

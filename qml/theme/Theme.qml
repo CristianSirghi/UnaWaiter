@@ -1,6 +1,13 @@
+pragma Singleton
 import QtQuick 2.15
+import Qt.labs.settings 1.0
 
+// Tema aplicației — singleton global. Se accesează direct ca `Theme.background`
+// din orice pagină (import "../theme"), fără să fie pasată prin proprietăți.
+// darkMode/fontScale (setate din Setări) se persistă singure între lansări.
 QtObject {
+    id: root
+
     // Comută întreaga paletă (setat din SettingsPage, secțiunea Temă).
     property bool darkMode: false
 
@@ -18,4 +25,10 @@ QtObject {
     // (Mic 0.9 / Mediu 1.0 / Mare 1.15). Toate `font.pixelSize` din pagini
     // se înmulțesc cu el, așa că schimbarea aici se reflectă peste tot.
     property real fontScale: 1.0
+
+    // Persistă alegerile de temă între lansări (aceleași chei ca înainte).
+    property var _persist: Settings {
+        property alias darkMode: root.darkMode
+        property alias fontScale: root.fontScale
+    }
 }

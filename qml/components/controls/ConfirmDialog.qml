@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
@@ -9,7 +10,6 @@ import QtQuick.Layouts 1.15
 // Utilizare:
 //   ConfirmDialog {
 //       id: dlg
-//       theme: appTheme
 //       title: qsTr("Delete order?")
 //       message: qsTr("This order will be removed.")
 //       confirmText: qsTr("Delete")
@@ -21,7 +21,6 @@ import QtQuick.Layouts 1.15
 Popup {
     id: root
 
-    property var theme
     property string title: ""
     property string message: ""
     property string confirmText: qsTr("Confirm")
@@ -65,10 +64,10 @@ Popup {
     }
 
     background: Rectangle {
-        color: root.theme.surface
+        color: Theme.surface
         radius: 16
         border.width: 1
-        border.color: root.theme.border
+        border.color: Theme.border
     }
 
     contentItem: ColumnLayout {
@@ -79,9 +78,9 @@ Popup {
             Layout.margins: 20
             Layout.bottomMargin: 8
             text: root.title
-            font.pixelSize: 18 * root.theme.fontScale
+            font.pixelSize: 18 * Theme.fontScale
             font.bold: true
-            color: root.theme.textPrimary
+            color: Theme.textPrimary
             wrapMode: Text.WordWrap
         }
 
@@ -92,15 +91,15 @@ Popup {
             Layout.bottomMargin: 20
             visible: root.message.length > 0
             text: root.message
-            font.pixelSize: 14 * root.theme.fontScale
-            color: root.theme.textSecondary
+            font.pixelSize: 14 * Theme.fontScale
+            color: Theme.textSecondary
             wrapMode: Text.WordWrap
         }
 
         Rectangle {
             Layout.fillWidth: true
             height: 1
-            color: root.theme.border
+            color: Theme.border
         }
 
         RowLayout {
@@ -116,8 +115,8 @@ Popup {
                 Label {
                     anchors.centerIn: parent
                     text: root.cancelText
-                    font.pixelSize: 15 * root.theme.fontScale
-                    color: root.theme.textSecondary
+                    font.pixelSize: 15 * Theme.fontScale
+                    color: Theme.textSecondary
                 }
 
                 MouseArea {
@@ -126,7 +125,7 @@ Popup {
                 }
             }
 
-            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 52; color: root.theme.border }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 52; color: Theme.border }
 
             // Confirmă
             Rectangle {
@@ -137,9 +136,9 @@ Popup {
                 Label {
                     anchors.centerIn: parent
                     text: root.confirmText
-                    font.pixelSize: 15 * root.theme.fontScale
+                    font.pixelSize: 15 * Theme.fontScale
                     font.bold: true
-                    color: root.destructive ? root.theme.danger : root.theme.primary
+                    color: root.destructive ? Theme.danger : Theme.primary
                 }
 
                 MouseArea {

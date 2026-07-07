@@ -1,4 +1,6 @@
 import QtQuick 2.15
+import "../../theme"
+import "../../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../icons"
@@ -9,8 +11,6 @@ import "../icons"
 Drawer {
     id: root
 
-    property var theme
-    property var settings
 
     signal profileRequested()
     signal settingsRequested()
@@ -22,7 +22,7 @@ Drawer {
     edge: Qt.LeftEdge
 
     background: Rectangle {
-        color: root.theme.background
+        color: Theme.background
     }
 
     ColumnLayout {
@@ -38,31 +38,31 @@ Drawer {
                 width: 48
                 height: 48
                 radius: 24
-                color: root.theme.primary
+                color: Theme.primary
 
                 Label {
                     anchors.centerIn: parent
-                    text: root.settings.waiterName.length > 0
-                        ? root.settings.waiterName.charAt(0).toUpperCase()
+                    text: AppSettings.waiterName.length > 0
+                        ? AppSettings.waiterName.charAt(0).toUpperCase()
                         : "W"
                     color: "white"
                     font.bold: true
-                    font.pixelSize: 18 * root.theme.fontScale
+                    font.pixelSize: 18 * Theme.fontScale
                 }
             }
 
             Label {
                 Layout.fillWidth: true
                 Layout.leftMargin: 12
-                text: root.settings.waiterName
-                font.pixelSize: 17 * root.theme.fontScale
+                text: AppSettings.waiterName
+                font.pixelSize: 17 * Theme.fontScale
                 font.bold: true
-                color: root.theme.textPrimary
+                color: Theme.textPrimary
                 elide: Text.ElideRight
             }
 
             IconClose {
-                color: root.theme.textSecondary
+                color: Theme.textSecondary
 
                 MouseArea {
                     anchors.fill: parent
@@ -76,7 +76,7 @@ Drawer {
             Layout.fillWidth: true
             Layout.bottomMargin: 8
             height: 1
-            color: root.theme.border
+            color: Theme.border
         }
 
         // ----- Profil -----
@@ -94,14 +94,14 @@ Drawer {
                 IconPerson {
                     Layout.preferredWidth: 22
                     Layout.preferredHeight: 22
-                    color: root.theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 Label {
                     Layout.fillWidth: true
                     text: qsTr("Profile")
-                    font.pixelSize: 15 * root.theme.fontScale
-                    color: root.theme.textPrimary
+                    font.pixelSize: 15 * Theme.fontScale
+                    color: Theme.textPrimary
                 }
             }
 
@@ -129,7 +129,7 @@ Drawer {
                 Image {
                     Layout.preferredWidth: 22
                     Layout.preferredHeight: 22
-                    source: root.theme.darkMode ? "qrc:/icons/settings_white.png" : "qrc:/icons/settings.png"
+                    source: Theme.darkMode ? "qrc:/icons/settings_white.png" : "qrc:/icons/settings.png"
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     mipmap: true
@@ -138,8 +138,8 @@ Drawer {
                 Label {
                     Layout.fillWidth: true
                     text: qsTr("Settings")
-                    font.pixelSize: 15 * root.theme.fontScale
-                    color: root.theme.textPrimary
+                    font.pixelSize: 15 * Theme.fontScale
+                    color: Theme.textPrimary
                 }
             }
 
@@ -167,14 +167,14 @@ Drawer {
                 IconStock {
                     Layout.preferredWidth: 22
                     Layout.preferredHeight: 22
-                    color: root.theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 Label {
                     Layout.fillWidth: true
                     text: qsTr("Stock")
-                    font.pixelSize: 15 * root.theme.fontScale
-                    color: root.theme.textPrimary
+                    font.pixelSize: 15 * Theme.fontScale
+                    color: Theme.textPrimary
                 }
             }
 
@@ -193,7 +193,7 @@ Drawer {
             Layout.fillWidth: true
             Layout.bottomMargin: 8
             height: 1
-            color: root.theme.border
+            color: Theme.border
         }
 
         // ----- Deconectare -----
@@ -211,14 +211,14 @@ Drawer {
                 IconLogout {
                     Layout.preferredWidth: 22
                     Layout.preferredHeight: 22
-                    dark: root.theme.darkMode
+                    dark: Theme.darkMode
                 }
 
                 Label {
                     Layout.fillWidth: true
                     text: qsTr("Sign out")
-                    font.pixelSize: 15 * root.theme.fontScale
-                    color: root.theme.textPrimary
+                    font.pixelSize: 15 * Theme.fontScale
+                    color: Theme.textPrimary
                 }
             }
 

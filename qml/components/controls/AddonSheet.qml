@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../icons"
@@ -11,7 +12,6 @@ import "../icons"
 // Utilizare:
 //   AddonSheet {
 //       id: addonSheet
-//       theme: appTheme
 //       onAddonAdjusted: page.adjustAddon(productName, addonName, delta)
 //   }
 //   ...
@@ -19,7 +19,6 @@ import "../icons"
 Popup {
     id: root
 
-    property var theme
     property string productName: ""
 
     // Emis când chelnerul apasă +/- pe un adaos (delta = +1 / -1).
@@ -65,7 +64,7 @@ Popup {
     Overlay.modal: Rectangle { color: "#99000000" }
 
     background: Rectangle {
-        color: root.theme.surface
+        color: Theme.surface
         radius: 16
     }
 
@@ -84,21 +83,21 @@ Popup {
                 spacing: 2
                 Label {
                     text: qsTr("Add-ons")
-                    font.pixelSize: 12 * root.theme.fontScale
-                    color: root.theme.textSecondary
+                    font.pixelSize: 12 * Theme.fontScale
+                    color: Theme.textSecondary
                 }
                 Label {
                     text: root.productName
-                    font.pixelSize: 17 * root.theme.fontScale
+                    font.pixelSize: 17 * Theme.fontScale
                     font.bold: true
-                    color: root.theme.textPrimary
+                    color: Theme.textPrimary
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
             }
 
             IconClose {
-                color: root.theme.textSecondary
+                color: Theme.textSecondary
                 MouseArea {
                     anchors.fill: parent
                     anchors.margins: -10
@@ -107,7 +106,7 @@ Popup {
             }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.border }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
 
         ListView {
             Layout.fillWidth: true
@@ -119,7 +118,7 @@ Popup {
             delegate: Rectangle {
                 width: ListView.view.width
                 height: 56
-                color: root.theme.surface
+                color: Theme.surface
 
                 RowLayout {
                     anchors.fill: parent
@@ -132,21 +131,21 @@ Popup {
                         spacing: 2
                         Label {
                             text: name
-                            font.pixelSize: 15 * root.theme.fontScale
-                            color: root.theme.textPrimary
+                            font.pixelSize: 15 * Theme.fontScale
+                            color: Theme.textPrimary
                         }
                         Label {
                             text: qsTr("+%1 MDL").arg(root.fmt(price))
-                            font.pixelSize: 12 * root.theme.fontScale
-                            color: root.theme.textSecondary
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: Theme.textSecondary
                         }
                     }
 
                     Rectangle {
                         visible: qty > 0
                         width: 30; height: 30; radius: 15
-                        color: root.theme.keyBackground
-                        IconMinus { anchors.centerIn: parent; color: root.theme.textPrimary }
+                        color: Theme.keyBackground
+                        IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
@@ -161,14 +160,14 @@ Popup {
                         text: qty
                         Layout.preferredWidth: 18
                         horizontalAlignment: Text.AlignHCenter
-                        font.pixelSize: 15 * root.theme.fontScale
+                        font.pixelSize: 15 * Theme.fontScale
                         font.bold: true
-                        color: root.theme.textPrimary
+                        color: Theme.textPrimary
                     }
 
                     Rectangle {
                         width: 30; height: 30; radius: 15
-                        color: root.theme.primary
+                        color: Theme.primary
                         IconPlus { anchors.centerIn: parent; color: "white" }
                         MouseArea {
                             anchors.fill: parent
@@ -185,7 +184,7 @@ Popup {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: 1
-                    color: root.theme.border
+                    color: Theme.border
                 }
             }
         }
@@ -196,12 +195,12 @@ Popup {
             Layout.margins: 16
             Layout.preferredHeight: 48
             radius: 24
-            color: root.theme.primary
+            color: Theme.primary
 
             Label {
                 anchors.centerIn: parent
                 text: qsTr("Done")
-                font.pixelSize: 15 * root.theme.fontScale
+                font.pixelSize: 15 * Theme.fontScale
                 font.bold: true
                 color: "white"
             }

@@ -1,8 +1,10 @@
 <RCC>
-    <!-- build rev 49 -->
+    <!-- build rev 50 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
+        <file alias="theme/qmldir">../qml/theme/qmldir</file>
         <file alias="theme/Theme.qml">../qml/theme/Theme.qml</file>
+        <file alias="app/qmldir">../qml/app/qmldir</file>
         <file alias="app/AppSettings.qml">../qml/app/AppSettings.qml</file>
         <file alias="app/OrdersStore.qml">../qml/app/OrdersStore.qml</file>
         <file alias="icons/settings.png">icons/settings.png</file>

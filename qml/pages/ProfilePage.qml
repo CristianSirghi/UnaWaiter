@@ -1,4 +1,6 @@
 import QtQuick 2.15
+import "../theme"
+import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -6,8 +8,6 @@ import "../components/controls" as Components
 Page {
     id: root
 
-    property var theme
-    property var settings
 
     property bool editingName: false
     property string statsPeriod: "day"
@@ -20,7 +20,7 @@ Page {
     })
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     header: RowLayout {
@@ -29,7 +29,7 @@ Page {
         Item { Layout.preferredWidth: 12 }
 
         Components.BackButton {
-            color: theme.textPrimary
+            color: Theme.textPrimary
             onClicked: root.StackView.view.pop()
         }
 
@@ -37,9 +37,9 @@ Page {
 
         Label {
             text: qsTr("Profile")
-            font.pixelSize: 20 * theme.fontScale
+            font.pixelSize: 20 * Theme.fontScale
             font.bold: true
-            color: theme.textPrimary
+            color: Theme.textPrimary
         }
 
         Item { Layout.fillWidth: true }
@@ -58,15 +58,15 @@ Page {
             width: 88
             height: 88
             radius: 44
-            color: theme.primary
+            color: Theme.primary
 
             Label {
                 anchors.centerIn: parent
-                text: root.settings.waiterName.length > 0
-                    ? root.settings.waiterName.charAt(0).toUpperCase()
+                text: AppSettings.waiterName.length > 0
+                    ? AppSettings.waiterName.charAt(0).toUpperCase()
                     : "W"
                 color: "white"
-                font.pixelSize: 32 * theme.fontScale
+                font.pixelSize: 32 * Theme.fontScale
                 font.bold: true
             }
         }
@@ -81,16 +81,16 @@ Page {
                 id: nameDisplay
                 visible: !root.editingName
                 anchors.centerIn: parent
-                text: root.settings.waiterName
-                font.pixelSize: 20 * theme.fontScale
+                text: AppSettings.waiterName
+                font.pixelSize: 20 * Theme.fontScale
                 font.bold: true
-                color: theme.textPrimary
+                color: Theme.textPrimary
 
                 MouseArea {
                     anchors.fill: parent
                     anchors.margins: -10
                     onClicked: {
-                        nameField.text = root.settings.waiterName
+                        nameField.text = AppSettings.waiterName
                         root.editingName = true
                         nameField.forceActiveFocus()
                         nameField.selectAll()
@@ -103,14 +103,14 @@ Page {
                 visible: root.editingName
                 anchors.centerIn: parent
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 20 * theme.fontScale
+                font.pixelSize: 20 * Theme.fontScale
                 font.bold: true
-                color: theme.textPrimary
+                color: Theme.textPrimary
                 background: Rectangle { color: "transparent" }
 
                 function commit() {
                     if (text.length > 0)
-                        root.settings.waiterName = text
+                        AppSettings.waiterName = text
                     root.editingName = false
                 }
 
@@ -123,14 +123,14 @@ Page {
             Layout.fillWidth: true
             Layout.preferredHeight: 48
             radius: 24
-            color: theme.surface
-            border.color: theme.border
+            color: Theme.surface
+            border.color: Theme.border
 
             Label {
                 anchors.centerIn: parent
                 text: qsTr("Sign out")
-                color: theme.textPrimary
-                font.pixelSize: 15 * theme.fontScale
+                color: Theme.textPrimary
+                font.pixelSize: 15 * Theme.fontScale
                 font.bold: true
             }
 
@@ -144,8 +144,8 @@ Page {
         Rectangle {
             Layout.fillWidth: true
             radius: 16
-            color: theme.surface
-            border.color: theme.border
+            color: Theme.surface
+            border.color: Theme.border
             implicitHeight: statsContent.implicitHeight + 28
 
             ColumnLayout {
@@ -158,20 +158,19 @@ Page {
 
                 Label {
                     text: qsTr("Tables served")
-                    font.pixelSize: 14 * theme.fontScale
-                    color: theme.textSecondary
+                    font.pixelSize: 14 * Theme.fontScale
+                    color: Theme.textSecondary
                 }
 
                 Label {
                     text: root.statsByPeriod[root.statsPeriod]
-                    font.pixelSize: 34 * theme.fontScale
+                    font.pixelSize: 34 * Theme.fontScale
                     font.bold: true
-                    color: theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 Components.SegmentedControl {
                     Layout.fillWidth: true
-                    theme: root.theme
                     currentValue: root.statsPeriod
                     options: [
                         { label: qsTr("Day"), value: "day" },
@@ -184,8 +183,8 @@ Page {
                 Label {
                     Layout.fillWidth: true
                     text: qsTr("Includes completed orders assigned to you.")
-                    font.pixelSize: 11 * theme.fontScale
-                    color: theme.textSecondary
+                    font.pixelSize: 11 * Theme.fontScale
+                    color: Theme.textSecondary
                     wrapMode: Text.WordWrap
                 }
             }

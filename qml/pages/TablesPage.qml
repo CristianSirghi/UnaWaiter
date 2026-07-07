@@ -1,4 +1,6 @@
 import QtQuick 2.15
+import "../theme"
+import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -7,9 +9,6 @@ import "../components/icons" as Icons
 Page {
     id: root
 
-    property var theme
-    property var settings
-    property var store
     property bool showMineOnly: true
 
     signal newTableRequested()
@@ -25,7 +24,7 @@ Page {
     }
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     header: RowLayout {
@@ -37,12 +36,12 @@ Page {
             width: 36
             height: 36
             radius: 18
-            color: theme.primary
+            color: Theme.primary
 
             Label {
                 anchors.centerIn: parent
-                text: root.settings.waiterName.length > 0
-                    ? root.settings.waiterName.charAt(0).toUpperCase()
+                text: AppSettings.waiterName.length > 0
+                    ? AppSettings.waiterName.charAt(0).toUpperCase()
                     : "W"
                 color: "white"
                 font.bold: true
@@ -57,7 +56,7 @@ Page {
         Item { Layout.fillWidth: true }
 
         Icons.IconHamburger {
-            color: theme.textPrimary
+            color: Theme.textPrimary
             onClicked: navDrawer.open()
         }
 
@@ -66,8 +65,6 @@ Page {
 
     Components.AppDrawer {
         id: navDrawer
-        theme: root.theme
-        settings: root.settings
 
         onProfileRequested: root.profileRequested()
         onSettingsRequested: root.settingsRequested()
@@ -77,7 +74,6 @@ Page {
 
     Components.ConfirmDialog {
         id: signOutDialog
-        theme: root.theme
         title: qsTr("Sign out?")
         message: qsTr("You will be logged out of your profile.")
         confirmText: qsTr("Sign out")
@@ -99,7 +95,6 @@ Page {
             Components.SegmentedControl {
                 Layout.preferredWidth: 200
                 Layout.preferredHeight: 36
-                theme: root.theme
                 labelHorizontalAlignment: Text.AlignLeft
                 currentValue: root.showMineOnly ? "mine" : "all"
                 options: [
@@ -114,7 +109,7 @@ Page {
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            visible: root.store.ordersModel.count === 0
+            visible: OrdersStore.ordersModel.count === 0
             spacing: 8
 
             Item { Layout.fillHeight: true }
@@ -130,23 +125,23 @@ Page {
                     radius: 6
                     color: "transparent"
                     border.width: 3
-                    border.color: theme.border
+                    border.color: Theme.border
                 }
                 Column {
                     anchors.centerIn: parent
                     spacing: 7
-                    Rectangle { width: 34; height: 3; radius: 1.5; color: theme.border }
-                    Rectangle { width: 34; height: 3; radius: 1.5; color: theme.border }
-                    Rectangle { width: 22; height: 3; radius: 1.5; color: theme.border }
+                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
+                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
+                    Rectangle { width: 22; height: 3; radius: 1.5; color: Theme.border }
                 }
             }
 
             Label {
                 Layout.alignment: Qt.AlignHCenter
                 text: qsTr("No open orders")
-                font.pixelSize: 20 * theme.fontScale
+                font.pixelSize: 20 * Theme.fontScale
                 font.bold: true
-                color: theme.textPrimary
+                color: Theme.textPrimary
             }
 
             Label {
@@ -154,8 +149,8 @@ Page {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 text: qsTr("There are no open orders. Please start a new one.")
-                font.pixelSize: 14 * theme.fontScale
-                color: theme.textSecondary
+                font.pixelSize: 14 * Theme.fontScale
+                color: Theme.textSecondary
                 wrapMode: Text.WordWrap
             }
 
@@ -167,8 +162,8 @@ Page {
             Layout.fillHeight: true
             spacing: 12
             clip: true
-            visible: root.store.ordersModel.count > 0
-            model: root.store.ordersModel
+            visible: OrdersStore.ordersModel.count > 0
+            model: OrdersStore.ordersModel
 
             // Grupăm cardurile pe zonă (Sala / Terasă), cu un antet per grup.
             section.property: "zone"
@@ -177,17 +172,17 @@ Page {
                 topPadding: 4
                 bottomPadding: 8
                 text: root.zoneLabel(section)
-                font.pixelSize: 18 * theme.fontScale
+                font.pixelSize: 18 * Theme.fontScale
                 font.bold: true
-                color: theme.textPrimary
+                color: Theme.textPrimary
             }
 
             delegate: Rectangle {
                 width: ListView.view.width
                 height: cardContent.implicitHeight + 28
                 radius: 14
-                color: theme.surface
-                border.color: theme.border
+                color: Theme.surface
+                border.color: Theme.border
 
                 MouseArea {
                     anchors.fill: parent
@@ -208,9 +203,9 @@ Page {
 
                         Label {
                             text: tableName
-                            font.pixelSize: 16 * theme.fontScale
+                            font.pixelSize: 16 * Theme.fontScale
                             font.bold: true
-                            color: active ? theme.primary : theme.textSecondary
+                            color: active ? Theme.primary : Theme.textSecondary
                         }
 
                         // Etichetă zonă (Sala / Terasă) — distinge masa 1 din sală de masa 1 de pe terasă.
@@ -219,22 +214,22 @@ Page {
                             implicitWidth: zoneTag.implicitWidth + 16
                             implicitHeight: zoneTag.implicitHeight + 6
                             radius: height / 2
-                            color: theme.keyBackground
+                            color: Theme.keyBackground
 
                             Label {
                                 id: zoneTag
                                 anchors.centerIn: parent
                                 text: root.zoneLabel(zone)
-                                font.pixelSize: 11 * theme.fontScale
-                                color: theme.textSecondary
+                                font.pixelSize: 11 * Theme.fontScale
+                                color: Theme.textSecondary
                             }
                         }
 
                         Item { Layout.fillWidth: true }
                         Label {
                             text: orderTime
-                            font.pixelSize: 13 * theme.fontScale
-                            color: theme.textSecondary
+                            font.pixelSize: 13 * Theme.fontScale
+                            color: Theme.textSecondary
                         }
                     }
 
@@ -242,22 +237,22 @@ Page {
                         Layout.fillWidth: true
                         Label {
                             text: waiterName
-                            font.pixelSize: 13 * theme.fontScale
-                            color: theme.textSecondary
+                            font.pixelSize: 13 * Theme.fontScale
+                            color: Theme.textSecondary
                         }
                         Item { Layout.fillWidth: true }
                         Label {
                             text: orderNo
-                            font.pixelSize: 13 * theme.fontScale
+                            font.pixelSize: 13 * Theme.fontScale
                             font.bold: true
-                            color: theme.textPrimary
+                            color: Theme.textPrimary
                         }
                     }
 
                     Label {
                         text: preview
-                        font.pixelSize: 13 * theme.fontScale
-                        color: theme.textPrimary
+                        font.pixelSize: 13 * Theme.fontScale
+                        color: Theme.textPrimary
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                     }
@@ -267,7 +262,7 @@ Page {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 1
-                        color: theme.border
+                        color: Theme.border
                     }
 
                     RowLayout {
@@ -275,15 +270,15 @@ Page {
 
                         Label {
                             text: "👤 " + guestCount
-                            font.pixelSize: 13 * theme.fontScale
-                            color: theme.textSecondary
+                            font.pixelSize: 13 * Theme.fontScale
+                            color: Theme.textSecondary
                         }
                         Item { Layout.fillWidth: true }
                         Label {
                             text: total
-                            font.pixelSize: 15 * theme.fontScale
+                            font.pixelSize: 15 * Theme.fontScale
                             font.bold: true
-                            color: theme.textPrimary
+                            color: Theme.textPrimary
                         }
                     }
                 }
@@ -295,7 +290,7 @@ Page {
         width: 56
         height: 56
         radius: 28
-        color: theme.primary
+        color: Theme.primary
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 20
@@ -304,7 +299,7 @@ Page {
             anchors.centerIn: parent
             text: "+"
             color: "white"
-            font.pixelSize: 28 * theme.fontScale
+            font.pixelSize: 28 * Theme.fontScale
         }
 
         MouseArea {

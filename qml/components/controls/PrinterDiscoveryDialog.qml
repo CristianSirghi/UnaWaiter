@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
@@ -10,14 +11,12 @@ import QtQuick.Layouts 1.15
 // Utilizare:
 //   PrinterDiscoveryDialog {
 //       id: dlg
-//       theme: appTheme
-//       onPrinterSelected: { settings.printerIp = candidate.ip; ... }
+//       onPrinterSelected: { AppSettings.printerIp = candidate.ip; ... }
 //   }
 //   dlg.openAndScan()
 Popup {
     id: root
 
-    property var theme
     // Portul pe care scanăm (de obicei 9100).
     property int scanPort: 9100
     property string selectedKey: ""
@@ -86,9 +85,9 @@ Popup {
 
     background: Rectangle {
         radius: 20
-        color: root.theme.surface
+        color: Theme.surface
         border.width: 1
-        border.color: root.theme.border
+        border.color: Theme.border
     }
 
     contentItem: ColumnLayout {
@@ -102,8 +101,8 @@ Popup {
             Label {
                 Layout.fillWidth: true
                 text: qsTr("Find printer")
-                color: root.theme.textPrimary
-                font.pixelSize: 20 * root.theme.fontScale
+                color: Theme.textPrimary
+                font.pixelSize: 20 * Theme.fontScale
                 font.bold: true
                 wrapMode: Text.WordWrap
             }
@@ -113,8 +112,8 @@ Popup {
                 text: printerManager.scanNetwork !== ""
                       ? qsTr("Network %1").arg(printerManager.scanNetwork)
                       : qsTr("Local network")
-                color: root.theme.textSecondary
-                font.pixelSize: 12 * root.theme.fontScale
+                color: Theme.textSecondary
+                font.pixelSize: 12 * Theme.fontScale
                 wrapMode: Text.WordWrap
             }
         }
@@ -125,15 +124,15 @@ Popup {
             height: 10
             radius: 5
             clip: true
-            color: root.theme.keyBackground
+            color: Theme.keyBackground
 
             Rectangle {
                 height: parent.height
                 radius: 5
                 width: parent.width * Math.max(0, Math.min(printerManager.progress, 100)) / 100
                 color: printerManager.scanning
-                       ? root.theme.primary
-                       : (printerManager.progress >= 100 ? root.theme.success : root.theme.primary)
+                       ? Theme.primary
+                       : (printerManager.progress >= 100 ? Theme.success : Theme.primary)
 
                 Behavior on width {
                     NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
@@ -151,15 +150,15 @@ Popup {
                 text: printerManager.scanning
                       ? qsTr("Scanning %1/%2").arg(printerManager.scannedHosts).arg(printerManager.totalHosts)
                       : qsTr("%1 printers found").arg(printerManager.candidates.length)
-                color: root.theme.textSecondary
-                font.pixelSize: 12 * root.theme.fontScale
+                color: Theme.textSecondary
+                font.pixelSize: 12 * Theme.fontScale
                 elide: Text.ElideRight
             }
 
             Label {
                 text: printerManager.scanning ? qsTr("SCANNING") : qsTr("READY")
-                color: printerManager.scanning ? root.theme.primary : root.theme.success
-                font.pixelSize: 11 * root.theme.fontScale
+                color: printerManager.scanning ? Theme.primary : Theme.success
+                font.pixelSize: 11 * Theme.fontScale
                 font.bold: true
             }
         }
@@ -170,9 +169,9 @@ Popup {
             Layout.fillHeight: true
             Layout.minimumHeight: 160
             radius: 14
-            color: root.theme.background
+            color: Theme.background
             border.width: 1
-            border.color: root.theme.border
+            border.color: Theme.border
             clip: true
 
             ListView {
@@ -197,9 +196,9 @@ Popup {
                     readonly property bool rowSelected: root.selectedKey === rowKey
                     readonly property string manufacturerText: String(modelData.manufacturer || "")
 
-                    color: root.theme.surface
+                    color: Theme.surface
                     border.width: rowSelected ? 2 : 1
-                    border.color: rowSelected ? root.theme.primary : root.theme.border
+                    border.color: rowSelected ? Theme.primary : Theme.border
 
                     RowLayout {
                         anchors.fill: parent
@@ -210,7 +209,7 @@ Popup {
                             Layout.preferredWidth: 12
                             Layout.preferredHeight: 12
                             radius: 6
-                            color: candidateRow.rowSelected ? root.theme.success : root.theme.primary
+                            color: candidateRow.rowSelected ? Theme.success : Theme.primary
                         }
 
                         ColumnLayout {
@@ -220,8 +219,8 @@ Popup {
                             Label {
                                 Layout.fillWidth: true
                                 text: candidateRow.candidateIp
-                                color: root.theme.textPrimary
-                                font.pixelSize: 15 * root.theme.fontScale
+                                color: Theme.textPrimary
+                                font.pixelSize: 15 * Theme.fontScale
                                 font.bold: true
                                 elide: Text.ElideRight
                             }
@@ -231,8 +230,8 @@ Popup {
                                 text: candidateRow.manufacturerText !== ""
                                       ? candidateRow.manufacturerText
                                       : qsTr("Raw TCP printer")
-                                color: root.theme.textSecondary
-                                font.pixelSize: 12 * root.theme.fontScale
+                                color: Theme.textSecondary
+                                font.pixelSize: 12 * Theme.fontScale
                                 elide: Text.ElideRight
                             }
                         }
@@ -241,13 +240,13 @@ Popup {
                             Layout.preferredWidth: 58
                             Layout.preferredHeight: 26
                             radius: 8
-                            color: root.theme.keyBackground
+                            color: Theme.keyBackground
 
                             Label {
                                 anchors.centerIn: parent
                                 text: String(candidateRow.candidatePortValue)
-                                color: root.theme.textSecondary
-                                font.pixelSize: 12 * root.theme.fontScale
+                                color: Theme.textSecondary
+                                font.pixelSize: 12 * Theme.fontScale
                                 font.bold: true
                             }
                         }
@@ -272,8 +271,8 @@ Popup {
                       : (printerManager.lastError !== ""
                          ? printerManager.lastError
                          : qsTr("No printers found"))
-                color: printerManager.lastError !== "" ? root.theme.danger : root.theme.textSecondary
-                font.pixelSize: 14 * root.theme.fontScale
+                color: printerManager.lastError !== "" ? Theme.danger : Theme.textSecondary
+                font.pixelSize: 14 * Theme.fontScale
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
@@ -290,13 +289,13 @@ Popup {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
                 radius: 14
-                color: root.theme.keyBackground
+                color: Theme.keyBackground
 
                 Label {
                     anchors.centerIn: parent
                     text: qsTr("Cancel")
-                    color: root.theme.textPrimary
-                    font.pixelSize: 15 * root.theme.fontScale
+                    color: Theme.textPrimary
+                    font.pixelSize: 15 * Theme.fontScale
                     font.bold: true
                 }
 
@@ -315,14 +314,14 @@ Popup {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
                 radius: 14
-                color: root.theme.keyBackground
+                color: Theme.keyBackground
                 opacity: printerManager.scanning ? 0.4 : 1.0
 
                 Label {
                     anchors.centerIn: parent
                     text: qsTr("Rescan")
-                    color: root.theme.textPrimary
-                    font.pixelSize: 15 * root.theme.fontScale
+                    color: Theme.textPrimary
+                    font.pixelSize: 15 * Theme.fontScale
                     font.bold: true
                 }
 
@@ -338,13 +337,13 @@ Popup {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
                 radius: 14
-                color: root.canUseSelection ? root.theme.primary : root.theme.border
+                color: root.canUseSelection ? Theme.primary : Theme.border
 
                 Label {
                     anchors.centerIn: parent
                     text: qsTr("Use")
-                    color: root.canUseSelection ? "white" : root.theme.textSecondary
-                    font.pixelSize: 15 * root.theme.fontScale
+                    color: root.canUseSelection ? "white" : Theme.textSecondary
+                    font.pixelSize: 15 * Theme.fontScale
                     font.bold: true
                 }
 

@@ -1,4 +1,6 @@
 import QtQuick 2.15
+import "../theme"
+import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -10,14 +12,12 @@ import "../components/icons" as Icons
 Page {
     id: root
 
-    property var theme
-    property var settings
 
     // Cerere de deschidere a paginii Administrare (tratata in main.qml).
     signal adminRequested()
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     header: RowLayout {
@@ -26,7 +26,7 @@ Page {
         Item { Layout.preferredWidth: 12 }
 
         Components.BackButton {
-            color: theme.textPrimary
+            color: Theme.textPrimary
             onClicked: root.StackView.view.pop()
         }
 
@@ -34,9 +34,9 @@ Page {
 
         Label {
             text: qsTr("Settings")
-            font.pixelSize: 20 * theme.fontScale
+            font.pixelSize: 20 * Theme.fontScale
             font.bold: true
-            color: theme.textPrimary
+            color: Theme.textPrimary
         }
 
         Item { Layout.fillWidth: true }
@@ -60,9 +60,9 @@ Page {
             // Titlu de grup pentru setarile de aspect.
             Label {
                 text: qsTr("Appearance")
-                font.pixelSize: 12 * theme.fontScale
+                font.pixelSize: 12 * Theme.fontScale
                 font.bold: true
-                color: theme.textSecondary
+                color: Theme.textSecondary
                 // Litere spatiate, ca eticheta de sectiune.
                 font.letterSpacing: 1.5
                 font.capitalization: Font.AllUppercase
@@ -75,21 +75,20 @@ Page {
 
                 Label {
                     text: qsTr("Language")
-                    font.pixelSize: 16 * theme.fontScale
+                    font.pixelSize: 16 * Theme.fontScale
                     font.bold: true
-                    color: theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 Components.SegmentedControl {
                     Layout.fillWidth: true
-                    theme: root.theme
-                    currentValue: root.settings.language
+                    currentValue: AppSettings.language
                     options: [
                         { label: "Română", value: "ro" },
                         { label: "English", value: "en" },
                         { label: "Русский", value: "ru" }
                     ]
-                    onOptionSelected: root.settings.language = value
+                    onOptionSelected: AppSettings.language = value
                 }
             }
 
@@ -100,20 +99,19 @@ Page {
 
                 Label {
                     text: qsTr("Theme")
-                    font.pixelSize: 16 * theme.fontScale
+                    font.pixelSize: 16 * Theme.fontScale
                     font.bold: true
-                    color: theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 Components.SegmentedControl {
                     Layout.fillWidth: true
-                    theme: root.theme
-                    currentValue: root.theme.darkMode ? "dark" : "light"
+                    currentValue: Theme.darkMode ? "dark" : "light"
                     options: [
                         { label: qsTr("Light"), value: "light" },
                         { label: qsTr("Dark"), value: "dark" }
                     ]
-                    onOptionSelected: root.theme.darkMode = (value === "dark")
+                    onOptionSelected: Theme.darkMode = (value === "dark")
                 }
             }
 
@@ -124,21 +122,20 @@ Page {
 
                 Label {
                     text: qsTr("Text size")
-                    font.pixelSize: 16 * theme.fontScale
+                    font.pixelSize: 16 * Theme.fontScale
                     font.bold: true
-                    color: theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 Components.SegmentedControl {
                     Layout.fillWidth: true
-                    theme: root.theme
-                    currentValue: root.theme.fontScale
+                    currentValue: Theme.fontScale
                     options: [
                         { label: qsTr("Small"), value: 0.9 },
                         { label: qsTr("Medium"), value: 1.0 },
                         { label: qsTr("Large"), value: 1.15 }
                     ]
-                    onOptionSelected: root.theme.fontScale = value
+                    onOptionSelected: Theme.fontScale = value
                 }
             }
 
@@ -147,7 +144,7 @@ Page {
                 Layout.fillWidth: true
                 Layout.topMargin: 6
                 height: 1
-                color: theme.border
+                color: Theme.border
             }
 
             // Rand de navigare catre pagina Administrare (setari de sistem).
@@ -155,9 +152,9 @@ Page {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 64
                 radius: 14
-                color: theme.surface
+                color: Theme.surface
                 border.width: 1
-                border.color: theme.border
+                border.color: Theme.border
 
                 RowLayout {
                     anchors.fill: parent
@@ -168,7 +165,7 @@ Page {
                     Icons.IconSettings {
                         Layout.preferredWidth: 22
                         Layout.preferredHeight: 22
-                        dark: theme.darkMode
+                        dark: Theme.darkMode
                     }
 
                     ColumnLayout {
@@ -177,22 +174,22 @@ Page {
 
                         Label {
                             text: qsTr("Administration")
-                            font.pixelSize: 15 * theme.fontScale
+                            font.pixelSize: 15 * Theme.fontScale
                             font.bold: true
-                            color: theme.textPrimary
+                            color: Theme.textPrimary
                         }
 
                         Label {
                             text: qsTr("Server, printer")
-                            font.pixelSize: 12 * theme.fontScale
-                            color: theme.textSecondary
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: Theme.textSecondary
                         }
                     }
 
                     Icons.IconChevron {
                         Layout.preferredWidth: 16
                         Layout.preferredHeight: 16
-                        color: theme.textSecondary
+                        color: Theme.textSecondary
                     }
                 }
 

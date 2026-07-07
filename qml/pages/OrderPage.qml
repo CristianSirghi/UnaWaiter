@@ -1,4 +1,6 @@
 import QtQuick 2.15
+import "../theme"
+import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -7,9 +9,6 @@ import "../components/icons" as Icons
 Page {
     id: root
 
-    property var theme
-    property var settings
-    property var store
     property string zone: ""
     property int tableNumber: 0
 
@@ -226,11 +225,11 @@ Page {
     }
 
     function submitOrder() {
-        root.store.submitOrder(
+        OrdersStore.submitOrder(
             root.zone,
             root.tableNumber,
             qsTr("Table %1").arg(root.tableNumber),
-            root.settings.waiterName.length > 0 ? root.settings.waiterName : qsTr("Waiter"),
+            AppSettings.waiterName.length > 0 ? AppSettings.waiterName : qsTr("Waiter"),
             root.qtyStore,
             root.addonStore,
             root.guestCount,
@@ -240,7 +239,7 @@ Page {
     }
 
     function deleteOrder() {
-        root.store.removeOrder(root.zone, root.tableNumber)
+        OrdersStore.removeOrder(root.zone, root.tableNumber)
         root.done()
     }
 
@@ -253,7 +252,7 @@ Page {
         priceOf = map
 
         // Dacă masa are deja o comandă trimisă, o reîncărcăm pentru editare.
-        var existing = root.store ? root.store.itemsFor(root.zone, root.tableNumber) : ({})
+        var existing = OrdersStore ? OrdersStore.itemsFor(root.zone, root.tableNumber) : ({})
         var loadedQty = {}
         var hasExisting = false
         for (var name in existing) {
@@ -264,7 +263,7 @@ Page {
             root.isEditing = true
             root.qtyStore = loadedQty
             // Copiem adaosurile salvate (obiect nou pe fiecare părinte, ca să nu mutăm referința din store).
-            var savedAddons = root.store.addonsFor(root.zone, root.tableNumber)
+            var savedAddons = OrdersStore.addonsFor(root.zone, root.tableNumber)
             var loadedAddons = {}
             for (var pn in savedAddons) {
                 loadedAddons[pn] = {}
@@ -272,7 +271,7 @@ Page {
                     loadedAddons[pn][an] = savedAddons[pn][an]
             }
             root.addonStore = loadedAddons
-            root.guestCount = root.store.guestsFor(root.zone, root.tableNumber)
+            root.guestCount = OrdersStore.guestsFor(root.zone, root.tableNumber)
             recomputeTotals()
         }
 
@@ -281,12 +280,12 @@ Page {
     }
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     // ---------- Header ----------
     header: Rectangle {
-        color: theme.surface
+        color: Theme.surface
         height: 60
 
         RowLayout {
@@ -295,7 +294,7 @@ Page {
             anchors.rightMargin: 16
 
             Components.BackButton {
-                color: theme.textPrimary
+                color: Theme.textPrimary
                 onClicked: root.StackView.view.pop()
             }
 
@@ -305,14 +304,14 @@ Page {
                 spacing: 0
                 Label {
                     text: qsTr("Table %1").arg(root.tableNumber)
-                    font.pixelSize: 18 * theme.fontScale
+                    font.pixelSize: 18 * Theme.fontScale
                     font.bold: true
-                    color: theme.textPrimary
+                    color: Theme.textPrimary
                 }
                 Label {
                     text: root.zoneLabel()
-                    font.pixelSize: 12 * theme.fontScale
-                    color: theme.textSecondary
+                    font.pixelSize: 12 * Theme.fontScale
+                    color: Theme.textSecondary
                 }
             }
 
@@ -320,9 +319,9 @@ Page {
 
             Label {
                 text: qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
-                font.pixelSize: 18 * theme.fontScale
+                font.pixelSize: 18 * Theme.fontScale
                 font.bold: true
-                color: theme.primary
+                color: Theme.primary
             }
         }
     }
@@ -349,16 +348,16 @@ Page {
                 height: 36
                 width: catLabel.implicitWidth + 32
                 radius: 18
-                color: index === root.currentCategory ? theme.primary : theme.surface
+                color: index === root.currentCategory ? Theme.primary : Theme.surface
                 border.width: 1
-                border.color: index === root.currentCategory ? theme.primary : theme.border
+                border.color: index === root.currentCategory ? Theme.primary : Theme.border
 
                 Label {
                     id: catLabel
                     anchors.centerIn: parent
                     text: modelData.cat
-                    font.pixelSize: 14 * theme.fontScale
-                    color: index === root.currentCategory ? "white" : theme.textPrimary
+                    font.pixelSize: 14 * Theme.fontScale
+                    color: index === root.currentCategory ? "white" : Theme.textPrimary
                 }
 
                 MouseArea {
@@ -371,7 +370,7 @@ Page {
             }
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: theme.border }
+        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
 
         // Lista de produse
         ListView {
@@ -384,7 +383,7 @@ Page {
                 width: ListView.view.width
                 // Rândul crește când arătăm linkul de adaosuri sub produs.
                 height: (qty > 0 && hasAddons) ? 88 : 66
-                color: theme.surface
+                color: Theme.surface
 
                 RowLayout {
                     anchors.fill: parent
@@ -397,13 +396,13 @@ Page {
                         spacing: 2
                         Label {
                             text: name
-                            font.pixelSize: 15 * theme.fontScale
-                            color: theme.textPrimary
+                            font.pixelSize: 15 * Theme.fontScale
+                            color: Theme.textPrimary
                         }
                         Label {
                             text: qsTr("%1  ·  %2 MDL").arg(unit).arg(root.fmt(price))
-                            font.pixelSize: 12 * theme.fontScale
-                            color: theme.textSecondary
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: Theme.textSecondary
                         }
 
                         // Link "Adaosuri" — apare doar la produsele cu adaosuri, după ce
@@ -414,9 +413,9 @@ Page {
                             implicitWidth: addonLink.implicitWidth + 20
                             implicitHeight: addonLink.implicitHeight + 8
                             radius: height / 2
-                            color: addonCount > 0 ? theme.primary : "transparent"
+                            color: addonCount > 0 ? Theme.primary : "transparent"
                             border.width: 1
-                            border.color: theme.primary
+                            border.color: Theme.primary
 
                             Label {
                                 id: addonLink
@@ -424,9 +423,9 @@ Page {
                                 text: addonCount > 0
                                     ? qsTr("Add-ons · %1").arg(addonCount)
                                     : qsTr("Add-ons")
-                                font.pixelSize: 12 * theme.fontScale
+                                font.pixelSize: 12 * Theme.fontScale
                                 font.bold: true
-                                color: addonCount > 0 ? "white" : theme.primary
+                                color: addonCount > 0 ? "white" : Theme.primary
                             }
 
                             MouseArea {
@@ -440,9 +439,9 @@ Page {
                     Label {
                         visible: qty > 0
                         text: qty
-                        font.pixelSize: 15 * theme.fontScale
+                        font.pixelSize: 15 * Theme.fontScale
                         font.bold: true
-                        color: theme.textPrimary
+                        color: Theme.textPrimary
                         Layout.preferredWidth: 22
                         Layout.alignment: Qt.AlignVCenter
                         horizontalAlignment: Text.AlignHCenter
@@ -453,10 +452,10 @@ Page {
                         visible: qty > 0
                         Layout.alignment: Qt.AlignVCenter
                         width: 34; height: 34; radius: 17
-                        color: theme.keyBackground
+                        color: Theme.keyBackground
                         Icons.IconMinus {
                             anchors.centerIn: parent
-                            color: theme.textPrimary
+                            color: Theme.textPrimary
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -468,7 +467,7 @@ Page {
                     Rectangle {
                         Layout.alignment: Qt.AlignVCenter
                         width: 34; height: 34; radius: 17
-                        color: theme.primary
+                        color: Theme.primary
                         Icons.IconPlus {
                             anchors.centerIn: parent
                             color: "white"
@@ -485,7 +484,7 @@ Page {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: 1
-                    color: theme.border
+                    color: Theme.border
                 }
             }
         }
@@ -498,12 +497,12 @@ Page {
             Layout.preferredHeight: root.summaryExpanded
                 ? 48 + Math.min(selectedModel.count, root.summaryMaxRows) * 44
                 : 48
-            color: theme.surface
+            color: Theme.surface
             clip: true
 
             Behavior on Layout.preferredHeight { NumberAnimation { duration: 120 } }
 
-            Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: theme.border }
+            Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: Theme.border }
 
             ListModel { id: selectedModel }
 
@@ -529,14 +528,14 @@ Page {
                             Icons.IconPerson {
                                 Layout.preferredWidth: 18
                                 Layout.preferredHeight: 18
-                                color: theme.textSecondary
+                                color: Theme.textSecondary
                             }
 
                             Rectangle {
                                 width: 26; height: 26; radius: 13
-                                color: theme.keyBackground
+                                color: Theme.keyBackground
                                 opacity: root.guestCount > 1 ? 1 : 0.4
-                                Icons.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
+                                Icons.IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: if (root.guestCount > 1) root.guestCount -= 1
@@ -547,14 +546,14 @@ Page {
                                 text: root.guestCount
                                 Layout.preferredWidth: 16
                                 horizontalAlignment: Text.AlignHCenter
-                                font.pixelSize: 15 * theme.fontScale
+                                font.pixelSize: 15 * Theme.fontScale
                                 font.bold: true
-                                color: theme.textPrimary
+                                color: Theme.textPrimary
                             }
 
                             Rectangle {
                                 width: 26; height: 26; radius: 13
-                                color: theme.primary
+                                color: Theme.primary
                                 Icons.IconPlus { anchors.centerIn: parent; color: "white" }
                                 MouseArea {
                                     anchors.fill: parent
@@ -579,15 +578,15 @@ Page {
                                     text: root.orderCount > 0
                                         ? qsTr("%1 products selected").arg(root.orderCount)
                                         : qsTr("No products selected")
-                                    font.pixelSize: 14 * theme.fontScale
+                                    font.pixelSize: 14 * Theme.fontScale
                                     font.bold: true
-                                    color: theme.textPrimary
+                                    color: Theme.textPrimary
                                     elide: Text.ElideRight
                                 }
 
                                 Icons.IconChevron {
                                     Layout.alignment: Qt.AlignVCenter
-                                    color: theme.textSecondary
+                                    color: Theme.textSecondary
                                     expanded: root.summaryExpanded
                                 }
                             }
@@ -611,7 +610,7 @@ Page {
                     delegate: Rectangle {
                         width: ListView.view.width
                         height: 44
-                        color: theme.surface
+                        color: Theme.surface
 
                         RowLayout {
                             anchors.fill: parent
@@ -624,22 +623,22 @@ Page {
                             Label {
                                 visible: isAddon
                                 text: "+"
-                                font.pixelSize: 14 * theme.fontScale
-                                color: theme.textSecondary
+                                font.pixelSize: 14 * Theme.fontScale
+                                color: Theme.textSecondary
                             }
 
                             Label {
                                 text: name
                                 Layout.fillWidth: true
                                 elide: Text.ElideRight
-                                font.pixelSize: (isAddon ? 13 : 14) * theme.fontScale
-                                color: isAddon ? theme.textSecondary : theme.textPrimary
+                                font.pixelSize: (isAddon ? 13 : 14) * Theme.fontScale
+                                color: isAddon ? Theme.textSecondary : Theme.textPrimary
                             }
 
                             Rectangle {
                                 width: 26; height: 26; radius: 13
-                                color: theme.keyBackground
-                                Icons.IconMinus { anchors.centerIn: parent; color: theme.textPrimary }
+                                color: Theme.keyBackground
+                                Icons.IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: isAddon ? root.adjustAddon(parentName, name, -1) : root.adjustQty(name, -1)
@@ -650,13 +649,13 @@ Page {
                                 text: qty
                                 Layout.preferredWidth: 18
                                 horizontalAlignment: Text.AlignHCenter
-                                font.pixelSize: 14 * theme.fontScale
-                                color: theme.textPrimary
+                                font.pixelSize: 14 * Theme.fontScale
+                                color: Theme.textPrimary
                             }
 
                             Rectangle {
                                 width: 26; height: 26; radius: 13
-                                color: theme.primary
+                                color: Theme.primary
                                 Icons.IconPlus { anchors.centerIn: parent; color: "white" }
                                 MouseArea {
                                     anchors.fill: parent
@@ -667,9 +666,9 @@ Page {
                             Label {
                                 text: qsTr("%1 MDL").arg(root.fmt(lineTotal))
                                 horizontalAlignment: Text.AlignRight
-                                font.pixelSize: 14 * theme.fontScale
+                                font.pixelSize: 14 * Theme.fontScale
                                 font.bold: !isAddon
-                                color: isAddon ? theme.textSecondary : theme.textPrimary
+                                color: isAddon ? Theme.textSecondary : Theme.textPrimary
                             }
                         }
 
@@ -678,7 +677,7 @@ Page {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             height: 1
-                            color: theme.border
+                            color: Theme.border
                         }
                     }
                 }
@@ -689,9 +688,9 @@ Page {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 72
-            color: theme.surface
+            color: Theme.surface
 
-            Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: theme.border }
+            Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: Theme.border }
 
             RowLayout {
                 anchors.fill: parent
@@ -707,11 +706,11 @@ Page {
                     radius: 24
                     color: "transparent"
                     border.width: 1.5
-                    border.color: theme.danger
+                    border.color: Theme.danger
 
                     Icons.IconTrash {
                         anchors.centerIn: parent
-                        color: theme.danger
+                        color: Theme.danger
                     }
 
                     MouseArea {
@@ -725,7 +724,7 @@ Page {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48
                     radius: 24
-                    color: root.orderCount > 0 ? theme.primary : theme.border
+                    color: root.orderCount > 0 ? Theme.primary : Theme.border
 
                     Label {
                         anchors.fill: parent
@@ -736,9 +735,9 @@ Page {
                         text: root.orderCount > 0
                             ? qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
                             : qsTr("Add products")
-                        font.pixelSize: 15 * theme.fontScale
+                        font.pixelSize: 15 * Theme.fontScale
                         font.bold: true
-                        color: root.orderCount > 0 ? "white" : theme.textSecondary
+                        color: root.orderCount > 0 ? "white" : Theme.textSecondary
                         // Textul lung se micșorează ca să încapă în buton, în loc să iasă pe margini.
                         fontSizeMode: Text.HorizontalFit
                         minimumPixelSize: 10
@@ -757,7 +756,6 @@ Page {
 
     Components.ConfirmDialog {
         id: deleteDialog
-        theme: root.theme
         title: qsTr("Delete order?")
         message: qsTr("The order for %1 will be removed.").arg(qsTr("Table %1").arg(root.tableNumber))
         confirmText: qsTr("Delete")
@@ -768,7 +766,6 @@ Page {
     // Sheet de jos pentru alegerea adaosurilor unui produs (vezi components/AddonSheet.qml).
     Components.AddonSheet {
         id: addonSheet
-        theme: root.theme
         onAddonAdjusted: root.adjustAddon(addonSheet.productName, addonName, delta)
     }
 }

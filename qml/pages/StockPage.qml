@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -6,7 +7,6 @@ import "../components/controls" as Components
 Page {
     id: root
 
-    property var theme
 
     // ---- Stocuri mock (până vine backend-ul Oracle) ----
     readonly property var stockItems: [
@@ -45,7 +45,7 @@ Page {
     }
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     header: RowLayout {
@@ -54,7 +54,7 @@ Page {
         Item { Layout.preferredWidth: 12 }
 
         Components.BackButton {
-            color: theme.textPrimary
+            color: Theme.textPrimary
             onClicked: root.StackView.view.pop()
         }
 
@@ -62,9 +62,9 @@ Page {
 
         Label {
             text: qsTr("Stock")
-            font.pixelSize: 20 * theme.fontScale
+            font.pixelSize: 20 * Theme.fontScale
             font.bold: true
-            color: theme.textPrimary
+            color: Theme.textPrimary
         }
 
         Item { Layout.fillWidth: true }
@@ -81,8 +81,8 @@ Page {
             width: ListView.view.width
             height: 56
             radius: 12
-            color: theme.surface
-            border.color: theme.border
+            color: Theme.surface
+            border.color: Theme.border
 
             RowLayout {
                 anchors.fill: parent
@@ -93,8 +93,8 @@ Page {
                 Label {
                     Layout.fillWidth: true
                     text: modelData.name
-                    font.pixelSize: 15 * theme.fontScale
-                    color: theme.textPrimary
+                    font.pixelSize: 15 * Theme.fontScale
+                    color: Theme.textPrimary
                     elide: Text.ElideRight
                 }
 
@@ -108,7 +108,7 @@ Page {
                         id: statusText
                         anchors.centerIn: parent
                         text: root.statusLabel(modelData.status)
-                        font.pixelSize: 11 * theme.fontScale
+                        font.pixelSize: 11 * Theme.fontScale
                         color: root.statusColor(modelData.status)
                     }
                 }

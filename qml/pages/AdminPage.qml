@@ -1,4 +1,6 @@
 import QtQuick 2.15
+import "../theme"
+import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -9,20 +11,18 @@ import "../components/controls" as Components
 Page {
     id: root
 
-    property var theme
-    property var settings
 
     // Mesaj de stare pentru testul/tiparirea imprimantei.
     property string printerStatus: ""
-    property color printerStatusColor: theme.textSecondary
+    property color printerStatusColor: Theme.textSecondary
 
     function useCandidate(candidate) {
-        settings.printerIp = String(candidate.ip || "")
+        AppSettings.printerIp = String(candidate.ip || "")
         var p = parseInt(candidate.port, 10)
-        settings.printerPort = (isNaN(p) || p <= 0) ? 9100 : p
-        settings.printerName = String(candidate.manufacturer || candidate.displayName || "")
-        root.printerStatus = qsTr("Printer selected: %1").arg(settings.printerIp)
-        root.printerStatusColor = theme.success
+        AppSettings.printerPort = (isNaN(p) || p <= 0) ? 9100 : p
+        AppSettings.printerName = String(candidate.manufacturer || candidate.displayName || "")
+        root.printerStatus = qsTr("Printer selected: %1").arg(AppSettings.printerIp)
+        root.printerStatusColor = Theme.success
     }
 
     // ZPL de test, doar ca sa confirmam ca imprimanta tipareste ce trimitem.
@@ -48,7 +48,7 @@ Page {
     }
 
     background: Rectangle {
-        color: theme.background
+        color: Theme.background
     }
 
     header: RowLayout {
@@ -57,7 +57,7 @@ Page {
         Item { Layout.preferredWidth: 12 }
 
         Components.BackButton {
-            color: theme.textPrimary
+            color: Theme.textPrimary
             onClicked: root.StackView.view.pop()
         }
 
@@ -65,9 +65,9 @@ Page {
 
         Label {
             text: qsTr("Administration")
-            font.pixelSize: 20 * theme.fontScale
+            font.pixelSize: 20 * Theme.fontScale
             font.bold: true
-            color: theme.textPrimary
+            color: Theme.textPrimary
         }
 
         Item { Layout.fillWidth: true }
@@ -79,7 +79,7 @@ Page {
         target: printerManager
         function onTestResult(success, message) {
             root.printerStatus = message
-            root.printerStatusColor = success ? theme.success : theme.danger
+            root.printerStatusColor = success ? Theme.success : Theme.danger
         }
     }
 
@@ -104,18 +104,17 @@ Page {
 
                 Label {
                     text: qsTr("Server")
-                    font.pixelSize: 16 * theme.fontScale
+                    font.pixelSize: 16 * Theme.fontScale
                     font.bold: true
-                    color: theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 Components.TextInputField {
                     Layout.fillWidth: true
-                    theme: root.theme
-                    text: root.settings.serverUrl
+                    text: AppSettings.serverUrl
                     placeholder: qsTr("https://server/oracle_waiter.php")
                     inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhNoAutoUppercase
-                    onEditingFinished: root.settings.serverUrl = text
+                    onEditingFinished: AppSettings.serverUrl = text
                 }
             }
 
@@ -126,9 +125,9 @@ Page {
 
                 Label {
                     text: qsTr("Printer")
-                    font.pixelSize: 16 * theme.fontScale
+                    font.pixelSize: 16 * Theme.fontScale
                     font.bold: true
-                    color: theme.textPrimary
+                    color: Theme.textPrimary
                 }
 
                 // Rezumatul imprimantei curente.
@@ -136,9 +135,9 @@ Page {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 56
                     radius: 12
-                    color: theme.surface
+                    color: Theme.surface
                     border.width: 1
-                    border.color: theme.border
+                    border.color: Theme.border
 
                     RowLayout {
                         anchors.fill: parent
@@ -150,7 +149,7 @@ Page {
                             Layout.preferredWidth: 10
                             Layout.preferredHeight: 10
                             radius: 5
-                            color: root.settings.printerIp !== "" ? theme.success : theme.border
+                            color: AppSettings.printerIp !== "" ? Theme.success : Theme.border
                         }
 
                         ColumnLayout {
@@ -159,23 +158,23 @@ Page {
 
                             Label {
                                 Layout.fillWidth: true
-                                text: root.settings.printerIp !== ""
-                                      ? (root.settings.printerName !== ""
-                                         ? root.settings.printerName
+                                text: AppSettings.printerIp !== ""
+                                      ? (AppSettings.printerName !== ""
+                                         ? AppSettings.printerName
                                          : qsTr("Printer"))
                                       : qsTr("No printer selected")
-                                color: theme.textPrimary
-                                font.pixelSize: 14 * theme.fontScale
+                                color: Theme.textPrimary
+                                font.pixelSize: 14 * Theme.fontScale
                                 font.bold: true
                                 elide: Text.ElideRight
                             }
 
                             Label {
                                 Layout.fillWidth: true
-                                visible: root.settings.printerIp !== ""
-                                text: root.settings.printerIp + ":" + root.settings.printerPort
-                                color: theme.textSecondary
-                                font.pixelSize: 12 * theme.fontScale
+                                visible: AppSettings.printerIp !== ""
+                                text: AppSettings.printerIp + ":" + AppSettings.printerPort
+                                color: Theme.textSecondary
+                                font.pixelSize: 12 * Theme.fontScale
                                 elide: Text.ElideRight
                             }
                         }
@@ -189,22 +188,20 @@ Page {
 
                     Components.TextInputField {
                         Layout.fillWidth: true
-                        theme: root.theme
-                        text: root.settings.printerIp
+                        text: AppSettings.printerIp
                         placeholder: qsTr("Printer IP")
                         inputMethodHints: Qt.ImhPreferNumbers | Qt.ImhNoAutoUppercase
-                        onEditingFinished: root.settings.printerIp = text
+                        onEditingFinished: AppSettings.printerIp = text
                     }
 
                     Components.TextInputField {
                         Layout.preferredWidth: 90
-                        theme: root.theme
-                        text: String(root.settings.printerPort)
+                        text: String(AppSettings.printerPort)
                         placeholder: qsTr("Port")
                         inputMethodHints: Qt.ImhDigitsOnly
                         onEditingFinished: {
                             var p = parseInt(text, 10)
-                            root.settings.printerPort = (isNaN(p) || p <= 0) ? 9100 : p
+                            AppSettings.printerPort = (isNaN(p) || p <= 0) ? 9100 : p
                         }
                     }
                 }
@@ -218,13 +215,13 @@ Page {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 48
                         radius: 14
-                        color: theme.primary
+                        color: Theme.primary
 
                         Label {
                             anchors.centerIn: parent
                             text: qsTr("Search printers")
                             color: "white"
-                            font.pixelSize: 15 * theme.fontScale
+                            font.pixelSize: 15 * Theme.fontScale
                             font.bold: true
                         }
 
@@ -238,24 +235,24 @@ Page {
                         Layout.preferredWidth: 110
                         Layout.preferredHeight: 48
                         radius: 14
-                        color: theme.keyBackground
-                        opacity: root.settings.printerIp !== "" ? 1.0 : 0.4
+                        color: Theme.keyBackground
+                        opacity: AppSettings.printerIp !== "" ? 1.0 : 0.4
 
                         Label {
                             anchors.centerIn: parent
                             text: qsTr("Test")
-                            color: theme.textPrimary
-                            font.pixelSize: 15 * theme.fontScale
+                            color: Theme.textPrimary
+                            font.pixelSize: 15 * Theme.fontScale
                             font.bold: true
                         }
 
                         MouseArea {
                             anchors.fill: parent
-                            enabled: root.settings.printerIp !== ""
+                            enabled: AppSettings.printerIp !== ""
                             onClicked: {
                                 root.printerStatus = qsTr("Testing...")
-                                root.printerStatusColor = theme.textSecondary
-                                printerManager.testConnection(root.settings.printerIp, root.settings.printerPort)
+                                root.printerStatusColor = Theme.textSecondary
+                                printerManager.testConnection(AppSettings.printerIp, AppSettings.printerPort)
                             }
                         }
                     }
@@ -267,28 +264,28 @@ Page {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48
                     radius: 14
-                    color: theme.keyBackground
-                    opacity: root.settings.printerIp !== "" ? 1.0 : 0.4
+                    color: Theme.keyBackground
+                    opacity: AppSettings.printerIp !== "" ? 1.0 : 0.4
 
                     Label {
                         anchors.centerIn: parent
                         text: qsTr("Print test receipt")
-                        color: theme.textPrimary
-                        font.pixelSize: 15 * theme.fontScale
+                        color: Theme.textPrimary
+                        font.pixelSize: 15 * Theme.fontScale
                         font.bold: true
                     }
 
                     MouseArea {
                         anchors.fill: parent
-                        enabled: root.settings.printerIp !== ""
+                        enabled: AppSettings.printerIp !== ""
                         onClicked: {
                             root.printerStatus = qsTr("Printing...")
-                            root.printerStatusColor = theme.textSecondary
-                            var ok = printerManager.printZpl(root.settings.printerIp, root.settings.printerPort, root.testZplLabel())
+                            root.printerStatusColor = Theme.textSecondary
+                            var ok = printerManager.printZpl(AppSettings.printerIp, AppSettings.printerPort, root.testZplLabel())
                             root.printerStatus = ok
                                 ? qsTr("Test receipt sent.")
                                 : (printerManager.lastError !== "" ? printerManager.lastError : qsTr("Failed to send data to printer."))
-                            root.printerStatusColor = ok ? theme.success : theme.danger
+                            root.printerStatusColor = ok ? Theme.success : Theme.danger
                         }
                     }
                 }
@@ -299,7 +296,7 @@ Page {
                     visible: root.printerStatus !== ""
                     text: root.printerStatus
                     color: root.printerStatusColor
-                    font.pixelSize: 13 * theme.fontScale
+                    font.pixelSize: 13 * Theme.fontScale
                     wrapMode: Text.WordWrap
                 }
             }
@@ -309,8 +306,7 @@ Page {
     // Dialogul de cautare imprimante.
     Components.PrinterDiscoveryDialog {
         id: printerDiscoveryDialog
-        theme: root.theme
-        scanPort: root.settings.printerPort > 0 ? root.settings.printerPort : 9100
+        scanPort: AppSettings.printerPort > 0 ? AppSettings.printerPort : 9100
         onPrinterSelected: root.useCandidate(candidate)
     }
 }

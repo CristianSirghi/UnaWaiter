@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQml 2.15
@@ -6,7 +7,6 @@ import QtQml 2.15
 Item {
     id: root
 
-    property var theme
     property var options: []       // [{ label, value, enabled? }]
     property var currentValue
     property int labelHorizontalAlignment: Text.AlignHCenter
@@ -43,8 +43,8 @@ Item {
         id: track
         anchors.fill: parent
         radius: height / 2
-        color: root.theme.surface
-        border.color: root.theme.border
+        color: Theme.surface
+        border.color: Theme.border
     }
 
     // Pastila care culisează pe segmentul selectat / urmărește degetul.
@@ -54,7 +54,7 @@ Item {
         width: root.segmentWidth
         height: track.height - 6
         radius: height / 2
-        color: root.theme.primary
+        color: Theme.primary
         scale: dragArea.pressed ? 1.05 : 1.0
 
         Behavior on x {
@@ -97,8 +97,8 @@ Item {
                 leftPadding: horizontalAlignment === Text.AlignLeft ? 14 : 0
                 rightPadding: 0
                 text: modelData.label
-                font.pixelSize: 13 * root.theme.fontScale
-                color: index === root.currentIndex ? "white" : root.theme.textPrimary
+                font.pixelSize: 13 * Theme.fontScale
+                color: index === root.currentIndex ? "white" : Theme.textPrimary
                 opacity: (modelData.enabled !== false) ? 1.0 : 0.4
                 elide: Text.ElideRight
             }

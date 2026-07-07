@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import "../../theme"
 import QtQuick.Controls 2.15
 
 // Câmp de text tematizat, reutilizabil (URL server, IP imprimantă, port etc.).
@@ -6,7 +7,6 @@ import QtQuick.Controls 2.15
 Item {
     id: root
 
-    property var theme
     property alias text: field.text
     property string placeholder: ""
     property int inputMethodHints: Qt.ImhNone
@@ -20,9 +20,9 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: 12
-        color: root.theme.surface
+        color: Theme.surface
         border.width: 1
-        border.color: field.activeFocus ? root.theme.primary : root.theme.border
+        border.color: field.activeFocus ? Theme.primary : Theme.border
     }
 
     TextField {
@@ -31,10 +31,10 @@ Item {
         anchors.leftMargin: 14
         anchors.rightMargin: 14
         verticalAlignment: Text.AlignVCenter
-        font.pixelSize: 15 * root.theme.fontScale
-        color: root.theme.textPrimary
+        font.pixelSize: 15 * Theme.fontScale
+        color: Theme.textPrimary
         placeholderText: root.placeholder
-        placeholderTextColor: root.theme.textSecondary
+        placeholderTextColor: Theme.textSecondary
         inputMethodHints: root.inputMethodHints
         selectByMouse: true
         // Fără fundal propriu — îl desenăm noi (Rectangle de mai sus).
