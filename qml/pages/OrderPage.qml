@@ -423,26 +423,43 @@ Page {
 
             delegate: Rectangle {
                 width: ListView.view.width
-                // Rândul crește când arătăm linkul de adaosuri sub produs.
-                height: (qty > 0 && hasAddons) ? 88 : 66
+                // Înălțimea derivă din conținutul rândului (nume pe 1 sau 2 rânduri),
+                // cu un minim pentru rândurile scurte. Important: lățimea curge
+                // dinspre rând spre RowLayout (left+right ancorate), iar înălțimea
+                // curge invers (din implicitHeight) — fără buclă, ca să se așeze
+                // corect din prima, nu abia după un +/−.
+                height: Math.max(66, rowLayout.implicitHeight + 20)
                 color: Theme.surface
 
                 RowLayout {
-                    anchors.fill: parent
+                    id: rowLayout
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: 16
                     anchors.rightMargin: 12
                     spacing: 12
 
                     ColumnLayout {
+                        id: infoColumn
                         Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
                         spacing: 2
+                        // Numele se încadrează pe max 2 rânduri, ca butoanele +/−
+                        // să nu fie împinse afară de produsele cu nume lung.
                         Label {
                             text: name
+                            Layout.fillWidth: true
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
                             font.pixelSize: 15 * Theme.fontScale
                             color: Theme.textPrimary
                         }
                         Label {
                             text: qsTr("%1  ·  %2 MDL").arg(unit).arg(root.fmt(price))
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
                             font.pixelSize: 12 * Theme.fontScale
                             color: Theme.textSecondary
                         }
