@@ -16,44 +16,20 @@ Page {
     // la lista de mese, indiferent câte pagini sunt pe stivă.
     signal done()
 
-    // ---- Meniu mock (până vine backend-ul Oracle) ----
-    // Unele produse au `addons` — adaosuri legate de produs (ex. smântână la blini).
-    readonly property var menuData: [
-        { cat: "Blini", items: [
-            { name: "Blinie cu unt", unit: "185g", price: 18.50, addons: [
-                { name: "Smântână", price: 8.00 },
-                { name: "Dulceață", price: 10.00 },
-                { name: "Miere", price: 12.00 }
-            ] },
-            { name: "Blinie cu brânză", unit: "220g", price: 22.00, addons: [
-                { name: "Smântână", price: 8.00 }
-            ] },
-            { name: "Blinie cu cașcaval", unit: "210g", price: 21.00 },
-            { name: "Blinie cu somon", unit: "220g", price: 60.00, addons: [
-                { name: "Smântână", price: 8.00 },
-                { name: "Icre roșii", price: 45.00 }
-            ] }
-        ] },
-        { cat: "Salate", items: [
-            { name: "Salată Cezar", unit: "250g", price: 45.00, addons: [
-                { name: "Extra pui", price: 20.00 },
-                { name: "Parmezan", price: 15.00 }
-            ] },
-            { name: "Salată grecească", unit: "230g", price: 38.00 }
-        ] },
-        { cat: "Supe", items: [
-            { name: "Ciorbă de burtă", unit: "300g", price: 40.00 },
-            { name: "Zeamă de casă", unit: "300g", price: 35.00 }
-        ] },
-        { cat: "Băuturi", items: [
-            { name: "Coca-cola 0.5l", unit: "0.5l", price: 20.00 },
-            { name: "Apă plată", unit: "0.5l", price: 15.00 }
-        ] },
-        { cat: "Desert", items: [
-            { name: "Tiramisu", unit: "150g", price: 42.00 },
-            { name: "Înghețată", unit: "100g", price: 25.00 }
-        ] }
-    ]
+    // ---- Meniu real (din backend, via dataService) ----
+    // Structura pe categorii: [{ cat, grp, items: [{ name, unit, price, cod }] }].
+    // Construită din dataService.categories + dataService.menu (vezi buildMenuData).
+    // Produsele NU au încă `addons` — modelul de adaosuri (PARENT_NRORD) se face
+    // într-un pas separat; până atunci UI-ul de adaosuri rămâne inactiv de la sine
+    // (hasAddons devine false când produsul n-are câmpul `addons`).
+    property var menuData: []
+    // Codul de produs (bliuda) per nume — necesar la trimiterea comenzii (createOrder).
+    // Deocamdată tot codul cheamă produsele după nume; codeOf face puntea nume→cod
+    // pentru pasul de trimitere care urmează.
+    property var codeOf: ({})
+    // true după ce meniul a fost încărcat și structurat; până atunci arătăm "se încarcă".
+    property bool menuReady: false
+    property string loadError: ""
 
     property int currentCategory: 0
     property bool summaryExpanded: false
@@ -61,9 +37,8 @@ Page {
     // true dacă masa are deja o comandă trimisă (deschisă din TablesPage) — arată butonul de ștergere.
     property bool isEditing: false
 
-    // Cantități per produs (cheie = nume, persistă la schimbarea categoriei) + preț pentru total.
+    // Cantități per produs (cheie = nume, persistă la schimbarea categoriei).
     property var qtyStore: ({})
-    property var priceOf: ({})
     // Adaosuri alese, grupate pe produsul-părinte: { numeProdus: { numeAdaos: cantitate } }.
     property var addonStore: ({})
     property int orderCount: 0
@@ -92,6 +67,8 @@ Page {
 
     function populateCategory(i) {
         productsModel.clear()
+        if (!menuData || i < 0 || i >= menuData.length)
+            return
         var items = menuData[i].items
         for (var k = 0; k < items.length; ++k) {
             productsModel.append({
@@ -243,15 +220,61 @@ Page {
         root.done()
     }
 
-    Component.onCompleted: {
-        // Construim tabela de prețuri o singură dată.
-        var map = {}
-        for (var i = 0; i < menuData.length; ++i)
-            for (var k = 0; k < menuData[i].items.length; ++k)
-                map[menuData[i].items[k].name] = menuData[i].items[k].price
-        priceOf = map
+    // Grupează lista plată de produse (dataService.menu) pe categorii
+    // (dataService.categories), păstrând ordinea categoriilor. Sare peste
+    // categoriile fără produse, ca să nu apară tab-uri goale. Tot aici
+    // completăm hărțile preț/cod per nume de produs.
+    function buildMenuData(cats, items) {
+        var byGrp = ({})
+        var codeMap = ({})
 
-        // Dacă masa are deja o comandă trimisă, o reîncărcăm pentru editare.
+        for (var i = 0; i < items.length; ++i) {
+            var it = items[i]
+            var grp = parseInt(it.GRP)
+            var nm = it.DENUMIREA
+            var prod = {
+                name: nm,
+                unit: it.UM ? it.UM : "",
+                price: parseFloat(it.PRET),
+                cod: parseInt(it.COD)
+            }
+            if (!byGrp[grp])
+                byGrp[grp] = []
+            byGrp[grp].push(prod)
+            codeMap[nm] = prod.cod
+        }
+
+        var built = []
+        for (var c = 0; c < cats.length; ++c) {
+            var ccod = parseInt(cats[c].COD)
+            var list = byGrp[ccod]
+            if (!list || list.length === 0)
+                continue
+            built.push({ cat: cats[c].DENUMIREA, grp: ccod, items: list })
+        }
+
+        root.menuData = built
+        root.codeOf = codeMap
+    }
+
+    // Construim meniul o singură dată, când AMBELE surse au sosit
+    // (categorii + produse vin prin semnale separate).
+    function tryBuildMenu() {
+        if (root.menuReady)
+            return
+        var cats = dataService.categories
+        var items = dataService.menu
+        if (cats.length === 0 || items.length === 0)
+            return
+
+        buildMenuData(cats, items)
+        root.menuReady = true
+        root.setupAfterMenu()
+    }
+
+    // Rulează după ce meniul e gata: reîncarcă o comandă existentă (deocamdată
+    // din OrdersStore mock) și populează categoria curentă.
+    function setupAfterMenu() {
         var existing = OrdersStore ? OrdersStore.itemsFor(root.zone, root.tableNumber) : ({})
         var loadedQty = {}
         var hasExisting = false
@@ -262,7 +285,6 @@ Page {
         if (hasExisting) {
             root.isEditing = true
             root.qtyStore = loadedQty
-            // Copiem adaosurile salvate (obiect nou pe fiecare părinte, ca să nu mutăm referința din store).
             var savedAddons = OrdersStore.addonsFor(root.zone, root.tableNumber)
             var loadedAddons = {}
             for (var pn in savedAddons) {
@@ -275,8 +297,28 @@ Page {
             recomputeTotals()
         }
 
+        if (root.currentCategory >= root.menuData.length)
+            root.currentCategory = 0
         populateCategory(currentCategory)
         rebuildSelectedModel()
+    }
+
+    Connections {
+        target: dataService
+
+        function onMenuChanged() { root.tryBuildMenu() }
+        function onCategoriesChanged() { root.tryBuildMenu() }
+        function onRequestFailed(command, error) {
+            if (command === "get_menu" || command === "get_categories")
+                root.loadError = error
+        }
+    }
+
+    Component.onCompleted: {
+        // Cerem tot meniul dintr-o dată (categorie 0 = tot), plus dicționarul
+        // de categorii. tryBuildMenu le îmbină când amândouă sosesc.
+        dataService.loadCategories()
+        dataService.loadMenu(0)
     }
 
     background: Rectangle {
@@ -752,6 +794,20 @@ Page {
                 }
             }
         }
+    }
+
+    // Stare de încărcare / eroare peste zona de conținut, până sosește meniul.
+    Label {
+        anchors.centerIn: parent
+        visible: !root.menuReady
+        horizontalAlignment: Text.AlignHCenter
+        width: parent.width - 48
+        wrapMode: Text.WordWrap
+        text: root.loadError !== ""
+            ? qsTr("Couldn't load the menu:\n%1").arg(root.loadError)
+            : qsTr("Loading menu…")
+        font.pixelSize: 15 * Theme.fontScale
+        color: root.loadError !== "" ? Theme.danger : Theme.textSecondary
     }
 
     Components.ConfirmDialog {
