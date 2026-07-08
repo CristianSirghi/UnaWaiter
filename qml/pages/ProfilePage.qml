@@ -10,7 +10,32 @@ Page {
 
 
     property bool editingName: false
+    property bool savingName: false
+    property string nameError: ""
     property string statsPeriod: "day"
+
+    // Serverul e sursa de adevăr pentru nume (uw_waiters) — AppSettings.waiterName
+    // se schimbă doar după confirmarea din onWaiterNameUpdated, nu optimist.
+    Connections {
+        target: dataService
+
+        function onWaiterNameUpdated(oficiant, name) {
+            if (!root.savingName)
+                return
+            root.savingName = false
+            AppSettings.waiterName = name
+            root.nameError = ""
+        }
+
+        function onRequestFailed(command, error) {
+            if (!root.savingName || command !== "update_waiter_name")
+                return
+            root.savingName = false
+            root.nameError = (error === "name_taken")
+                ? qsTr("Name already in use")
+                : error
+        }
+    }
 
     // Statistici mock (până vine backend-ul) — mese servite per perioadă.
     readonly property var statsByPeriod: ({
@@ -109,14 +134,24 @@ Page {
                 background: Rectangle { color: "transparent" }
 
                 function commit() {
-                    if (text.length > 0)
-                        AppSettings.waiterName = text
                     root.editingName = false
+                    if (text.length > 0 && text !== AppSettings.waiterName) {
+                        root.savingName = true
+                        dataService.updateWaiterName(AppSettings.waiterOficiant, text)
+                    }
                 }
 
                 onAccepted: commit()
                 onActiveFocusChanged: if (!activeFocus && root.editingName) commit()
             }
+        }
+
+        Label {
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.nameError !== ""
+            text: root.nameError
+            color: "#e53935"
+            font.pixelSize: 13 * Theme.fontScale
         }
 
         Rectangle {

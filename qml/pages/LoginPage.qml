@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import "../theme"
+import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -10,8 +11,37 @@ Page {
 
     property int pinLength: 4
     property string enteredPin: ""
+    // true cât timp așteptăm răspunsul de la dataService.login()
+    property bool loggingIn: false
+    property string errorText: ""
 
     signal loginConfirmed()
+
+    // Reacționăm la rezultatul autentificării (dataService e expus din C++).
+    Connections {
+        target: dataService
+
+        function onLoggedIn(oficiant, name, username) {
+            if (!root.loggingIn)
+                return
+            root.loggingIn = false
+            AppSettings.waiterOficiant = oficiant
+            AppSettings.waiterName = name
+            root.enteredPin = ""
+            root.errorText = ""
+            root.loginConfirmed()
+        }
+
+        function onRequestFailed(command, error) {
+            if (!root.loggingIn || command !== "log_in")
+                return
+            root.loggingIn = false
+            root.enteredPin = ""
+            root.errorText = (error === "invalid_credentials")
+                ? qsTr("Wrong PIN")
+                : error
+        }
+    }
 
     background: Rectangle {
         color: Theme.background
@@ -72,6 +102,14 @@ Page {
             }
         }
 
+        Label {
+            Layout.alignment: Qt.AlignHCenter
+            visible: root.errorText !== ""
+            text: root.errorText
+            color: "#e53935"
+            font.pixelSize: 15 * Theme.fontScale
+        }
+
         Item { Layout.fillHeight: true }
 
         GridLayout {
@@ -121,12 +159,16 @@ Page {
                         anchors.fill: parent
                         onClicked: {
                             if (keyDelegate.isDigit && root.enteredPin.length < root.pinLength) {
+                                root.errorText = ""
                                 root.enteredPin += keyDelegate.keyValue
                             } else if (keyDelegate.isDelete) {
+                                root.errorText = ""
                                 root.enteredPin = root.enteredPin.slice(0, -1)
-                            } else if (keyDelegate.isConfirm && keyDelegate.isConfirmEnabled) {
-                                root.loginConfirmed()
-                                root.enteredPin = ""
+                            } else if (keyDelegate.isConfirm && keyDelegate.isConfirmEnabled && !root.loggingIn) {
+                                // PIN-only login: username gol, PIN = enteredPin.
+                                root.errorText = ""
+                                root.loggingIn = true
+                                dataService.login("", root.enteredPin)
                             }
                         }
                     }

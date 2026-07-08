@@ -9,11 +9,13 @@ INCLUDEPATH += \
 
 HEADERS += \
     src/core/translationmanager.h \
+    src/core/dataservice.h \
     src/printing/printermanager.h
 
 SOURCES += \
     src/main.cpp \
     src/core/translationmanager.cpp \
+    src/core/dataservice.cpp \
     src/printing/printermanager.cpp
 
 RESOURCES += resources/qml.qrc

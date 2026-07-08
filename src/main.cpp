@@ -4,6 +4,7 @@
 
 #include "translationmanager.h"
 #include "printermanager.h"
+#include "dataservice.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,9 @@ int main(int argc, char *argv[])
 
     PrinterManager printerManager;
     engine.rootContext()->setContextProperty(QStringLiteral("printerManager"), &printerManager);
+
+    DataService dataService;
+    engine.rootContext()->setContextProperty(QStringLiteral("dataService"), &dataService);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(

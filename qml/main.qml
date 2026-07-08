@@ -35,6 +35,16 @@ ApplicationWindow {
         }
     }
 
+    // Adresa backend-ului (câmpul "Server" din Administrare) alimentează
+    // dataService. Cât timp câmpul e gol, dataService rămâne pe URL-ul implicit
+    // din C++ (endpoint-ul de test), ca aplicația să meargă fără configurare.
+    Binding {
+        target: dataService
+        property: "baseUrl"
+        value: AppSettings.serverUrl
+        when: AppSettings.serverUrl !== ""
+    }
+
     background: Rectangle {
         color: Theme.background
     }
