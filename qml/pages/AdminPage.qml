@@ -112,7 +112,6 @@ Page {
                 Components.TextInputField {
                     Layout.fillWidth: true
                     text: AppSettings.serverUrl
-                    placeholder: qsTr("https://server/oracle_waiter.php")
                     inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhNoAutoUppercase
                     onEditingFinished: AppSettings.serverUrl = text
                 }

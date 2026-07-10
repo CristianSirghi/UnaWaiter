@@ -36,8 +36,9 @@ ApplicationWindow {
     }
 
     // Adresa backend-ului (câmpul "Server" din Administrare) alimentează
-    // dataService. Cât timp câmpul e gol, dataService rămâne pe URL-ul implicit
-    // din C++ (endpoint-ul de test), ca aplicația să meargă fără configurare.
+    // dataService. Nu mai există URL implicit în C++: cât timp câmpul e gol,
+    // dataService.baseUrl rămâne gol și orice cerere eșuează explicit
+    // ("Missing backend address") în loc să vorbească tăcut cu alt client.
     Binding {
         target: dataService
         property: "baseUrl"

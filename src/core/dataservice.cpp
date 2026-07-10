@@ -9,17 +9,15 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-namespace {
-// Default backend endpoint. Kept here as a sensible default; can be overridden
-// at runtime via the `baseUrl` property (e.g. from a Settings screen later).
-const QString kDefaultBaseUrl =
-    QStringLiteral("http://una.md:3323/um/una_waiter/foisor.php");
-}
-
+// No baked-in default endpoint on purpose: a hardcoded URL from one client's
+// deployment would silently point every fresh install (any restaurant) at
+// that client's backend until someone remembers to fill in Administrare. With
+// `m_baseUrl` starting empty, buildUrl() returns an empty string and every
+// call fails loudly via requestFailed("...", "Missing backend address.")
+// until the server address is actually configured.
 DataService::DataService(QObject *parent)
     : QObject(parent)
     , m_network(new QNetworkAccessManager(this))
-    , m_baseUrl(kDefaultBaseUrl)
 {
 }
 

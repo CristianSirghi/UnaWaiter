@@ -110,10 +110,12 @@ Page {
             font.pixelSize: 15 * Theme.fontScale
         }
 
-        Item { Layout.fillHeight: true }
-
+        // Tastatura ocupă tot spațiul rămas sub eroare (fillHeight pe grid +
+        // pe fiecare tastă) - se micșorează pe ecrane mai scurte în loc să
+        // depășească marginea vizibilă, cum se întâmpla cu o înălțime fixă.
         GridLayout {
             Layout.fillWidth: true
+            Layout.fillHeight: true
             columns: 3
             rowSpacing: 12
             columnSpacing: 12
@@ -124,7 +126,9 @@ Page {
                 Rectangle {
                     id: keyDelegate
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
                     Layout.preferredHeight: 64
+                    Layout.minimumHeight: 44
                     radius: 12
                     color: Theme.keyBackground
 

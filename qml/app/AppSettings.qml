@@ -15,9 +15,14 @@ QtObject {
     property int waiterOficiant: 0
 
     // --- Server (backend PHP) ---
-    // URL-ul către oracle_waiter.php. Gol => dataService folosește URL-ul
-    // implicit din C++ (endpoint-ul de test). Se completează din Administrare.
-    property string serverUrl: ""
+    // URL-ul către oracle_waiter.php. Valoare implicită vizibilă (ca la
+    // Una_Prod's httpAddress) - apare ca text real, editabil, în câmpul
+    // Server din Administrare, nu ascunsă într-un placeholder. La un client
+    // nou, se șterge/înlocuiește manual din acel ecran. Dacă rămâne goală
+    // (client nou, nesetat încă), dataService nu mai are fallback în C++ -
+    // cererile eșuează explicit ("Missing backend address") în loc să
+    // vorbească tăcut cu backend-ul Foișor.
+    property string serverUrl: "http://una.md:3323/um/una_waiter/foisor.php"
 
     // --- Imprimantă de rețea (LAN, raw TCP) ---
     // IP-ul/portul se aleg din secțiunea Imprimantă (Administrare), prin căutarea

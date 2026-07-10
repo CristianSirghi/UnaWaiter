@@ -220,10 +220,6 @@ Page {
         root.done()
     }
 
-    // Grupează lista plată de produse (dataService.menu) pe categorii
-    // (dataService.categories), păstrând ordinea categoriilor. Sare peste
-    // categoriile fără produse, ca să nu apară tab-uri goale. Tot aici
-    // completăm hărțile preț/cod per nume de produs.
     function buildMenuData(cats, items) {
         var byGrp = ({})
         var codeMap = ({})
