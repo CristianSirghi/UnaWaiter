@@ -168,39 +168,55 @@
 <context>
     <name>LoginPage</name>
     <message>
+        <location filename="../qml/pages/LoginPage.qml" line="+213"/>
         <source>Enter PIN</source>
-        <translation type="vanished">Enter PIN</translation>
+        <translation>Enter PIN</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+43"/>
         <source>Wrong username or password</source>
-        <translation>Wrong username or password</translation>
+        <translation type="vanished">Wrong username or password</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</source>
-        <translation>This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</translation>
+        <translation type="vanished">This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</translation>
     </message>
     <message>
-        <location line="+38"/>
-        <location line="+47"/>
+        <location line="-118"/>
+        <source>Wrong PIN</source>
+        <translation>Wrong PIN</translation>
+    </message>
+    <message>
+        <location line="+33"/>
         <source>Log in</source>
         <translation>Log in</translation>
     </message>
     <message>
-        <location line="-38"/>
+        <location line="+8"/>
+        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
+        <translation>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Username</source>
         <translation>Username</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>Password</source>
-        <translation>Password</translation>
+        <location line="+15"/>
+        <source>Continue</source>
+        <translation>Continue</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+156"/>
+        <source>Switch user</source>
+        <translation>Switch user</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="vanished">Password</translation>
+    </message>
+    <message>
         <source>Logging in…</source>
-        <translation>Logging in…</translation>
+        <translation type="vanished">Logging in…</translation>
     </message>
 </context>
 <context>

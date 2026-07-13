@@ -47,11 +47,10 @@ public:
     Q_INVOKABLE void loadTables();
     Q_INVOKABLE void loadOpenOrders(const QString &waiter = QString());
 
-    // Auth (POST) against UAMenu's own TMS_CASIR login (USER_ID/USER_PASSWORD -
-    // not a PIN). On success emits loggedIn(oficiant, name, username); on bad
-    // credentials the failure arrives via requestFailed("log_in", "invalid_credentials")
-    // or requestFailed("log_in", "no_oficiant_linked") if the account has no
-    // vms_univers code linked yet (DEP column, set from UAMenu's Users screen).
+    // Auth (POST) against our own uw_waiters roster: username + 4-digit PIN,
+    // each row linked to the real vms_univers waiter code (oficiant) used on
+    // orders. On success emits loggedIn(oficiant, name, username); on bad
+    // credentials the failure arrives via requestFailed("log_in", "invalid_credentials").
     Q_INVOKABLE void login(const QString &username, const QString &password);
 
     // Writes (POST). Results come back through the signals below rather than a

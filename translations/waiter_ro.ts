@@ -168,39 +168,55 @@
 <context>
     <name>LoginPage</name>
     <message>
+        <location filename="../qml/pages/LoginPage.qml" line="+213"/>
         <source>Enter PIN</source>
-        <translation type="vanished">Introduceți PIN-ul</translation>
+        <translation>Introduceți PIN-ul</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+43"/>
         <source>Wrong username or password</source>
-        <translation>Utilizator sau parolă greșită</translation>
+        <translation type="vanished">Utilizator sau parolă greșită</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</source>
-        <translation>Acest cont nu este încă legat de un chelner - cere unui admin să-l configureze în UAMenu</translation>
+        <translation type="vanished">Acest cont nu este încă legat de un chelner - cere unui admin să-l configureze în UAMenu</translation>
     </message>
     <message>
-        <location line="+38"/>
-        <location line="+47"/>
+        <location line="-118"/>
+        <source>Wrong PIN</source>
+        <translation>PIN greșit</translation>
+    </message>
+    <message>
+        <location line="+33"/>
         <source>Log in</source>
         <translation>Autentificare</translation>
     </message>
     <message>
-        <location line="-38"/>
+        <location line="+8"/>
+        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
+        <translation>Introdu numele de utilizator o singură dată - telefonul îl va reține, apoi vei avea nevoie doar de PIN.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Username</source>
         <translation>Utilizator</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>Password</source>
-        <translation>Parolă</translation>
+        <location line="+15"/>
+        <source>Continue</source>
+        <translation>Continuă</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+156"/>
+        <source>Switch user</source>
+        <translation>Schimbă utilizatorul</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation type="vanished">Parolă</translation>
+    </message>
+    <message>
         <source>Logging in…</source>
-        <translation>Se autentifică…</translation>
+        <translation type="vanished">Se autentifică…</translation>
     </message>
 </context>
 <context>
