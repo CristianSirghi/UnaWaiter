@@ -52,6 +52,10 @@ Page {
     // Numărul de oaspeți la masă (minim 1), ales de chelner și salvat cu comanda.
     property int guestCount: 1
 
+    // Stare trimitere reală către Oracle (create_order + add_order_line).
+    property bool sending: false
+    property string sendError: ""
+
     function fmt(v) {
         return v.toFixed(2).replace(".", ",")
     }
@@ -207,7 +211,41 @@ Page {
         rebuildSelectedModel()
     }
 
+    // Liniile de trimis la add_order_lines: doar produsele-părinte (cod +
+    // cantitate). Adaosurile nu sunt încă populate în menuData (vezi comentariul
+    // de la `menuData` mai sus), deci nu apar aici - de adăugat submit-ul în doi
+    // timpi (parentNrord din răspunsul liniilor-părinte) când vin și adaosurile.
+    function buildOrderLines() {
+        var lines = []
+        for (var name in root.qtyStore) {
+            var qty = root.qtyStore[name]
+            if (qty > 0 && root.codeOf[name] !== undefined)
+                lines.push({ product: root.codeOf[name], qty: qty })
+        }
+        return lines
+    }
+
+    // Păstrează comanda în OrdersStore (mock local, citit de TablesPage) și
+    // închide pagina. Folosit atât după o trimitere reală reușită, cât și
+    // pentru editare (care rămâne doar locală deocamdată - vezi submitOrder).
+    function finishSubmit() {
+        OrdersStore.submitOrder(
+            root.zone,
+            root.tableNumber,
+            qsTr("Table %1").arg(root.tableNumber),
+            AppSettings.waiterName.length > 0 ? AppSettings.waiterName : qsTr("Waiter"),
+            root.qtyStore,
+            root.addonStore,
+            root.guestCount,
+            qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
+        )
+        root.done()
+    }
+
     function submitOrder() {
+        if (root.sending)
+            return
+
         // Dacă masa a fost schimbată (ChangeTablePicker), mutăm întâi comanda
         // existentă pe noua masă, păstrând numărul de comandă — altfel
         // OrdersStore.submitOrder de mai jos ar crea o comandă nouă la vechea
@@ -222,17 +260,18 @@ Page {
             root.originalTableNumber = root.tableNumber
         }
 
-        OrdersStore.submitOrder(
-            root.zone,
-            root.tableNumber,
-            qsTr("Table %1").arg(root.tableNumber),
-            AppSettings.waiterName.length > 0 ? AppSettings.waiterName : qsTr("Waiter"),
-            root.qtyStore,
-            root.addonStore,
-            root.guestCount,
-            qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
-        )
-        root.done()
+        if (root.isEditing) {
+            // Editarea unei comenzi deja trimise nu e încă re-sincronizată cu
+            // Oracle - add_order_line doar adaugă linii noi, nu le actualizează/
+            // șterge pe cele existente. Rămâne doar locală până se construiește
+            // fluxul de actualizare (subiect separat, nu de azi).
+            root.finishSubmit()
+            return
+        }
+
+        root.sendError = ""
+        root.sending = true
+        dataService.createOrder(AppSettings.waiterOficiant, root.tableNumber, "", root.guestCount)
     }
 
     function deleteOrder() {
@@ -329,9 +368,39 @@ Page {
 
         function onMenuChanged() { root.tryBuildMenu() }
         function onCategoriesChanged() { root.tryBuildMenu() }
+
+        // create_order a reușit - adăugăm liniile (produsele-părinte). Dacă
+        // dintr-un motiv oarecare nu-i nicio linie de trimis, terminăm direct
+        // (nu ar trebui să se-ntâmple, butonul de trimitere e activ doar cu
+        // orderCount > 0).
+        function onOrderCreated(nrComand) {
+            if (!root.sending)
+                return
+            var lines = root.buildOrderLines()
+            if (lines.length === 0) {
+                root.sending = false
+                root.finishSubmit()
+                return
+            }
+            dataService.addOrderLines(String(nrComand), lines)
+        }
+
+        function onOrderLinesAdded(nrComand, lines) {
+            if (!root.sending)
+                return
+            root.sending = false
+            root.finishSubmit()
+        }
+
         function onRequestFailed(command, error) {
-            if (command === "get_menu" || command === "get_categories")
+            if (command === "get_menu" || command === "get_categories") {
                 root.loadError = error
+                return
+            }
+            if (root.sending && (command === "create_order" || command === "add_order_lines")) {
+                root.sending = false
+                root.sendError = error
+            }
         }
     }
 
@@ -782,6 +851,19 @@ Page {
             }
         }
 
+        // Eroare la trimiterea reală a comenzii (create_order/add_order_lines).
+        Label {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.topMargin: root.sendError !== "" ? 8 : 0
+            visible: root.sendError !== ""
+            text: qsTr("Couldn't send the order:\n%1").arg(root.sendError)
+            wrapMode: Text.WordWrap
+            font.pixelSize: 13 * Theme.fontScale
+            color: Theme.danger
+        }
+
         // Bara de jos — ștergere (doar la editare) + trimite comanda
         Rectangle {
             Layout.fillWidth: true
@@ -822,7 +904,7 @@ Page {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48
                     radius: 24
-                    color: root.orderCount > 0 ? Theme.primary : Theme.border
+                    color: (root.orderCount > 0 && !root.sending) ? Theme.primary : Theme.border
 
                     Label {
                         anchors.fill: parent
@@ -830,14 +912,16 @@ Page {
                         anchors.rightMargin: 12
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        text: root.orderCount > 0
-                            ? (root.isEditing
-                                ? qsTr("Update order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
-                                : qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal)))
-                            : qsTr("Add products")
+                        text: root.sending
+                            ? qsTr("Sending…")
+                            : (root.orderCount > 0
+                                ? (root.isEditing
+                                    ? qsTr("Update order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
+                                    : qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal)))
+                                : qsTr("Add products"))
                         font.pixelSize: 15 * Theme.fontScale
                         font.bold: true
-                        color: root.orderCount > 0 ? "white" : Theme.textSecondary
+                        color: (root.orderCount > 0 && !root.sending) ? "white" : Theme.textSecondary
                         // Textul lung se micșorează ca să încapă în buton, în loc să iasă pe margini.
                         fontSizeMode: Text.HorizontalFit
                         minimumPixelSize: 10
@@ -846,7 +930,7 @@ Page {
 
                     MouseArea {
                         anchors.fill: parent
-                        enabled: root.orderCount > 0
+                        enabled: root.orderCount > 0 && !root.sending
                         onClicked: root.submitOrder()
                     }
                 }

@@ -215,13 +215,16 @@ void DataService::login(const QString &username, const QString &password)
 
 void DataService::createOrder(const QString &waiter,
                               const QString &desk,
-                              const QString &payType)
+                              const QString &payType,
+                              const QString &guestCount)
 {
     QVariantMap fields;
     fields.insert(QStringLiteral("waiter"), waiter);
     fields.insert(QStringLiteral("desk"), desk);
     if (!payType.trimmed().isEmpty())
         fields.insert(QStringLiteral("payType"), payType);
+    if (!guestCount.trimmed().isEmpty())
+        fields.insert(QStringLiteral("guestCount"), guestCount);
 
     postObject(QStringLiteral("create_order"), fields,
                [this](const QVariantMap &obj) {

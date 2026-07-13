@@ -206,7 +206,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+62"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+66"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -216,21 +216,21 @@
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+156"/>
-        <location line="+10"/>
-        <location line="+151"/>
-        <location line="+499"/>
+        <location line="+169"/>
+        <location line="+21"/>
+        <location line="+192"/>
+        <location line="+514"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-649"/>
+        <location line="-726"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+169"/>
+        <location line="+231"/>
         <location line="+363"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
@@ -269,7 +269,19 @@
         <translation>No products selected</translation>
     </message>
     <message>
-        <location line="+157"/>
+        <location line="+114"/>
+        <source>Couldn&apos;t send the order:
+%1</source>
+        <translation>Couldn&apos;t send the order:
+%1</translation>
+    </message>
+    <message>
+        <location line="+55"/>
+        <source>Sending…</source>
+        <translation>Sending…</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Update order · %1 · %2 MDL</source>
         <translation>Update order · %1 · %2 MDL</translation>
     </message>

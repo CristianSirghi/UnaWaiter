@@ -58,7 +58,8 @@ public:
     // property, since they're one-shot actions, not persistent state.
     Q_INVOKABLE void createOrder(const QString &waiter,
                                  const QString &desk,
-                                 const QString &payType = QString());
+                                 const QString &payType = QString(),
+                                 const QString &guestCount = QString());
     Q_INVOKABLE void addOrderLines(const QString &nrComand,
                                    const QVariantList &lines);
 
