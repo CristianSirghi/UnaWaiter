@@ -113,4 +113,61 @@ QtObject {
         delete itemsByKey[key]
         delete addonsByKey[key]
     }
+
+    // True dacă masa dată are deja o comandă activă — folosit la schimbarea
+    // mesei unei comenzi (ChangeTablePicker), ca să nu suprascriem din
+    // greșeală o altă comandă deschisă.
+    function hasOrder(zone, tableNumber) {
+        return indexForKey(keyFor(zone, tableNumber)) >= 0
+    }
+
+    // Mută o comandă deschisă pe altă masă/zonă (chelnerul a trimis din
+    // greșeală pe masa greșită), păstrând numărul comenzii, produsele și
+    // adaosurile. Întoarce false (fără nicio schimbare) dacă masa țintă are
+    // deja o comandă activă.
+    function moveOrder(fromZone, fromTableNumber, toZone, toTableNumber, toTableName) {
+        var fromKey = keyFor(fromZone, fromTableNumber)
+        var toKey = keyFor(toZone, toTableNumber)
+        if (fromKey === toKey)
+            return true
+
+        if (indexForKey(toKey) >= 0)
+            return false
+
+        var fromIdx = indexForKey(fromKey)
+        if (fromIdx < 0)
+            return false
+
+        var src = ordersModel.get(fromIdx)
+        var entry = {
+            tableKey: toKey,
+            zone: toZone,
+            tableNumber: toTableNumber,
+            tableName: toTableName,
+            active: src.active,
+            orderTime: src.orderTime,
+            waiterName: src.waiterName,
+            orderNo: src.orderNo,
+            preview: src.preview,
+            guestCount: src.guestCount,
+            total: src.total
+        }
+
+        itemsByKey[toKey] = itemsByKey[fromKey]
+        addonsByKey[toKey] = addonsByKey[fromKey]
+        delete itemsByKey[fromKey]
+        delete addonsByKey[fromKey]
+
+        ordersModel.remove(fromIdx)
+
+        var pos = ordersModel.count
+        for (var j = 0; j < ordersModel.count; ++j) {
+            if (zoneRank(ordersModel.get(j).zone) > zoneRank(toZone)) {
+                pos = j
+                break
+            }
+        }
+        ordersModel.insert(pos, entry)
+        return true
+    }
 }

@@ -37,12 +37,11 @@
         <translation>Server</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>https://server/oracle_waiter.php</source>
-        <translation>https://server/oracle_waiter.php</translation>
+        <translation type="vanished">https://server/oracle_waiter.php</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+20"/>
         <location line="+37"/>
         <source>Printer</source>
         <translation>Printer</translation>
@@ -122,6 +121,24 @@
     </message>
 </context>
 <context>
+    <name>ChangeTablePicker</name>
+    <message>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+89"/>
+        <source>Move to table</source>
+        <translation>Move to table</translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>Hall</source>
+        <translation>Hall</translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Terrace</source>
+        <translation>Terrace</translation>
+    </message>
+</context>
+<context>
     <name>ConfirmDialog</name>
     <message>
         <location filename="../qml/components/controls/ConfirmDialog.qml" line="+26"/>
@@ -135,9 +152,28 @@
     </message>
 </context>
 <context>
+    <name>DataService</name>
+    <message>
+        <location filename="../src/core/dataservice.cpp" line="+79"/>
+        <source>Invalid response from server: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <location line="+24"/>
+        <source>Missing backend address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+40"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+41"/>
+        <source>Wrong PIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
         <source>Enter PIN</source>
         <translation>Enter PIN</translation>
     </message>
@@ -145,7 +181,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+81"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+62"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -155,31 +191,40 @@
         <translation>Hall</translation>
     </message>
     <message>
+        <location line="+156"/>
+        <location line="+10"/>
         <location line="+150"/>
-        <location line="+75"/>
-        <location line="+454"/>
+        <location line="+507"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-528"/>
+        <location line="-656"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+85"/>
-        <location line="+346"/>
+        <location line="+176"/>
+        <location line="+363"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-264"/>
+        <source>Editing</source>
+        <translation type="vanished">Editing</translation>
+    </message>
+    <message>
+        <source>Change table</source>
+        <translation type="vanished">Change table</translation>
+    </message>
+    <message>
+        <location line="-266"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+23"/>
         <source>Add-ons · %1</source>
         <translation>Add-ons · %1</translation>
     </message>
@@ -199,17 +244,33 @@
         <translation>No products selected</translation>
     </message>
     <message>
-        <location line="+179"/>
+        <location line="+157"/>
+        <source>Update order · %1 · %2 MDL</source>
+        <translation>Update order · %1 · %2 MDL</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Couldn&apos;t load the menu:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Loading menu…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Delete order?</source>
         <translation>Delete order?</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+4"/>
         <source>The order for %1 will be removed.</source>
         <translation>The order for %1 will be removed.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Delete</source>
         <translation>Delete</translation>
     </message>
@@ -222,7 +283,7 @@
         <translation type="vanished">Done</translation>
     </message>
     <message>
-        <location line="-25"/>
+        <location line="-43"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -357,12 +418,17 @@
 <context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+39"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+35"/>
+        <source>Name already in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
         <source>Profile</source>
         <translation>Profile</translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location line="+102"/>
         <source>Sign out</source>
         <translation>Sign out</translation>
     </message>

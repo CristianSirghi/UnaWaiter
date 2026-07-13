@@ -37,12 +37,11 @@
         <translation>Server</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>https://server/oracle_waiter.php</source>
-        <translation>https://server/oracle_waiter.php</translation>
+        <translation type="vanished">https://server/oracle_waiter.php</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+20"/>
         <location line="+37"/>
         <source>Printer</source>
         <translation>Imprimantă</translation>
@@ -122,6 +121,24 @@
     </message>
 </context>
 <context>
+    <name>ChangeTablePicker</name>
+    <message>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+89"/>
+        <source>Move to table</source>
+        <translation>Mută pe altă masă</translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>Hall</source>
+        <translation>Sala</translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Terrace</source>
+        <translation>Terasă</translation>
+    </message>
+</context>
+<context>
     <name>ConfirmDialog</name>
     <message>
         <location filename="../qml/components/controls/ConfirmDialog.qml" line="+26"/>
@@ -135,9 +152,28 @@
     </message>
 </context>
 <context>
+    <name>DataService</name>
+    <message>
+        <location filename="../src/core/dataservice.cpp" line="+79"/>
+        <source>Invalid response from server: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <location line="+24"/>
+        <source>Missing backend address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+40"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+41"/>
+        <source>Wrong PIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
         <source>Enter PIN</source>
         <translation>Introduceți PIN-ul</translation>
     </message>
@@ -145,7 +181,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+81"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+62"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -155,31 +191,40 @@
         <translation>Sala</translation>
     </message>
     <message>
+        <location line="+156"/>
+        <location line="+10"/>
         <location line="+150"/>
-        <location line="+75"/>
-        <location line="+454"/>
+        <location line="+507"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
     <message>
-        <location line="-528"/>
+        <location line="-656"/>
         <source>Waiter</source>
         <translation>Chelner</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+85"/>
-        <location line="+346"/>
+        <location line="+176"/>
+        <location line="+363"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-264"/>
+        <source>Editing</source>
+        <translation type="vanished">Editare</translation>
+    </message>
+    <message>
+        <source>Change table</source>
+        <translation type="vanished">Schimbă masa</translation>
+    </message>
+    <message>
+        <location line="-266"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+23"/>
         <source>Add-ons · %1</source>
         <translation>Adaosuri · %1</translation>
     </message>
@@ -199,17 +244,33 @@
         <translation>Niciun produs selectat</translation>
     </message>
     <message>
-        <location line="+179"/>
+        <location line="+157"/>
+        <source>Update order · %1 · %2 MDL</source>
+        <translation>Actualizează comanda · %1 · %2 MDL</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Couldn&apos;t load the menu:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Loading menu…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Delete order?</source>
         <translation>Ștergeți comanda?</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+4"/>
         <source>The order for %1 will be removed.</source>
         <translation>Comanda pentru %1 va fi eliminată.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Delete</source>
         <translation>Șterge</translation>
     </message>
@@ -222,7 +283,7 @@
         <translation type="vanished">Gata</translation>
     </message>
     <message>
-        <location line="-25"/>
+        <location line="-43"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Trimite comanda · %1 · %2 MDL</translation>
     </message>
@@ -357,12 +418,17 @@
 <context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+39"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+35"/>
+        <source>Name already in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location line="+102"/>
         <source>Sign out</source>
         <translation>Deconectare</translation>
     </message>

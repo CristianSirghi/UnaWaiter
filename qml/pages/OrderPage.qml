@@ -36,6 +36,12 @@ Page {
     readonly property int summaryMaxRows: 5
     // true dacă masa are deja o comandă trimisă (deschisă din TablesPage) — arată butonul de ștergere.
     property bool isEditing: false
+    // Masa/zona comenzii existente în OrdersStore, înainte de orice schimbare
+    // făcută cu ChangeTablePicker — submitOrder mută pe (zone, tableNumber) la
+    // trimitere, iar deleteOrder trebuie să șteargă tot de aici (nu de la noua
+    // masă, care încă n-a fost scrisă în store).
+    property string originalZone: ""
+    property int originalTableNumber: 0
 
     // Cantități per produs (cheie = nume, persistă la schimbarea categoriei).
     property var qtyStore: ({})
@@ -202,6 +208,20 @@ Page {
     }
 
     function submitOrder() {
+        // Dacă masa a fost schimbată (ChangeTablePicker), mutăm întâi comanda
+        // existentă pe noua masă, păstrând numărul de comandă — altfel
+        // OrdersStore.submitOrder de mai jos ar crea o comandă nouă la vechea
+        // masă rămasă neschimbată și una separată la cea nouă.
+        if (root.isEditing && (root.zone !== root.originalZone || root.tableNumber !== root.originalTableNumber)) {
+            var moved = OrdersStore.moveOrder(root.originalZone, root.originalTableNumber,
+                                               root.zone, root.tableNumber,
+                                               qsTr("Table %1").arg(root.tableNumber))
+            if (!moved)
+                return
+            root.originalZone = root.zone
+            root.originalTableNumber = root.tableNumber
+        }
+
         OrdersStore.submitOrder(
             root.zone,
             root.tableNumber,
@@ -216,7 +236,10 @@ Page {
     }
 
     function deleteOrder() {
-        OrdersStore.removeOrder(root.zone, root.tableNumber)
+        // Comanda salvată e mereu la masa originală — o mutăm doar la
+        // trimitere (submitOrder), nu la simpla selecție în picker.
+        OrdersStore.removeOrder(root.isEditing ? root.originalZone : root.zone,
+                                 root.isEditing ? root.originalTableNumber : root.tableNumber)
         root.done()
     }
 
@@ -280,6 +303,8 @@ Page {
         }
         if (hasExisting) {
             root.isEditing = true
+            root.originalZone = root.zone
+            root.originalTableNumber = root.tableNumber
             root.qtyStore = loadedQty
             var savedAddons = OrdersStore.addonsFor(root.zone, root.tableNumber)
             var loadedAddons = {}
@@ -340,12 +365,30 @@ Page {
 
             ColumnLayout {
                 spacing: 0
-                Label {
-                    text: qsTr("Table %1").arg(root.tableNumber)
-                    font.pixelSize: 18 * Theme.fontScale
-                    font.bold: true
-                    color: Theme.textPrimary
+
+                // Numele mesei e apăsabil (deschide ChangeTablePicker) mereu —
+                // fie că trimiți o comandă nouă, fie că editezi una deja
+                // trimisă pe masa greșită. Fără indiciu vizual (culoare/iconiță)
+                // la cerere — doar textul simplu, ca înainte.
+                Item {
+                    implicitWidth: tableNameLabel.implicitWidth
+                    implicitHeight: tableNameLabel.implicitHeight
+
+                    Label {
+                        id: tableNameLabel
+                        text: qsTr("Table %1").arg(root.tableNumber)
+                        font.pixelSize: 18 * Theme.fontScale
+                        font.bold: true
+                        color: Theme.textPrimary
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: -6
+                        onClicked: tablePicker.openWith(root.zone, root.tableNumber)
+                    }
                 }
+
                 Label {
                     text: root.zoneLabel()
                     font.pixelSize: 12 * Theme.fontScale
@@ -788,7 +831,9 @@ Page {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         text: root.orderCount > 0
-                            ? qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
+                            ? (root.isEditing
+                                ? qsTr("Update order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
+                                : qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal)))
                             : qsTr("Add products")
                         font.pixelSize: 15 * Theme.fontScale
                         font.bold: true
@@ -826,7 +871,11 @@ Page {
     Components.ConfirmDialog {
         id: deleteDialog
         title: qsTr("Delete order?")
-        message: qsTr("The order for %1 will be removed.").arg(qsTr("Table %1").arg(root.tableNumber))
+        // Ștergerea acționează mereu pe masa originală (vezi deleteOrder), nu
+        // pe o selecție nesalvată din ChangeTablePicker — mesajul trebuie să
+        // reflecte aceeași masă.
+        message: qsTr("The order for %1 will be removed.").arg(
+            qsTr("Table %1").arg(root.isEditing ? root.originalTableNumber : root.tableNumber))
         confirmText: qsTr("Delete")
         destructive: true
         onConfirmed: root.deleteOrder()
@@ -836,5 +885,16 @@ Page {
     Components.AddonSheet {
         id: addonSheet
         onAddonAdjusted: root.adjustAddon(addonSheet.productName, addonName, delta)
+    }
+
+    // Sheet de jos pentru mutarea comenzii pe altă masă/zonă (vezi
+    // components/ChangeTablePicker.qml) — doar afișare/selecție locală;
+    // mutarea reală în OrdersStore are loc abia la "Actualizează comanda".
+    Components.ChangeTablePicker {
+        id: tablePicker
+        onTableSelected: function(zone, tableNumber) {
+            root.zone = zone
+            root.tableNumber = tableNumber
+        }
     }
 }

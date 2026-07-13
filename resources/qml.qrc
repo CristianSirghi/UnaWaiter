@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 50 -->
+    <!-- build rev 51 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="theme/qmldir">../qml/theme/qmldir</file>
@@ -32,6 +32,7 @@
         <file alias="components/controls/AddonSheet.qml">../qml/components/controls/AddonSheet.qml</file>
         <file alias="components/controls/TextInputField.qml">../qml/components/controls/TextInputField.qml</file>
         <file alias="components/controls/PrinterDiscoveryDialog.qml">../qml/components/controls/PrinterDiscoveryDialog.qml</file>
+        <file alias="components/controls/ChangeTablePicker.qml">../qml/components/controls/ChangeTablePicker.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>
