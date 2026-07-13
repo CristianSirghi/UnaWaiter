@@ -22,6 +22,7 @@ class DataService : public QObject
     Q_PROPERTY(QVariantList categories READ categories NOTIFY categoriesChanged)
     Q_PROPERTY(QVariantList menu READ menu NOTIFY menuChanged)
     Q_PROPERTY(QVariantList paymentTypes READ paymentTypes NOTIFY paymentTypesChanged)
+    Q_PROPERTY(QVariantList tables READ tables NOTIFY tablesChanged)
     Q_PROPERTY(QVariantList openOrders READ openOrders NOTIFY openOrdersChanged)
 
 public:
@@ -35,6 +36,7 @@ public:
     QVariantList categories() const;
     QVariantList menu() const;
     QVariantList paymentTypes() const;
+    QVariantList tables() const;
     QVariantList openOrders() const;
 
     // Reads (GET) -> fill the matching property, emit its *Changed signal.
@@ -42,6 +44,7 @@ public:
     Q_INVOKABLE void loadCategories();
     Q_INVOKABLE void loadMenu(int category);
     Q_INVOKABLE void loadPaymentTypes();
+    Q_INVOKABLE void loadTables();
     Q_INVOKABLE void loadOpenOrders(const QString &waiter = QString());
 
     // Auth (POST). Sends the 4-digit PIN as the password; username optional.
@@ -72,6 +75,7 @@ signals:
     void categoriesChanged();
     void menuChanged();
     void paymentTypesChanged();
+    void tablesChanged();
     void openOrdersChanged();
 
     // One-shot action results.
@@ -108,6 +112,7 @@ private:
     void setCategories(const QVariantList &rows);
     void setMenu(const QVariantList &rows);
     void setPaymentTypes(const QVariantList &rows);
+    void setTables(const QVariantList &rows);
     void setOpenOrders(const QVariantList &rows);
 
     QNetworkAccessManager *m_network = nullptr;
@@ -118,6 +123,7 @@ private:
     QVariantList m_categories;
     QVariantList m_menu;
     QVariantList m_paymentTypes;
+    QVariantList m_tables;
     QVariantList m_openOrders;
     int m_pending = 0; // in-flight request count, drives `busy`
 };

@@ -38,6 +38,7 @@ QVariantList DataService::waiters() const { return m_waiters; }
 QVariantList DataService::categories() const { return m_categories; }
 QVariantList DataService::menu() const { return m_menu; }
 QVariantList DataService::paymentTypes() const { return m_paymentTypes; }
+QVariantList DataService::tables() const { return m_tables; }
 QVariantList DataService::openOrders() const { return m_openOrders; }
 
 QString DataService::buildUrl(const QString &command, const QVariantMap &queryItems) const
@@ -183,6 +184,12 @@ void DataService::loadPaymentTypes()
              [this](const QVariantList &rows) { setPaymentTypes(rows); });
 }
 
+void DataService::loadTables()
+{
+    getArray(QStringLiteral("get_tables"), QVariantMap(),
+             [this](const QVariantList &rows) { setTables(rows); });
+}
+
 void DataService::loadOpenOrders(const QString &waiter)
 {
     QVariantMap q;
@@ -300,6 +307,12 @@ void DataService::setPaymentTypes(const QVariantList &rows)
 {
     m_paymentTypes = rows;
     emit paymentTypesChanged();
+}
+
+void DataService::setTables(const QVariantList &rows)
+{
+    m_tables = rows;
+    emit tablesChanged();
 }
 
 void DataService::setOpenOrders(const QVariantList &rows)

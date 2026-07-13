@@ -7,8 +7,43 @@ import "../components/controls" as Components
 Page {
     id: root
 
+    // Mesele vin din backend (uw_tables, via pg_mobile_web_waiter.get_tables) -
+    // nu mai sunt hardcodate aici, ca restaurantul să poată adăuga/renumerota
+    // mese doar cu un INSERT/UPDATE în Oracle, fără recompilare.
+    property var hallTables: []
+    property var terraceTables: []
+    property bool tablesReady: false
+    property string loadError: ""
 
     signal tableSelected(string zone, int tableNumber)
+
+    function buildTables(rows) {
+        var hall = []
+        var terrace = []
+        for (var i = 0; i < rows.length; ++i) {
+            var r = rows[i]
+            var no = parseInt(r.TABLE_NO)
+            if (r.ZONE === "hall")
+                hall.push(no)
+            else if (r.ZONE === "terrace")
+                terrace.push(no)
+        }
+        root.hallTables = hall
+        root.terraceTables = terrace
+        root.tablesReady = true
+    }
+
+    Connections {
+        target: dataService
+
+        function onTablesChanged() { root.buildTables(dataService.tables) }
+        function onRequestFailed(command, error) {
+            if (command === "get_tables")
+                root.loadError = error
+        }
+    }
+
+    Component.onCompleted: dataService.loadTables()
 
     background: Rectangle {
         color: Theme.background
@@ -69,7 +104,7 @@ Page {
                 columnSpacing: 12
 
                 Repeater {
-                    model: 10
+                    model: root.hallTables
 
                     Rectangle {
                         width: contentCol.cardSize
@@ -81,7 +116,7 @@ Page {
 
                         Label {
                             anchors.centerIn: parent
-                            text: index + 1
+                            text: modelData
                             font.pixelSize: 22 * Theme.fontScale
                             font.bold: true
                             color: Theme.primary
@@ -89,17 +124,18 @@ Page {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.tableSelected("hall", index + 1)
+                            onClicked: root.tableSelected("hall", modelData)
                         }
                     }
                 }
             }
 
-            Item { width: 1; height: 12 }
+            Item { width: 1; height: 12; visible: root.terraceTables.length > 0 }
 
-            // ----- Terasă -----
+            // ----- Terasă (ascunsă dacă nu există mese active, ex. sezon închis) -----
             Label {
                 x: 16
+                visible: root.terraceTables.length > 0
                 text: qsTr("Terrace")
                 font.pixelSize: 18 * Theme.fontScale
                 font.bold: true
@@ -108,12 +144,13 @@ Page {
 
             Grid {
                 x: 16
+                visible: root.terraceTables.length > 0
                 columns: 3
                 rowSpacing: 12
                 columnSpacing: 12
 
                 Repeater {
-                    model: 10
+                    model: root.terraceTables
 
                     Rectangle {
                         width: contentCol.cardSize
@@ -125,7 +162,7 @@ Page {
 
                         Label {
                             anchors.centerIn: parent
-                            text: index + 1
+                            text: modelData
                             font.pixelSize: 22 * Theme.fontScale
                             font.bold: true
                             color: Theme.primary
@@ -133,11 +170,25 @@ Page {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.tableSelected("terrace", index + 1)
+                            onClicked: root.tableSelected("terrace", modelData)
                         }
                     }
                 }
             }
         }
+    }
+
+    // Stare de încărcare / eroare, până sosesc mesele.
+    Label {
+        anchors.centerIn: parent
+        visible: !root.tablesReady
+        horizontalAlignment: Text.AlignHCenter
+        width: parent.width - 48
+        wrapMode: Text.WordWrap
+        text: root.loadError !== ""
+            ? qsTr("Couldn't load tables:\n%1").arg(root.loadError)
+            : qsTr("Loading tables…")
+        font.pixelSize: 15 * Theme.fontScale
+        color: root.loadError !== "" ? Theme.danger : Theme.textSecondary
     }
 }
