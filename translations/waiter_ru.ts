@@ -154,28 +154,53 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+79"/>
+        <location filename="../src/core/dataservice.cpp" line="+80"/>
         <source>Invalid response from server: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректный ответ от сервера: %1</translation>
     </message>
     <message>
         <location line="+29"/>
         <location line="+24"/>
         <source>Missing backend address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не указан адрес сервера.</translation>
     </message>
 </context>
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+41"/>
-        <source>Wrong PIN</source>
-        <translation type="unfinished"></translation>
+        <source>Enter PIN</source>
+        <translation type="vanished">Введите PIN-код</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LoginPage.qml" line="+43"/>
+        <source>Wrong username or password</source>
+        <translation>Неверный логин или пароль</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</source>
+        <translation>Эта учётная запись ещё не привязана к официанту - попросите администратора настроить её в UAMenu</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <location line="+47"/>
+        <source>Log in</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
+        <location line="-38"/>
+        <source>Username</source>
+        <translation>Логин</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Password</source>
+        <translation>Пароль</translation>
     </message>
     <message>
         <location line="+29"/>
-        <source>Enter PIN</source>
-        <translation>Введите PIN-код</translation>
+        <source>Logging in…</source>
+        <translation>Выполняется вход…</translation>
     </message>
 </context>
 <context>
@@ -193,19 +218,19 @@
     <message>
         <location line="+156"/>
         <location line="+10"/>
-        <location line="+150"/>
-        <location line="+507"/>
+        <location line="+151"/>
+        <location line="+499"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
     <message>
-        <location line="-656"/>
+        <location line="-649"/>
         <source>Waiter</source>
         <translation>Официант</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+176"/>
+        <location line="+169"/>
         <location line="+363"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
@@ -252,12 +277,13 @@
         <location line="+30"/>
         <source>Couldn&apos;t load the menu:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось загрузить меню:
+%1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Loading menu…</source>
-        <translation type="unfinished"></translation>
+        <translation>Загрузка меню…</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -418,17 +444,12 @@
 <context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+35"/>
-        <source>Name already in use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+29"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+38"/>
         <source>Profile</source>
         <translation>Профиль</translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+53"/>
         <source>Sign out</source>
         <translation>Выйти</translation>
     </message>
@@ -461,7 +482,7 @@
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+30"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+65"/>
         <source>Select table</source>
         <translation>Выберите стол</translation>
     </message>
@@ -471,9 +492,21 @@
         <translation>Зал</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+45"/>
         <source>Terrace</source>
         <translation>Терраса</translation>
+    </message>
+    <message>
+        <location line="+50"/>
+        <source>Couldn&apos;t load tables:
+%1</source>
+        <translation>Не удалось загрузить столы:
+%1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Loading tables…</source>
+        <translation>Загрузка столов…</translation>
     </message>
 </context>
 <context>

@@ -11,6 +11,7 @@ Item {
     property string placeholder: ""
     property int inputMethodHints: Qt.ImhNone
     property alias readOnly: field.readOnly
+    property alias echoMode: field.echoMode
 
     signal editingFinished()
 

@@ -154,28 +154,53 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+79"/>
+        <location filename="../src/core/dataservice.cpp" line="+80"/>
         <source>Invalid response from server: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Răspuns invalid de la server: %1</translation>
     </message>
     <message>
         <location line="+29"/>
         <location line="+24"/>
         <source>Missing backend address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresa serverului lipsește.</translation>
     </message>
 </context>
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+41"/>
-        <source>Wrong PIN</source>
-        <translation type="unfinished"></translation>
+        <source>Enter PIN</source>
+        <translation type="vanished">Introduceți PIN-ul</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LoginPage.qml" line="+43"/>
+        <source>Wrong username or password</source>
+        <translation>Utilizator sau parolă greșită</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</source>
+        <translation>Acest cont nu este încă legat de un chelner - cere unui admin să-l configureze în UAMenu</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <location line="+47"/>
+        <source>Log in</source>
+        <translation>Autentificare</translation>
+    </message>
+    <message>
+        <location line="-38"/>
+        <source>Username</source>
+        <translation>Utilizator</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Password</source>
+        <translation>Parolă</translation>
     </message>
     <message>
         <location line="+29"/>
-        <source>Enter PIN</source>
-        <translation>Introduceți PIN-ul</translation>
+        <source>Logging in…</source>
+        <translation>Se autentifică…</translation>
     </message>
 </context>
 <context>
@@ -193,19 +218,19 @@
     <message>
         <location line="+156"/>
         <location line="+10"/>
-        <location line="+150"/>
-        <location line="+507"/>
+        <location line="+151"/>
+        <location line="+499"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
     <message>
-        <location line="-656"/>
+        <location line="-649"/>
         <source>Waiter</source>
         <translation>Chelner</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+176"/>
+        <location line="+169"/>
         <location line="+363"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
@@ -252,12 +277,13 @@
         <location line="+30"/>
         <source>Couldn&apos;t load the menu:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu s-a putut încărca meniul:
+%1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Loading menu…</source>
-        <translation type="unfinished"></translation>
+        <translation>Se încarcă meniul…</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -418,17 +444,12 @@
 <context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+35"/>
-        <source>Name already in use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+29"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+38"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+53"/>
         <source>Sign out</source>
         <translation>Deconectare</translation>
     </message>
@@ -461,7 +482,7 @@
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+30"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+65"/>
         <source>Select table</source>
         <translation>Selectați masa</translation>
     </message>
@@ -471,9 +492,21 @@
         <translation>Sala</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+45"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
+    </message>
+    <message>
+        <location line="+50"/>
+        <source>Couldn&apos;t load tables:
+%1</source>
+        <translation>Nu s-au putut încărca mesele:
+%1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Loading tables…</source>
+        <translation>Se încarcă mesele…</translation>
     </message>
 </context>
 <context>

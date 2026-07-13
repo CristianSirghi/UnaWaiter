@@ -9,33 +9,7 @@ Page {
     id: root
 
 
-    property bool editingName: false
-    property bool savingName: false
-    property string nameError: ""
     property string statsPeriod: "day"
-
-    // Serverul e sursa de adevăr pentru nume (uw_waiters) — AppSettings.waiterName
-    // se schimbă doar după confirmarea din onWaiterNameUpdated, nu optimist.
-    Connections {
-        target: dataService
-
-        function onWaiterNameUpdated(oficiant, name) {
-            if (!root.savingName)
-                return
-            root.savingName = false
-            AppSettings.waiterName = name
-            root.nameError = ""
-        }
-
-        function onRequestFailed(command, error) {
-            if (!root.savingName || command !== "update_waiter_name")
-                return
-            root.savingName = false
-            root.nameError = (error === "name_taken")
-                ? qsTr("Name already in use")
-                : error
-        }
-    }
 
     // Statistici mock (până vine backend-ul) — mese servite per perioadă.
     readonly property var statsByPeriod: ({
@@ -96,62 +70,13 @@ Page {
             }
         }
 
-        // Numele chelnerului — apasă direct pe el ca să-l editezi.
-        Item {
-            Layout.alignment: Qt.AlignHCenter
-            implicitWidth: Math.max(nameDisplay.implicitWidth, nameField.implicitWidth) + 8
-            implicitHeight: 32
-
-            Label {
-                id: nameDisplay
-                visible: !root.editingName
-                anchors.centerIn: parent
-                text: AppSettings.waiterName
-                font.pixelSize: 20 * Theme.fontScale
-                font.bold: true
-                color: Theme.textPrimary
-
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: -10
-                    onClicked: {
-                        nameField.text = AppSettings.waiterName
-                        root.editingName = true
-                        nameField.forceActiveFocus()
-                        nameField.selectAll()
-                    }
-                }
-            }
-
-            TextField {
-                id: nameField
-                visible: root.editingName
-                anchors.centerIn: parent
-                horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 20 * Theme.fontScale
-                font.bold: true
-                color: Theme.textPrimary
-                background: Rectangle { color: "transparent" }
-
-                function commit() {
-                    root.editingName = false
-                    if (text.length > 0 && text !== AppSettings.waiterName) {
-                        root.savingName = true
-                        dataService.updateWaiterName(AppSettings.waiterOficiant, text)
-                    }
-                }
-
-                onAccepted: commit()
-                onActiveFocusChanged: if (!activeFocus && root.editingName) commit()
-            }
-        }
-
+        // Numele chelnerului - vine din TMS_CASIR (UAMenu), needitabil din app.
         Label {
             Layout.alignment: Qt.AlignHCenter
-            visible: root.nameError !== ""
-            text: root.nameError
-            color: "#e53935"
-            font.pixelSize: 13 * Theme.fontScale
+            text: AppSettings.waiterName
+            font.pixelSize: 20 * Theme.fontScale
+            font.bold: true
+            color: Theme.textPrimary
         }
 
         Rectangle {

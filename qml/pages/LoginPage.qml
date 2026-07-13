@@ -4,20 +4,23 @@ import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
-import "../components/icons" as Icons
 
 Page {
     id: root
 
-    property int pinLength: 4
-    property string enteredPin: ""
+    property string username: ""
+    property string password: ""
     // true cât timp așteptăm răspunsul de la dataService.login()
     property bool loggingIn: false
     property string errorText: ""
 
+    readonly property bool canSubmit: username.trim().length > 0 && password.length > 0 && !loggingIn
+
     signal loginConfirmed()
 
     // Reacționăm la rezultatul autentificării (dataService e expus din C++).
+    // Login-ul e cel din TMS_CASIR (UAMenu) - user_id/user_password reale, nu
+    // un PIN al nostru.
     Connections {
         target: dataService
 
@@ -27,7 +30,7 @@ Page {
             root.loggingIn = false
             AppSettings.waiterOficiant = oficiant
             AppSettings.waiterName = name
-            root.enteredPin = ""
+            root.password = ""
             root.errorText = ""
             root.loginConfirmed()
         }
@@ -36,11 +39,21 @@ Page {
             if (!root.loggingIn || command !== "log_in")
                 return
             root.loggingIn = false
-            root.enteredPin = ""
-            root.errorText = (error === "invalid_credentials")
-                ? qsTr("Wrong PIN")
-                : error
+            if (error === "invalid_credentials")
+                root.errorText = qsTr("Wrong username or password")
+            else if (error === "no_oficiant_linked")
+                root.errorText = qsTr("This account isn't linked to a waiter yet - ask an admin to set it up in UAMenu")
+            else
+                root.errorText = error
         }
+    }
+
+    function submit() {
+        if (!root.canSubmit)
+            return
+        root.errorText = ""
+        root.loggingIn = true
+        dataService.login(root.username, root.password)
     }
 
     background: Rectangle {
@@ -64,119 +77,66 @@ Page {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 24
-        spacing: 28
+        spacing: 20
 
         Label {
-            text: qsTr("Enter PIN")
+            text: qsTr("Log in")
             font.pixelSize: 28 * Theme.fontScale
             font.bold: true
             color: Theme.textPrimary
         }
 
-        RowLayout {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 16
+        Components.TextInputField {
+            Layout.fillWidth: true
+            text: root.username
+            placeholder: qsTr("Username")
+            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
+            onTextChanged: root.username = text
+            onEditingFinished: root.username = text
+        }
 
-            Repeater {
-                model: root.pinLength
-
-                Rectangle {
-                    width: 56
-                    height: 56
-                    radius: 10
-                    color: index < root.enteredPin.length
-                        ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
-                        : "transparent"
-                    border.width: index === root.enteredPin.length ? 2 : 1
-                    border.color: index === root.enteredPin.length ? Theme.primary : Theme.border
-
-                    Rectangle {
-                        visible: index < root.enteredPin.length
-                        anchors.centerIn: parent
-                        width: 12
-                        height: 12
-                        radius: 6
-                        color: Theme.primary
-                    }
-                }
+        Components.TextInputField {
+            Layout.fillWidth: true
+            text: root.password
+            placeholder: qsTr("Password")
+            echoMode: TextInput.Password
+            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+            onTextChanged: root.password = text
+            onEditingFinished: {
+                root.password = text
+                root.submit()
             }
         }
 
         Label {
-            Layout.alignment: Qt.AlignHCenter
             visible: root.errorText !== ""
             text: root.errorText
             color: "#e53935"
-            font.pixelSize: 15 * Theme.fontScale
+            font.pixelSize: 14 * Theme.fontScale
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
 
-        // Tastatura ocupă tot spațiul rămas sub eroare (fillHeight pe grid +
-        // pe fiecare tastă) - se micșorează pe ecrane mai scurte în loc să
-        // depășească marginea vizibilă, cum se întâmpla cu o înălțime fixă.
-        GridLayout {
+        Item { Layout.fillHeight: true }
+
+        Rectangle {
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            columns: 3
-            rowSpacing: 12
-            columnSpacing: 12
+            Layout.preferredHeight: 52
+            radius: 14
+            color: root.canSubmit ? Theme.primary : Theme.border
 
-            Repeater {
-                model: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "DEL", "0", "OK"]
+            Label {
+                anchors.centerIn: parent
+                text: root.loggingIn ? qsTr("Logging in…") : qsTr("Log in")
+                color: root.canSubmit ? "white" : Theme.textSecondary
+                font.pixelSize: 16 * Theme.fontScale
+                font.bold: true
+            }
 
-                Rectangle {
-                    id: keyDelegate
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.preferredHeight: 64
-                    Layout.minimumHeight: 44
-                    radius: 12
-                    color: Theme.keyBackground
-
-                    readonly property string keyValue: modelData
-                    readonly property bool isDigit: keyValue.length === 1 && keyValue >= "0" && keyValue <= "9"
-                    readonly property bool isDelete: keyValue === "DEL"
-                    readonly property bool isConfirm: keyValue === "OK"
-                    readonly property bool isConfirmEnabled: isConfirm && root.enteredPin.length === root.pinLength
-
-                    // Digit label
-                    Label {
-                        visible: keyDelegate.isDigit
-                        anchors.centerIn: parent
-                        text: keyDelegate.keyValue
-                        font.pixelSize: 22 * Theme.fontScale
-                        color: Theme.textPrimary
-                    }
-
-                    Icons.IconClose {
-                        visible: keyDelegate.isDelete
-                        anchors.centerIn: parent
-                        color: Theme.textPrimary
-                    }
-
-                    Icons.IconCheck {
-                        visible: keyDelegate.isConfirm
-                        anchors.centerIn: parent
-                        color: keyDelegate.isConfirmEnabled ? Theme.primary : Theme.textSecondary
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            if (keyDelegate.isDigit && root.enteredPin.length < root.pinLength) {
-                                root.errorText = ""
-                                root.enteredPin += keyDelegate.keyValue
-                            } else if (keyDelegate.isDelete) {
-                                root.errorText = ""
-                                root.enteredPin = root.enteredPin.slice(0, -1)
-                            } else if (keyDelegate.isConfirm && keyDelegate.isConfirmEnabled && !root.loggingIn) {
-                                // PIN-only login: username gol, PIN = enteredPin.
-                                root.errorText = ""
-                                root.loggingIn = true
-                                dataService.login("", root.enteredPin)
-                            }
-                        }
-                    }
-                }
+            MouseArea {
+                anchors.fill: parent
+                enabled: root.canSubmit
+                onClicked: root.submit()
             }
         }
     }

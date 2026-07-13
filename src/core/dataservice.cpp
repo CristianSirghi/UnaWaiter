@@ -199,31 +199,17 @@ void DataService::loadOpenOrders(const QString &waiter)
              [this](const QVariantList &rows) { setOpenOrders(rows); });
 }
 
-void DataService::login(const QString &username, const QString &pin)
+void DataService::login(const QString &username, const QString &password)
 {
     QVariantMap fields;
-    if (!username.trimmed().isEmpty())
-        fields.insert(QStringLiteral("username"), username.trimmed());
-    fields.insert(QStringLiteral("password"), pin);
+    fields.insert(QStringLiteral("username"), username.trimmed());
+    fields.insert(QStringLiteral("password"), password);
 
     postObject(QStringLiteral("log_in"), fields,
                [this](const QVariantMap &obj) {
                    emit loggedIn(obj.value(QStringLiteral("oficiant")).toInt(),
                                  obj.value(QStringLiteral("name")).toString(),
                                  obj.value(QStringLiteral("username")).toString());
-               });
-}
-
-void DataService::updateWaiterName(int oficiant, const QString &name)
-{
-    QVariantMap fields;
-    fields.insert(QStringLiteral("oficiant"), oficiant);
-    fields.insert(QStringLiteral("name"), name.trimmed());
-
-    postObject(QStringLiteral("update_waiter_name"), fields,
-               [this](const QVariantMap &obj) {
-                   emit waiterNameUpdated(obj.value(QStringLiteral("oficiant")).toInt(),
-                                          obj.value(QStringLiteral("name")).toString());
                });
 }
 

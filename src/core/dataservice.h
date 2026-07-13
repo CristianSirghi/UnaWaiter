@@ -47,17 +47,12 @@ public:
     Q_INVOKABLE void loadTables();
     Q_INVOKABLE void loadOpenOrders(const QString &waiter = QString());
 
-    // Auth (POST). Sends the 4-digit PIN as the password; username optional.
-    // On success emits loggedIn(oficiant, name, username); on bad credentials
-    // the failure arrives via requestFailed("log_in", "invalid_credentials").
-    Q_INVOKABLE void login(const QString &username, const QString &pin);
-
-    // Renames the logged-in waiter (ProfilePage). Server is the source of
-    // truth: on success emits waiterNameUpdated(oficiant, name) - the caller
-    // should only update its local display name from that signal, not
-    // optimistically. Rejected (e.g. duplicate name) arrives via
-    // requestFailed("update_waiter_name", "name_taken").
-    Q_INVOKABLE void updateWaiterName(int oficiant, const QString &name);
+    // Auth (POST) against UAMenu's own TMS_CASIR login (USER_ID/USER_PASSWORD -
+    // not a PIN). On success emits loggedIn(oficiant, name, username); on bad
+    // credentials the failure arrives via requestFailed("log_in", "invalid_credentials")
+    // or requestFailed("log_in", "no_oficiant_linked") if the account has no
+    // vms_univers code linked yet (DEP column, set from UAMenu's Users screen).
+    Q_INVOKABLE void login(const QString &username, const QString &password);
 
     // Writes (POST). Results come back through the signals below rather than a
     // property, since they're one-shot actions, not persistent state.
@@ -80,7 +75,6 @@ signals:
 
     // One-shot action results.
     void loggedIn(int oficiant, const QString &name, const QString &username);
-    void waiterNameUpdated(int oficiant, const QString &name);
     void orderCreated(int nrComand);
     void orderLinesAdded(int nrComand, const QVariantList &lines);
     // Fired whenever any command fails (network or backend "error" payload).
