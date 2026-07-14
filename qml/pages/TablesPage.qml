@@ -11,16 +11,132 @@ Page {
 
     property bool showMineOnly: true
 
+    // Dicționar masă→zonă (din dataService.tables/uw_tables) - comenzile din
+    // Oracle au doar DESK (un număr), zona se rezolvă separat de-aici.
+    property var deskZone: ({})
+    // Ultimul răspuns brut de la get_open_orders, păstrat ca să putem
+    // reconstrui lista dacă tables/orders sosesc în ordine inversată.
+    property var lastOrderRows: null
+    property bool tablesReady: false
+    property bool ordersReady: false
+    property string loadError: ""
+
     signal newTableRequested()
     signal orderOpened(string zone, int tableNumber)
     signal profileRequested()
     signal settingsRequested()
     signal stockRequested()
+    signal paidOrdersRequested()
 
     // "zone" e cod intern ("hall"/"terrace") — îl traducem la afișare, ca
     // antetele de secțiune să rămână corecte în orice limbă.
     function zoneLabel(zone) {
         return zone === "terrace" ? qsTr("Terrace") : qsTr("Hall")
+    }
+
+    // Ordinea zonelor în listă: sala înaintea terasei (ca la OrdersStore),
+    // ca antetele de secțiune să nu se repete pentru mese amestecate.
+    function zoneRank(zone) {
+        return zone === "terrace" ? 1 : 0
+    }
+
+    function fmtTotal(v) {
+        var n = parseFloat(v)
+        if (isNaN(n))
+            return "—"
+        return n.toFixed(2).replace(".", ",") + " MDL"
+    }
+
+    function buildDeskZone(rows) {
+        var map = ({})
+        for (var i = 0; i < rows.length; ++i) {
+            var r = rows[i]
+            map[parseInt(r.TABLE_NO)] = r.ZONE
+        }
+        root.deskZone = map
+        root.tablesReady = true
+        if (root.lastOrderRows !== null)
+            root.buildOrders(root.lastOrderRows)
+    }
+
+    // Construiește lista de comenzi active (get_open_orders: STATE 1/2) din
+    // răspunsul real al backend-ului. "editable" marchează dacă masa are o
+    // copie locală în OrdersStore (comandă creată din ACEST dispozitiv/sesiune) -
+    // fără ea, OrderPage n-ar avea de unde reîncărca liniile existente și ar
+    // porni o comandă nouă goală pe o masă deja ocupată (ar dubla comanda în
+    // Oracle). Editarea comenzilor reale de pe alte dispozitive e un pas
+    // separat (get_order_lines există deja în backend, doar nu e cablat încă).
+    function buildOrders(rows) {
+        root.lastOrderRows = rows
+        var items = []
+        for (var i = 0; i < rows.length; ++i) {
+            var r = rows[i]
+            var hasDesk = r.DESK !== undefined && r.DESK !== null && String(r.DESK).trim() !== ""
+            var deskNo = hasDesk ? parseInt(r.DESK) : 0
+            var zone = (deskNo > 0 && root.deskZone[deskNo]) ? root.deskZone[deskNo] : "hall"
+            var hasGuestCount = r.BARMEN !== undefined && r.BARMEN !== null && String(r.BARMEN).trim() !== ""
+
+            items.push({
+                zone: zone,
+                tableNumber: deskNo,
+                tableName: deskNo > 0 ? qsTr("Table %1").arg(deskNo) : qsTr("Unknown table"),
+                active: true,
+                orderTime: r.ORDER_TIME ? String(r.ORDER_TIME).trim() : "",
+                waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
+                orderNo: "#" + (r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : ""),
+                preview: r.PREVIEW ? String(r.PREVIEW).trim() : "",
+                guestCount: hasGuestCount ? parseInt(r.BARMEN) : 1,
+                total: root.fmtTotal(r.CLCCOSTT),
+                editable: deskNo > 0 && OrdersStore.hasOrder(zone, deskNo)
+            })
+        }
+
+        items.sort(function(a, b) { return root.zoneRank(a.zone) - root.zoneRank(b.zone) })
+
+        tableOrdersModel.clear()
+        for (var j = 0; j < items.length; ++j)
+            tableOrdersModel.append(items[j])
+        root.ordersReady = true
+    }
+
+    function refreshOrders() {
+        dataService.loadOpenOrders(root.showMineOnly ? String(AppSettings.waiterOficiant) : "")
+    }
+
+    ListModel { id: tableOrdersModel }
+
+    Connections {
+        target: dataService
+        function onTablesChanged() { root.buildDeskZone(dataService.tables) }
+        function onOpenOrdersChanged() { root.buildOrders(dataService.openOrders) }
+        function onRequestFailed(command, error) {
+            if (command === "get_open_orders" || command === "get_tables")
+                root.loadError = error
+        }
+    }
+
+    Component.onCompleted: {
+        dataService.loadTables()
+        root.refreshOrders()
+    }
+
+    // Reîmprospătare imediată de fiecare dată când revenim aici (ex. după ce
+    // chelnerul trimite/editează o comandă în OrderPage) - nu așteptăm poll-ul
+    // de mai jos doar pentru asta.
+    StackView.onStatusChanged: {
+        if (StackView.status === StackView.Active)
+            root.refreshOrders()
+    }
+
+    // Poll ușor cât timp pagina e activă pe stivă - nici UAMenu nu are
+    // auto-refresh pentru propriul grid, deci asta e echivalentul practic al
+    // "live" (fără infrastructură nouă), ca să vadă chelnerul rapid când o
+    // masă a fost achitată la casă și a dispărut din get_open_orders.
+    Timer {
+        interval: 25000
+        repeat: true
+        running: root.StackView.status === StackView.Active
+        onTriggered: root.refreshOrders()
     }
 
     background: Rectangle {
@@ -69,6 +185,7 @@ Page {
         onProfileRequested: root.profileRequested()
         onSettingsRequested: root.settingsRequested()
         onStockRequested: root.stockRequested()
+        onPaidOrdersRequested: root.paidOrdersRequested()
         onSignOutRequested: signOutDialog.open()
     }
 
@@ -79,6 +196,17 @@ Page {
         confirmText: qsTr("Sign out")
         destructive: true
         onConfirmed: root.StackView.view.pop(null)
+    }
+
+    // Avertisment când chelnerul apasă o masă ocupată de o comandă reală care
+    // n-a fost creată din acest dispozitiv/sesiune - vezi comentariul din
+    // buildOrders() despre riscul de comandă dublă.
+    Components.ConfirmDialog {
+        id: notEditableDialog
+        title: qsTr("Not editable here yet")
+        message: qsTr("This order was started on another device and can't be opened here yet.")
+        confirmText: qsTr("OK")
+        infoOnly: true
     }
 
     ColumnLayout {
@@ -101,15 +229,18 @@ Page {
                     { label: qsTr("Mine"), value: "mine" },
                     { label: qsTr("All"), value: "all" }
                 ]
-                onOptionSelected: root.showMineOnly = (value === "mine")
+                onOptionSelected: {
+                    root.showMineOnly = (value === "mine")
+                    root.refreshOrders()
+                }
             }
         }
 
-        // Empty state — nicio comandă deschisă.
+        // Empty state — nicio comandă deschisă (doar după ce a sosit primul răspuns real).
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            visible: OrdersStore.ordersModel.count === 0
+            visible: root.ordersReady && root.loadError === "" && tableOrdersModel.count === 0
             spacing: 8
 
             Item { Layout.fillHeight: true }
@@ -162,8 +293,8 @@ Page {
             Layout.fillHeight: true
             spacing: 12
             clip: true
-            visible: OrdersStore.ordersModel.count > 0
-            model: OrdersStore.ordersModel
+            visible: tableOrdersModel.count > 0
+            model: tableOrdersModel
 
             // Grupăm cardurile pe zonă (Sala / Terasă), cu un antet per grup.
             section.property: "zone"
@@ -186,7 +317,12 @@ Page {
 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: root.orderOpened(zone, tableNumber)
+                    onClicked: {
+                        if (editable)
+                            root.orderOpened(zone, tableNumber)
+                        else
+                            notEditableDialog.open()
+                    }
                 }
 
                 ColumnLayout {
@@ -284,6 +420,26 @@ Page {
                 }
             }
         }
+    }
+
+    // Stare de încărcare / eroare, cât timp mesele/comenzile reale sosesc.
+    Label {
+        anchors.centerIn: parent
+        visible: !(root.ordersReady && root.tablesReady) && root.loadError === ""
+        text: qsTr("Loading…")
+        font.pixelSize: 15 * Theme.fontScale
+        color: Theme.textSecondary
+    }
+
+    Label {
+        anchors.centerIn: parent
+        visible: root.loadError !== ""
+        horizontalAlignment: Text.AlignHCenter
+        width: parent.width - 48
+        wrapMode: Text.WordWrap
+        text: qsTr("Couldn't load open orders:\n%1").arg(root.loadError)
+        font.pixelSize: 15 * Theme.fontScale
+        color: Theme.danger
     }
 
     Rectangle {

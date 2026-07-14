@@ -24,6 +24,7 @@ class DataService : public QObject
     Q_PROPERTY(QVariantList paymentTypes READ paymentTypes NOTIFY paymentTypesChanged)
     Q_PROPERTY(QVariantList tables READ tables NOTIFY tablesChanged)
     Q_PROPERTY(QVariantList openOrders READ openOrders NOTIFY openOrdersChanged)
+    Q_PROPERTY(QVariantList paidOrders READ paidOrders NOTIFY paidOrdersChanged)
 
 public:
     explicit DataService(QObject *parent = nullptr);
@@ -38,6 +39,7 @@ public:
     QVariantList paymentTypes() const;
     QVariantList tables() const;
     QVariantList openOrders() const;
+    QVariantList paidOrders() const;
 
     // Reads (GET) -> fill the matching property, emit its *Changed signal.
     Q_INVOKABLE void loadWaiters();
@@ -46,6 +48,9 @@ public:
     Q_INVOKABLE void loadPaymentTypes();
     Q_INVOKABLE void loadTables();
     Q_INVOKABLE void loadOpenOrders(const QString &waiter = QString());
+    // Comenzile achitate (STATE=3) de azi - vezi get_paid_orders. Folosit de
+    // AchitatePage, filtrat implicit pe chelnerul logat (waiterOficiant).
+    Q_INVOKABLE void loadPaidOrders(const QString &waiter = QString());
 
     // Auth (POST) against our own uw_waiters roster: username + 4-digit PIN,
     // each row linked to the real vms_univers waiter code (oficiant) used on
@@ -72,6 +77,7 @@ signals:
     void paymentTypesChanged();
     void tablesChanged();
     void openOrdersChanged();
+    void paidOrdersChanged();
 
     // One-shot action results.
     void loggedIn(int oficiant, const QString &name, const QString &username);
@@ -108,6 +114,7 @@ private:
     void setPaymentTypes(const QVariantList &rows);
     void setTables(const QVariantList &rows);
     void setOpenOrders(const QVariantList &rows);
+    void setPaidOrders(const QVariantList &rows);
 
     QNetworkAccessManager *m_network = nullptr;
     QString m_baseUrl;
@@ -119,6 +126,7 @@ private:
     QVariantList m_paymentTypes;
     QVariantList m_tables;
     QVariantList m_openOrders;
+    QVariantList m_paidOrders;
     int m_pending = 0; // in-flight request count, drives `busy`
 };
 

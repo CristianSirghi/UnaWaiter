@@ -15,6 +15,7 @@ Drawer {
     signal profileRequested()
     signal settingsRequested()
     signal stockRequested()
+    signal paidOrdersRequested()
     signal signOutRequested()
 
     width: Math.min(300, (parent ? parent.width : 300) * 0.82)
@@ -183,6 +184,41 @@ Drawer {
                 onClicked: {
                     root.close()
                     root.stockRequested()
+                }
+            }
+        }
+
+        // ----- Achitate -----
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 52
+            radius: 12
+            color: "transparent"
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 4
+                spacing: 14
+
+                IconCheck {
+                    Layout.preferredWidth: 22
+                    Layout.preferredHeight: 22
+                    color: Theme.textPrimary
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    text: qsTr("Paid orders")
+                    font.pixelSize: 15 * Theme.fontScale
+                    color: Theme.textPrimary
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    root.close()
+                    root.paidOrdersRequested()
                 }
             }
         }

@@ -27,6 +27,9 @@ Popup {
     property string cancelText: qsTr("Cancel")
     // true → butonul principal e roșu (acțiune ireversibilă).
     property bool destructive: false
+    // true → doar un buton (confirmText), fără opțiunea de anulare - pentru
+    // mesaje pur informative (ex. "nu poți edita asta încă"), nu confirmări.
+    property bool infoOnly: false
 
     signal confirmed()
 
@@ -106,10 +109,11 @@ Popup {
             Layout.fillWidth: true
             spacing: 0
 
-            // Anulează
+            // Anulează (ascuns în modul infoOnly - rămâne doar butonul de confirmare)
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 52
+                visible: !root.infoOnly
                 color: "transparent"
 
                 Label {
@@ -125,7 +129,12 @@ Popup {
                 }
             }
 
-            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 52; color: Theme.border }
+            Rectangle {
+                Layout.preferredWidth: 1
+                Layout.preferredHeight: 52
+                visible: !root.infoOnly
+                color: Theme.border
+            }
 
             // Confirmă
             Rectangle {

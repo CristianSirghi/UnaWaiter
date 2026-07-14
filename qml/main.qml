@@ -92,6 +92,7 @@ ApplicationWindow {
             onProfileRequested: stackView.push(profilePageComponent)
             onSettingsRequested: stackView.push(settingsPageComponent)
             onStockRequested: stackView.push(stockPageComponent)
+            onPaidOrdersRequested: stackView.push(paidOrdersPageComponent)
         }
     }
 
@@ -105,6 +106,12 @@ ApplicationWindow {
         id: stockPageComponent
 
         Pages.StockPage {}
+    }
+
+    Component {
+        id: paidOrdersPageComponent
+
+        Pages.AchitatePage {}
     }
 
     Component {
