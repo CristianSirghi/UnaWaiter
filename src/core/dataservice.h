@@ -25,6 +25,7 @@ class DataService : public QObject
     Q_PROPERTY(QVariantList tables READ tables NOTIFY tablesChanged)
     Q_PROPERTY(QVariantList openOrders READ openOrders NOTIFY openOrdersChanged)
     Q_PROPERTY(QVariantList paidOrders READ paidOrders NOTIFY paidOrdersChanged)
+    Q_PROPERTY(QVariantList orderLines READ orderLines NOTIFY orderLinesChanged)
 
 public:
     explicit DataService(QObject *parent = nullptr);
@@ -40,6 +41,7 @@ public:
     QVariantList tables() const;
     QVariantList openOrders() const;
     QVariantList paidOrders() const;
+    QVariantList orderLines() const;
 
     // Reads (GET) -> fill the matching property, emit its *Changed signal.
     Q_INVOKABLE void loadWaiters();
@@ -51,6 +53,11 @@ public:
     // Comenzile achitate (STATE=3) de azi - vezi get_paid_orders. Folosit de
     // AchitatePage, filtrat implicit pe chelnerul logat (waiterOficiant).
     Q_INVOKABLE void loadPaidOrders(const QString &waiter = QString());
+    // Liniile reale ale unei comenzi deja trimise (get_order_lines) - sursa de
+    // adevăr când OrderPage editează o comandă existentă, în loc de cache-ul
+    // local OrdersStore (care poate fi depășit față de ce e cu-adevărat în
+    // Oracle, ex. dacă o comandă a fost achitată direct din UAMenu).
+    Q_INVOKABLE void loadOrderLines(const QString &nrComand);
 
     // Auth (POST) against our own uw_waiters roster: username + 4-digit PIN,
     // each row linked to the real vms_univers waiter code (oficiant) used on
@@ -78,6 +85,7 @@ signals:
     void tablesChanged();
     void openOrdersChanged();
     void paidOrdersChanged();
+    void orderLinesChanged();
 
     // One-shot action results.
     void loggedIn(int oficiant, const QString &name, const QString &username);
@@ -115,6 +123,7 @@ private:
     void setTables(const QVariantList &rows);
     void setOpenOrders(const QVariantList &rows);
     void setPaidOrders(const QVariantList &rows);
+    void setOrderLines(const QVariantList &rows);
 
     QNetworkAccessManager *m_network = nullptr;
     QString m_baseUrl;
@@ -127,6 +136,7 @@ private:
     QVariantList m_tables;
     QVariantList m_openOrders;
     QVariantList m_paidOrders;
+    QVariantList m_orderLines;
     int m_pending = 0; // in-flight request count, drives `busy`
 };
 

@@ -56,6 +56,20 @@ Page {
     property bool sending: false
     property string sendError: ""
 
+    // Numărul real de comandă (nr_comand) din Oracle pentru masa curentă, când
+    // se editează o comandă deja trimisă - 0 dacă e o comandă nouă sau dacă
+    // masa are doar o copie locală veche (dinainte ca acest tracking să existe).
+    property int sentNrComand: 0
+    // Cantitățile deja confirmate în Oracle (per produs) - pragul sub care
+    // butonul "-" nu poate coborî, pentru că nu avem cum să ștergem o linie
+    // deja trimisă la bucătărie din acest ecran (add_order_line doar adaugă).
+    property var sentQtyStore: ({})
+    // Așteptăm get_order_lines la deschiderea unei comenzi existente cu
+    // nr_comand cunoscut - până sosește, produsele rămân needitabile ca să nu
+    // pornim de la un prag greșit.
+    property bool awaitingOrderLines: false
+    property string linesLoadError: ""
+
     function fmt(v) {
         return v.toFixed(2).replace(".", ",")
     }
@@ -151,10 +165,19 @@ Page {
         }
     }
 
+    // Cantitatea minimă permisă pentru un produs - ce a fost deja confirmat în
+    // Oracle, dacă edităm o comandă reală (sub asta, "-" n-are ce face, vezi
+    // sentQtyStore mai sus).
+    function floorFor(name) {
+        return (root.sentNrComand > 0 && root.sentQtyStore[name]) ? root.sentQtyStore[name] : 0
+    }
+
     // Modifică cantitatea unui produs. La 0, îi eliminăm și adaosurile.
     function adjustQty(name, delta) {
         var oldQty = qtyStore[name] ? qtyStore[name] : 0
         var newQty = oldQty + delta
+        var floor = root.floorFor(name)
+        if (newQty < floor) newQty = floor
         if (newQty < 0) newQty = 0
         if (newQty === oldQty) return
 
@@ -225,10 +248,32 @@ Page {
         return lines
     }
 
-    // Păstrează comanda în OrdersStore (mock local, citit de TablesPage) și
-    // închide pagina. Folosit atât după o trimitere reală reușită, cât și
-    // pentru editare (care rămâne doar locală deocamdată - vezi submitOrder).
+    // Liniile de trimis la add_order_lines când actualizăm o comandă deja
+    // trimisă: doar diferența față de ce e deja confirmat în Oracle
+    // (sentQtyStore) - add_order_line adaugă mereu o linie nouă (alt slot T),
+    // nu suprascrie cantitatea unei linii existente, deci trimitem delta, nu
+    // cantitatea totală.
+    function buildDeltaLines() {
+        var lines = []
+        for (var name in root.qtyStore) {
+            var qty = root.qtyStore[name]
+            var floor = root.sentQtyStore[name] ? root.sentQtyStore[name] : 0
+            var delta = qty - floor
+            if (delta > 0 && root.codeOf[name] !== undefined)
+                lines.push({ product: root.codeOf[name], qty: delta })
+        }
+        return lines
+    }
+
+    // Păstrează comanda în OrdersStore (cache local, citit de TablesPage pentru
+    // gardarea "editable") și închide pagina. Folosit atât după o trimitere/
+    // actualizare reală reușită, cât și pentru editarea comenzilor locale vechi
+    // fără nr_comand cunoscut (vezi submitOrder).
     function finishSubmit() {
+        // Ce e în qtyStore chiar acum devine noul prag (sentQtyStore) - corect
+        // atât după o creare/trimitere reușită, cât și după o editare
+        // local-only (fallback fără nr_comand cunoscut).
+        root.sentQtyStore = JSON.parse(JSON.stringify(root.qtyStore))
         OrdersStore.submitOrder(
             root.zone,
             root.tableNumber,
@@ -237,7 +282,8 @@ Page {
             root.qtyStore,
             root.addonStore,
             root.guestCount,
-            qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
+            qsTr("%1 MDL").arg(root.fmt(root.orderTotal)),
+            root.sentNrComand
         )
         root.done()
     }
@@ -261,10 +307,23 @@ Page {
         }
 
         if (root.isEditing) {
-            // Editarea unei comenzi deja trimise nu e încă re-sincronizată cu
-            // Oracle - add_order_line doar adaugă linii noi, nu le actualizează/
-            // șterge pe cele existente. Rămâne doar locală până se construiește
-            // fluxul de actualizare (subiect separat, nu de azi).
+            if (root.sentNrComand > 0) {
+                // Comandă reală, cunoscută - trimitem doar diferența (produse
+                // noi sau cantități crescute) via add_order_lines pe același
+                // nr_comand. Scăderea sub ce era deja trimis nu e posibilă de
+                // aici (vezi floorFor), deci deltaLines conține doar creșteri.
+                var deltaLines = root.buildDeltaLines()
+                if (deltaLines.length === 0) {
+                    root.finishSubmit()
+                    return
+                }
+                root.sendError = ""
+                root.sending = true
+                dataService.addOrderLines(String(root.sentNrComand), deltaLines)
+                return
+            }
+            // Nu avem numărul real de comandă (comandă locală veche, dinainte
+            // de acest tracking) - rămâne doar local, ca înainte.
             root.finishSubmit()
             return
         }
@@ -330,21 +389,21 @@ Page {
         root.setupAfterMenu()
     }
 
-    // Rulează după ce meniul e gata: reîncarcă o comandă existentă (deocamdată
-    // din OrdersStore mock) și populează categoria curentă.
+    // Rulează după ce meniul e gata: reîncarcă o comandă existentă și
+    // populează categoria curentă. Dacă știm nr_comand-ul real, produsele
+    // pornesc de la Oracle (get_order_lines), nu de la cache-ul local, care
+    // poate fi depășit (ex. comandă achitată direct din UAMenu).
     function setupAfterMenu() {
         var existing = OrdersStore ? OrdersStore.itemsFor(root.zone, root.tableNumber) : ({})
-        var loadedQty = {}
         var hasExisting = false
-        for (var name in existing) {
-            hasExisting = true
-            loadedQty[name] = existing[name]
-        }
+        for (var name in existing) { hasExisting = true; break }
+
         if (hasExisting) {
             root.isEditing = true
             root.originalZone = root.zone
             root.originalTableNumber = root.tableNumber
-            root.qtyStore = loadedQty
+            root.guestCount = OrdersStore.guestsFor(root.zone, root.tableNumber)
+
             var savedAddons = OrdersStore.addonsFor(root.zone, root.tableNumber)
             var loadedAddons = {}
             for (var pn in savedAddons) {
@@ -353,8 +412,21 @@ Page {
                     loadedAddons[pn][an] = savedAddons[pn][an]
             }
             root.addonStore = loadedAddons
-            root.guestCount = OrdersStore.guestsFor(root.zone, root.tableNumber)
-            recomputeTotals()
+
+            var nrComand = OrdersStore.nrComandFor(root.zone, root.tableNumber)
+            if (nrComand > 0) {
+                root.sentNrComand = nrComand
+                root.awaitingOrderLines = true
+                dataService.loadOrderLines(String(nrComand))
+            } else {
+                // Comandă locală veche, fără nr_comand reținut - păstrăm
+                // comportamentul dinainte (doar cache local, fără sincronizare).
+                var loadedQty = {}
+                for (var name2 in existing)
+                    loadedQty[name2] = existing[name2]
+                root.qtyStore = loadedQty
+                recomputeTotals()
+            }
         }
 
         if (root.currentCategory >= root.menuData.length)
@@ -363,11 +435,39 @@ Page {
         rebuildSelectedModel()
     }
 
+    // Rulează când sosesc liniile reale ale comenzii (get_order_lines) -
+    // devin noul prag (sentQtyStore) și punctul de plecare pentru editare,
+    // înlocuind orice presupunere locală anterioară.
+    function applyServerLines(rows) {
+        var qty = {}
+        for (var i = 0; i < rows.length; ++i) {
+            var r = rows[i]
+            var nm = r.CLCBLIUDAT ? String(r.CLCBLIUDAT).trim() : ""
+            if (nm === "") continue
+            var q = parseFloat(r.CANT)
+            qty[nm] = (qty[nm] ? qty[nm] : 0) + q
+        }
+        root.sentQtyStore = qty
+        root.qtyStore = JSON.parse(JSON.stringify(qty))
+        recomputeTotals()
+        rebuildSelectedModel()
+        populateCategory(root.currentCategory)
+    }
+
     Connections {
         target: dataService
 
         function onMenuChanged() { root.tryBuildMenu() }
         function onCategoriesChanged() { root.tryBuildMenu() }
+
+        // Liniile reale ale comenzii editate (cerute din setupAfterMenu)
+        // tocmai au sosit - devin noul prag/punct de plecare.
+        function onOrderLinesChanged() {
+            if (!root.awaitingOrderLines)
+                return
+            root.awaitingOrderLines = false
+            root.applyServerLines(dataService.orderLines)
+        }
 
         // create_order a reușit - adăugăm liniile (produsele-părinte). Dacă
         // dintr-un motiv oarecare nu-i nicio linie de trimis, terminăm direct
@@ -376,6 +476,7 @@ Page {
         function onOrderCreated(nrComand) {
             if (!root.sending)
                 return
+            root.sentNrComand = nrComand
             var lines = root.buildOrderLines()
             if (lines.length === 0) {
                 root.sending = false
@@ -388,6 +489,7 @@ Page {
         function onOrderLinesAdded(nrComand, lines) {
             if (!root.sending)
                 return
+            root.sentNrComand = nrComand
             root.sending = false
             root.finishSubmit()
         }
@@ -395,6 +497,11 @@ Page {
         function onRequestFailed(command, error) {
             if (command === "get_menu" || command === "get_categories") {
                 root.loadError = error
+                return
+            }
+            if (command === "get_order_lines" && root.awaitingOrderLines) {
+                root.awaitingOrderLines = false
+                root.linesLoadError = error
                 return
             }
             if (root.sending && (command === "create_order" || command === "add_order_lines")) {
@@ -614,18 +721,22 @@ Page {
                         horizontalAlignment: Text.AlignHCenter
                     }
 
-                    // Buton minus (doar când există cantitate)
+                    // Buton minus (doar când există cantitate; estompat/inactiv
+                    // dacă am ajuns la ce e deja trimis în Oracle - nu putem
+                    // șterge o linie deja trimisă din acest ecran).
                     Rectangle {
                         visible: qty > 0
                         Layout.alignment: Qt.AlignVCenter
                         width: 34; height: 34; radius: 17
                         color: Theme.keyBackground
+                        opacity: qty > root.floorFor(name) ? 1 : 0.35
                         Icons.IconMinus {
                             anchors.centerIn: parent
                             color: Theme.textPrimary
                         }
                         MouseArea {
                             anchors.fill: parent
+                            enabled: qty > root.floorFor(name)
                             onClicked: root.adjustQty(name, -1)
                         }
                     }
@@ -805,9 +916,11 @@ Page {
                             Rectangle {
                                 width: 26; height: 26; radius: 13
                                 color: Theme.keyBackground
+                                opacity: (isAddon || qty > root.floorFor(name)) ? 1 : 0.35
                                 Icons.IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
                                 MouseArea {
                                     anchors.fill: parent
+                                    enabled: isAddon || qty > root.floorFor(name)
                                     onClicked: isAddon ? root.adjustAddon(parentName, name, -1) : root.adjustQty(name, -1)
                                 }
                             }
@@ -950,6 +1063,21 @@ Page {
             : qsTr("Loading menu…")
         font.pixelSize: 15 * Theme.fontScale
         color: root.loadError !== "" ? Theme.danger : Theme.textSecondary
+    }
+
+    // Stare de încărcare / eroare pentru liniile reale ale comenzii editate
+    // (get_order_lines) - separată de starea meniului de mai sus.
+    Label {
+        anchors.centerIn: parent
+        visible: root.menuReady && (root.awaitingOrderLines || root.linesLoadError !== "")
+        horizontalAlignment: Text.AlignHCenter
+        width: parent.width - 48
+        wrapMode: Text.WordWrap
+        text: root.linesLoadError !== ""
+            ? qsTr("Couldn't load the existing order:\n%1").arg(root.linesLoadError)
+            : qsTr("Loading order…")
+        font.pixelSize: 15 * Theme.fontScale
+        color: root.linesLoadError !== "" ? Theme.danger : Theme.textSecondary
     }
 
     Components.ConfirmDialog {

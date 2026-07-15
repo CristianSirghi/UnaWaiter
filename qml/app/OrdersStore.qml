@@ -16,6 +16,11 @@ QtObject {
     property var itemsByKey: ({})
     // Adaosurile per masă: { tableKey: { numeProdus: { numeAdaos: cantitate } } }.
     property var addonsByKey: ({})
+    // Numărul real de comandă din Oracle (nr_comand) per masă - 0/absent dacă
+    // masa are doar o comandă locală veche, dinainte ca acest tracking să
+    // existe. Permite lui OrderPage să reîncarce liniile reale (get_order_lines)
+    // și să trimită doar diferența la o actualizare, în loc să rămână local-only.
+    property var nrComandByKey: ({})
 
     function keyFor(zone, tableNumber) {
         return zone + "-" + tableNumber
@@ -62,9 +67,17 @@ QtObject {
         return addonsByKey[key] ? addonsByKey[key] : ({})
     }
 
+    // Numărul real de comandă (nr_comand) salvat pentru o masă - 0 dacă nu-l știm.
+    function nrComandFor(zone, tableNumber) {
+        var key = keyFor(zone, tableNumber)
+        return nrComandByKey[key] ? nrComandByKey[key] : 0
+    }
+
     // Trimite (sau înlocuiește) comanda deschisă pentru o masă. Întoarce numărul comenzii
     // (păstrat neschimbat dacă se editează o comandă deja trimisă).
-    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, addonMap, guestCount, total) {
+    // nrComand = numărul real din Oracle, dacă e cunoscut la acest punct (0 = necunoscut,
+    // caz în care păstrăm ce era deja reținut, ca să nu-l pierdem).
+    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, addonMap, guestCount, total, nrComand) {
         var key = keyFor(zone, tableNumber)
         var idx = indexForKey(key)
         var orderNo = idx >= 0 ? ordersModel.get(idx).orderNo : ("#" + nextOrderNo)
@@ -73,6 +86,8 @@ QtObject {
 
         itemsByKey[key] = itemsMap
         addonsByKey[key] = addonMap
+        if (nrComand)
+            nrComandByKey[key] = nrComand
 
         var entry = {
             tableKey: key,
@@ -112,6 +127,7 @@ QtObject {
             ordersModel.remove(idx)
         delete itemsByKey[key]
         delete addonsByKey[key]
+        delete nrComandByKey[key]
     }
 
     // Curăță mesele salvate local a căror comandă nu mai e printre comenzile
@@ -129,6 +145,7 @@ QtObject {
                     ordersModel.remove(idx)
                 delete itemsByKey[key]
                 delete addonsByKey[key]
+                delete nrComandByKey[key]
             }
         }
     }
@@ -174,8 +191,11 @@ QtObject {
 
         itemsByKey[toKey] = itemsByKey[fromKey]
         addonsByKey[toKey] = addonsByKey[fromKey]
+        if (nrComandByKey[fromKey])
+            nrComandByKey[toKey] = nrComandByKey[fromKey]
         delete itemsByKey[fromKey]
         delete addonsByKey[fromKey]
+        delete nrComandByKey[fromKey]
 
         ordersModel.remove(fromIdx)
 

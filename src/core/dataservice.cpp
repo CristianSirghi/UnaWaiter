@@ -41,6 +41,7 @@ QVariantList DataService::paymentTypes() const { return m_paymentTypes; }
 QVariantList DataService::tables() const { return m_tables; }
 QVariantList DataService::openOrders() const { return m_openOrders; }
 QVariantList DataService::paidOrders() const { return m_paidOrders; }
+QVariantList DataService::orderLines() const { return m_orderLines; }
 
 QString DataService::buildUrl(const QString &command, const QVariantMap &queryItems) const
 {
@@ -209,6 +210,14 @@ void DataService::loadPaidOrders(const QString &waiter)
              [this](const QVariantList &rows) { setPaidOrders(rows); });
 }
 
+void DataService::loadOrderLines(const QString &nrComand)
+{
+    QVariantMap q;
+    q.insert(QStringLiteral("nrComand"), nrComand);
+    getArray(QStringLiteral("get_order_lines"), q,
+             [this](const QVariantList &rows) { setOrderLines(rows); });
+}
+
 void DataService::login(const QString &username, const QString &password)
 {
     QVariantMap fields;
@@ -324,4 +333,10 @@ void DataService::setPaidOrders(const QVariantList &rows)
 {
     m_paidOrders = rows;
     emit paidOrdersChanged();
+}
+
+void DataService::setOrderLines(const QVariantList &rows)
+{
+    m_orderLines = rows;
+    emit orderLinesChanged();
 }
