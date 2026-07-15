@@ -114,6 +114,25 @@ QtObject {
         delete addonsByKey[key]
     }
 
+    // Curăță mesele salvate local a căror comandă nu mai e printre comenzile
+    // deschise reale din Oracle (get_open_orders) — cazul tipic e o comandă
+    // achitată direct din UAMenu, fără nicio acțiune în acest device. Fără
+    // asta, OrderPage ar crede la următoarea deschidere a mesei că editează
+    // comanda veche (dispărută deja) și ar reîncărca produsele ei stale.
+    // openKeys = lista de tableKey-uri active acum, construită de TablesPage
+    // din rândurile primite la fiecare refresh.
+    function pruneMissing(openKeys) {
+        for (var key in itemsByKey) {
+            if (openKeys.indexOf(key) === -1) {
+                var idx = indexForKey(key)
+                if (idx >= 0)
+                    ordersModel.remove(idx)
+                delete itemsByKey[key]
+                delete addonsByKey[key]
+            }
+        }
+    }
+
     // True dacă masa dată are deja o comandă activă — folosit la schimbarea
     // mesei unei comenzi (ChangeTablePicker), ca să nu suprascriem din
     // greșeală o altă comandă deschisă.

@@ -69,12 +69,16 @@ Page {
     function buildOrders(rows) {
         root.lastOrderRows = rows
         var items = []
+        var openKeys = []
         for (var i = 0; i < rows.length; ++i) {
             var r = rows[i]
             var hasDesk = r.DESK !== undefined && r.DESK !== null && String(r.DESK).trim() !== ""
             var deskNo = hasDesk ? parseInt(r.DESK) : 0
             var zone = (deskNo > 0 && root.deskZone[deskNo]) ? root.deskZone[deskNo] : "hall"
             var hasGuestCount = r.BARMEN !== undefined && r.BARMEN !== null && String(r.BARMEN).trim() !== ""
+
+            if (deskNo > 0)
+                openKeys.push(OrdersStore.keyFor(zone, deskNo))
 
             items.push({
                 zone: zone,
@@ -90,6 +94,8 @@ Page {
                 editable: deskNo > 0 && OrdersStore.hasOrder(zone, deskNo)
             })
         }
+
+        OrdersStore.pruneMissing(openKeys)
 
         items.sort(function(a, b) { return root.zoneRank(a.zone) - root.zoneRank(b.zone) })
 
