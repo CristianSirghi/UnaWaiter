@@ -73,6 +73,11 @@ public:
                                  const QString &guestCount = QString());
     Q_INVOKABLE void addOrderLines(const QString &nrComand,
                                    const QVariantList &lines);
+    // Mută o comandă deja trimisă pe altă masă (DESK real în Oracle), nu doar
+    // în cache-ul local - vezi update_order_desk. Backend-ul respinge mutarea
+    // dacă masa țintă are deja altă comandă deschisă, sau dacă bonul comenzii
+    // e deja printat la bucătărie (aceleași reguli ca UAMenu însuși).
+    Q_INVOKABLE void updateOrderDesk(const QString &nrComand, const QString &desk);
 
 signals:
     void baseUrlChanged();
@@ -91,6 +96,7 @@ signals:
     void loggedIn(int oficiant, const QString &name, const QString &username);
     void orderCreated(int nrComand);
     void orderLinesAdded(int nrComand, const QVariantList &lines);
+    void orderDeskUpdated(int nrComand, int desk);
     // Fired whenever any command fails (network or backend "error" payload).
     void requestFailed(const QString &command, const QString &error);
 

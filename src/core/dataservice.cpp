@@ -268,6 +268,19 @@ void DataService::addOrderLines(const QString &nrComand, const QVariantList &lin
                });
 }
 
+void DataService::updateOrderDesk(const QString &nrComand, const QString &desk)
+{
+    QVariantMap fields;
+    fields.insert(QStringLiteral("nrComand"), nrComand);
+    fields.insert(QStringLiteral("desk"), desk);
+
+    postObject(QStringLiteral("update_order_desk"), fields,
+               [this](const QVariantMap &obj) {
+                   emit orderDeskUpdated(obj.value(QStringLiteral("nrComand")).toInt(),
+                                        obj.value(QStringLiteral("desk")).toInt());
+               });
+}
+
 void DataService::setBusy(bool busy)
 {
     // Reference-count in-flight requests so overlapping calls don't clear

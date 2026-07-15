@@ -288,42 +288,53 @@ Page {
         root.done()
     }
 
+    // Trimite liniile noi (delta) pentru comanda curentă, dacă există, altfel
+    // termină direct - pasul comun de după creare/mutare cu succes.
+    function sendDeltaOrFinish() {
+        var deltaLines = root.buildDeltaLines()
+        if (deltaLines.length === 0) {
+            root.sending = false
+            root.finishSubmit()
+            return
+        }
+        dataService.addOrderLines(String(root.sentNrComand), deltaLines)
+    }
+
     function submitOrder() {
         if (root.sending)
             return
 
-        // Dacă masa a fost schimbată (ChangeTablePicker), mutăm întâi comanda
-        // existentă pe noua masă, păstrând numărul de comandă — altfel
-        // OrdersStore.submitOrder de mai jos ar crea o comandă nouă la vechea
-        // masă rămasă neschimbată și una separată la cea nouă.
-        if (root.isEditing && (root.zone !== root.originalZone || root.tableNumber !== root.originalTableNumber)) {
-            var moved = OrdersStore.moveOrder(root.originalZone, root.originalTableNumber,
-                                               root.zone, root.tableNumber,
-                                               qsTr("Table %1").arg(root.tableNumber))
-            if (!moved)
-                return
-            root.originalZone = root.zone
-            root.originalTableNumber = root.tableNumber
+        var tableChanged = root.isEditing
+            && (root.zone !== root.originalZone || root.tableNumber !== root.originalTableNumber)
+
+        if (root.isEditing && root.sentNrComand > 0) {
+            // Comandă reală, cunoscută - orice schimbare merge direct în
+            // Oracle; cache-ul local (OrdersStore) se actualizează abia după
+            // ce Oracle confirmă, ca să nu rămână niciodată în urma realității
+            // (exact ce producea "Not editable here yet" înainte: masa se
+            // muta doar local, DESK-ul real rămânea neschimbat).
+            root.sendError = ""
+            root.sending = true
+            if (tableChanged) {
+                dataService.updateOrderDesk(String(root.sentNrComand), String(root.tableNumber))
+            } else {
+                root.sendDeltaOrFinish()
+            }
+            return
         }
 
         if (root.isEditing) {
-            if (root.sentNrComand > 0) {
-                // Comandă reală, cunoscută - trimitem doar diferența (produse
-                // noi sau cantități crescute) via add_order_lines pe același
-                // nr_comand. Scăderea sub ce era deja trimis nu e posibilă de
-                // aici (vezi floorFor), deci deltaLines conține doar creșteri.
-                var deltaLines = root.buildDeltaLines()
-                if (deltaLines.length === 0) {
-                    root.finishSubmit()
-                    return
-                }
-                root.sendError = ""
-                root.sending = true
-                dataService.addOrderLines(String(root.sentNrComand), deltaLines)
-                return
-            }
             // Nu avem numărul real de comandă (comandă locală veche, dinainte
             // de acest tracking) - rămâne doar local, ca înainte.
+            if (tableChanged) {
+                var moved = OrdersStore.moveOrder(root.originalZone, root.originalTableNumber,
+                                                   root.zone, root.tableNumber,
+                                                   qsTr("Table %1").arg(root.tableNumber))
+                if (!moved)
+                    return
+                root.originalZone = root.zone
+                root.originalTableNumber = root.tableNumber
+            }
             root.finishSubmit()
             return
         }
@@ -494,6 +505,22 @@ Page {
             root.finishSubmit()
         }
 
+        // Masa reală (DESK) tocmai s-a schimbat cu succes în Oracle - abia
+        // acum e sigur să mutăm și cache-ul local, altfel el ar putea rămâne
+        // pe masa nouă chiar dacă Oracle respinsese mutarea (bonul deja
+        // printat, sau masa țintă are altă comandă deschisă).
+        function onOrderDeskUpdated(nrComand, desk) {
+            if (!root.sending)
+                return
+            OrdersStore.removeOrder(root.zone, root.tableNumber)
+            OrdersStore.moveOrder(root.originalZone, root.originalTableNumber,
+                                   root.zone, root.tableNumber,
+                                   qsTr("Table %1").arg(root.tableNumber))
+            root.originalZone = root.zone
+            root.originalTableNumber = root.tableNumber
+            root.sendDeltaOrFinish()
+        }
+
         function onRequestFailed(command, error) {
             if (command === "get_menu" || command === "get_categories") {
                 root.loadError = error
@@ -504,7 +531,7 @@ Page {
                 root.linesLoadError = error
                 return
             }
-            if (root.sending && (command === "create_order" || command === "add_order_lines")) {
+            if (root.sending && (command === "create_order" || command === "add_order_lines" || command === "update_order_desk")) {
                 root.sending = false
                 root.sendError = error
             }
