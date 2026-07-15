@@ -21,6 +21,30 @@ Page {
     property bool ordersReady: false
     property string loadError: ""
 
+    // Pull-to-refresh (trage lista în jos de la vârf ca s-o reîmprospătezi
+    // manual, în plus față de poll-ul automat la 25s).
+    readonly property real pullThreshold: 70
+    // true cât timp utilizatorul a tras dincolo de prag - săgeata se
+    // răstoarnă, semnalând "eliberează pentru reîmprospătare".
+    property bool pullArmed: false
+    // true cât timp reîmprospătarea (declanșată de eliberare) e în curs -
+    // antetul rămâne deschis, arătând punctele animate, până sosesc datele.
+    property bool pullRefreshing: false
+    // Baza de date răspunde aproape instant, deci fără un minim de timp
+    // punctele ar clipi câteva milisecunde și n-ai vedea nimic. Ținem starea
+    // "se reîmprospătează" cel puțin atâta, ca reîncărcarea din BD să fie
+    // vizibilă (scopul: chelnerul vede clar re-sincronizarea cu UAMenu).
+    readonly property int pullMinSpinMs: 700
+    property bool pullDataArrived: false
+    property bool pullMinElapsed: false
+
+    // Închide starea de reîmprospătare doar când AMBELE condiții sunt
+    // îndeplinite: datele au sosit din BD ȘI a trecut timpul minim vizibil.
+    function maybeFinishRefresh() {
+        if (root.pullRefreshing && root.pullDataArrived && root.pullMinElapsed)
+            root.pullRefreshing = false
+    }
+
     signal newTableRequested()
     signal orderOpened(string zone, int tableNumber)
     signal profileRequested()
@@ -114,10 +138,18 @@ Page {
     Connections {
         target: dataService
         function onTablesChanged() { root.buildDeskZone(dataService.tables) }
-        function onOpenOrdersChanged() { root.buildOrders(dataService.openOrders) }
+        function onOpenOrdersChanged() {
+            root.buildOrders(dataService.openOrders)
+            root.pullDataArrived = true
+            root.maybeFinishRefresh()
+        }
         function onRequestFailed(command, error) {
             if (command === "get_open_orders" || command === "get_tables")
                 root.loadError = error
+            if (command === "get_open_orders") {
+                root.pullDataArrived = true
+                root.maybeFinishRefresh()
+            }
         }
     }
 
@@ -294,13 +326,128 @@ Page {
             Item { Layout.fillHeight: true }
         }
 
-        ListView {
+        // Container pentru listă + indicatorul de pull, care stă FIX în
+        // spatele ei (z mai mic) - lista are fundal transparent, deci golul ei
+        // de sus, dezvăluit natural la supra-tragere (contentY negativ) sau
+        // cât timp topMargin ține locul deschis, lasă indicatorul să se vadă
+        // prin el. Fără nicio urmărire manuală de contentY pe indicator -
+        // asta a fost bug-ul (colapsa la 0 exact când se declanșa refresh-ul).
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 12
-            clip: true
-            visible: tableOrdersModel.count > 0
-            model: tableOrdersModel
+
+            Item {
+                id: pullIndicator
+                z: 0
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: root.pullThreshold
+
+                readonly property real progress: root.pullRefreshing
+                    ? 1
+                    : Math.min(1, Math.max(0, -tableList.contentY) / root.pullThreshold)
+
+                // Săgeată - vizibilă cât tragi, se răstoarnă când ai depășit pragul.
+                Item {
+                    anchors.centerIn: parent
+                    visible: !root.pullRefreshing
+                    opacity: pullIndicator.progress
+
+                    Item {
+                        anchors.centerIn: parent
+                        rotation: root.pullArmed ? 180 : 0
+                        Behavior on rotation { NumberAnimation { duration: 150 } }
+
+                        Icons.IconChevron {
+                            anchors.centerIn: parent
+                            expanded: true
+                            color: root.pullArmed ? Theme.primary : Theme.textSecondary
+                        }
+                    }
+                }
+
+                // Trei puncte care pulsează pe rând cât timp cererea e în curs.
+                Row {
+                    anchors.centerIn: parent
+                    visible: root.pullRefreshing
+                    spacing: 6
+
+                    Repeater {
+                        model: 3
+                        delegate: Rectangle {
+                            width: 7; height: 7; radius: 3.5
+                            color: Theme.primary
+
+                            SequentialAnimation on opacity {
+                                loops: Animation.Infinite
+                                running: root.pullRefreshing
+                                PauseAnimation { duration: index * 130 }
+                                NumberAnimation { from: 0.25; to: 1; duration: 320; easing.type: Easing.InOutQuad }
+                                NumberAnimation { from: 1; to: 0.25; duration: 320; easing.type: Easing.InOutQuad }
+                            }
+                        }
+                    }
+                }
+            }
+
+            ListView {
+                id: tableList
+                z: 1
+                anchors.fill: parent
+                spacing: 12
+                clip: true
+                visible: tableOrdersModel.count > 0
+                model: tableOrdersModel
+
+                // Permite tragerea dincolo de vârf (efect elastic) - fără asta,
+                // Flickable oprește contentY la 0 și n-avem cum detecta "trage
+                // pentru reîmprospătare".
+                boundsBehavior: Flickable.DragOverBounds
+
+                // CRUCIAL: implicit flickableDirection e AutoFlickDirection, care
+                // activează tragerea verticală DOAR când conținutul e mai înalt
+                // decât ecranul. Cu o singură comandă (mult spațiu gol dedesubt),
+                // lista n-ar reacționa deloc la tragere -> contentY rămâne 0 și
+                // nu apare nicio reîmprospătare. Forțăm tragerea verticală mereu.
+                flickableDirection: Flickable.VerticalFlick
+
+                // Cât timp reîmprospătăm, ținem lista împinsă în jos cu un
+                // topMargin animat, ca golul de sus (unde se vede pullIndicator
+                // prin transparență) să rămână deschis cât durează cererea
+                // reală, chiar dacă degetul s-a ridicat deja.
+                topMargin: root.pullRefreshing ? root.pullThreshold : 0
+                Behavior on topMargin {
+                    NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                }
+
+                onContentYChanged: {
+                    if (tableList.dragging && !root.pullRefreshing)
+                        root.pullArmed = tableList.contentY < -root.pullThreshold
+                }
+
+                onDraggingChanged: {
+                    if (!tableList.dragging && root.pullArmed && !root.pullRefreshing) {
+                        root.pullArmed = false
+                        root.pullDataArrived = false
+                        root.pullMinElapsed = false
+                        root.pullRefreshing = true
+                        minSpinTimer.restart()
+                        root.refreshOrders()
+                    }
+                }
+
+            // Garantează că punctele de reîmprospătare rămân vizibile cel
+            // puțin pullMinSpinMs, chiar dacă BD răspunde instant.
+            Timer {
+                id: minSpinTimer
+                interval: root.pullMinSpinMs
+                repeat: false
+                onTriggered: {
+                    root.pullMinElapsed = true
+                    root.maybeFinishRefresh()
+                }
+            }
 
             // Grupăm cardurile pe zonă (Sala / Terasă), cu un antet per grup.
             section.property: "zone"
@@ -399,7 +546,11 @@ Page {
                         wrapMode: Text.WordWrap
                     }
 
-                    Item { Layout.fillHeight: true }
+                    // (fără spacer fillHeight aici: cardul e dimensionat exact
+                    // pe conținut - height: cardContent.implicitHeight + 28 -
+                    // deci un Layout.fillHeight în interior crea o dependență
+                    // circulară pe înălțime -> binding loop. N-avea spațiu de
+                    // umplut oricum.)
 
                     Rectangle {
                         Layout.fillWidth: true
@@ -426,6 +577,7 @@ Page {
                 }
             }
         }
+        } // sfârșitul containerului listă + pullIndicator
     }
 
     // Stare de încărcare / eroare, cât timp mesele/comenzile reale sosesc.
