@@ -32,6 +32,9 @@ class DataService : public QObject
     // would clobber TablesPage's filtered data and flash the wrong list for a
     // moment when popping back.
     Q_PROPERTY(QVariantList tableOccupancy READ tableOccupancy NOTIFY tableOccupancyChanged)
+    // Un singur rand: [{ DAY_COUNT, WEEK_COUNT, MONTH_COUNT }] - comenzi
+    // achitate (state=3) ale chelnerului curent, pentru ProfilePage.
+    Q_PROPERTY(QVariantList waiterStats READ waiterStats NOTIFY waiterStatsChanged)
     Q_PROPERTY(QVariantList paidOrders READ paidOrders NOTIFY paidOrdersChanged)
     Q_PROPERTY(QVariantList orderLines READ orderLines NOTIFY orderLinesChanged)
 
@@ -49,6 +52,7 @@ public:
     QVariantList tables() const;
     QVariantList openOrders() const;
     QVariantList tableOccupancy() const;
+    QVariantList waiterStats() const;
     QVariantList paidOrders() const;
     QVariantList orderLines() const;
 
@@ -63,6 +67,9 @@ public:
     // fills `tableOccupancy` instead of `openOrders`, so SelectTablePage's
     // "is this table taken" check never clobbers TablesPage's filtered list.
     Q_INVOKABLE void loadTableOccupancy();
+    // Comenzi achitate azi/săptămâna asta/luna asta (get_waiter_stats) -
+    // ProfilePage, "Mese servite".
+    Q_INVOKABLE void loadWaiterStats(const QString &waiter);
     // Comenzile achitate (STATE=3) de azi - vezi get_paid_orders. Folosit de
     // AchitatePage, filtrat implicit pe chelnerul logat (waiterOficiant).
     Q_INVOKABLE void loadPaidOrders(const QString &waiter = QString());
@@ -103,6 +110,7 @@ signals:
     void tablesChanged();
     void openOrdersChanged();
     void tableOccupancyChanged();
+    void waiterStatsChanged();
     void paidOrdersChanged();
     void orderLinesChanged();
 
@@ -143,6 +151,7 @@ private:
     void setTables(const QVariantList &rows);
     void setOpenOrders(const QVariantList &rows);
     void setTableOccupancy(const QVariantList &rows);
+    void setWaiterStats(const QVariantList &rows);
     void setPaidOrders(const QVariantList &rows);
     void setOrderLines(const QVariantList &rows);
 
@@ -157,6 +166,7 @@ private:
     QVariantList m_tables;
     QVariantList m_openOrders;
     QVariantList m_tableOccupancy;
+    QVariantList m_waiterStats;
     QVariantList m_paidOrders;
     QVariantList m_orderLines;
     int m_pending = 0; // in-flight request count, drives `busy`

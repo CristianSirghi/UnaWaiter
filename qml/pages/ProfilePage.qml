@@ -11,12 +11,58 @@ Page {
 
     property string statsPeriod: "day"
 
-    // Statistici mock (până vine backend-ul) — mese servite per perioadă.
-    readonly property var statsByPeriod: ({
-        day: 0,
-        week: 3,
-        month: 12
-    })
+    // Mese servite per perioadă (comenzi achitate, state=3) - din
+    // get_waiter_stats, un singur rând cu toate 3 cifrele.
+    property var statsByPeriod: ({ day: 0, week: 0, month: 0 })
+    property bool statsReady: false
+
+    function applyStats(rows) {
+        if (!rows || rows.length === 0) {
+            root.statsByPeriod = { day: 0, week: 0, month: 0 }
+        } else {
+            var r = rows[0]
+            root.statsByPeriod = {
+                day: parseInt(r.DAY_COUNT) || 0,
+                week: parseInt(r.WEEK_COUNT) || 0,
+                month: parseInt(r.MONTH_COUNT) || 0
+            }
+        }
+        root.statsReady = true
+    }
+
+    Connections {
+        target: dataService
+        function onWaiterStatsChanged() { root.applyStats(dataService.waiterStats) }
+    }
+
+    Component.onCompleted: dataService.loadWaiterStats(String(AppSettings.waiterOficiant))
+
+    function pad2(n) { return (n < 10 ? "0" : "") + n }
+
+    function fmtShortDate(d) {
+        return pad2(d.getDate()) + "." + pad2(d.getMonth() + 1)
+    }
+
+    // Intervalul exact numărat pentru "Săpt."/"Lună" - se termină azi (nu la
+    // sfârșitul săptămânii/lunii), la fel ca WHERE-ul din get_waiter_stats
+    // (data_comand >= începutul perioadei). Săptămâna începe luni (ISO),
+    // la fel ca TRUNC(SYSDATE, 'IW') din query.
+    function periodRangeLabel(period) {
+        var today = new Date()
+        var start
+        if (period === "week") {
+            var dow = today.getDay() // 0=duminică..6=sâmbătă
+            var diffToMonday = (dow === 0) ? 6 : dow - 1
+            start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - diffToMonday)
+        } else if (period === "month") {
+            start = new Date(today.getFullYear(), today.getMonth(), 1)
+        } else {
+            return ""
+        }
+        if (start.toDateString() === today.toDateString())
+            return root.fmtShortDate(today)
+        return root.fmtShortDate(start) + " – " + root.fmtShortDate(today)
+    }
 
     background: Rectangle {
         color: Theme.background
@@ -122,11 +168,38 @@ Page {
                     color: Theme.textSecondary
                 }
 
-                Label {
-                    text: root.statsByPeriod[root.statsPeriod]
-                    font.pixelSize: 34 * Theme.fontScale
-                    font.bold: true
-                    color: Theme.textPrimary
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    Label {
+                        text: root.statsReady ? root.statsByPeriod[root.statsPeriod] : "…"
+                        font.pixelSize: 34 * Theme.fontScale
+                        font.bold: true
+                        color: Theme.textPrimary
+                    }
+
+                    // Intervalul de date numărat - doar la Săpt./Lună, la Zi e
+                    // evident ("azi") și n-ar aduce nimic în plus.
+                    Rectangle {
+                        visible: root.statsPeriod !== "day"
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.bottomMargin: 4
+                        radius: height / 2
+                        implicitWidth: rangeLabel.implicitWidth + 20
+                        implicitHeight: rangeLabel.implicitHeight + 8
+                        color: Theme.keyBackground
+
+                        Label {
+                            id: rangeLabel
+                            anchors.centerIn: parent
+                            text: root.periodRangeLabel(root.statsPeriod)
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: Theme.textSecondary
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
                 }
 
                 Components.SegmentedControl {

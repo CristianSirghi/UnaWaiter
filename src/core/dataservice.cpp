@@ -41,6 +41,7 @@ QVariantList DataService::paymentTypes() const { return m_paymentTypes; }
 QVariantList DataService::tables() const { return m_tables; }
 QVariantList DataService::openOrders() const { return m_openOrders; }
 QVariantList DataService::tableOccupancy() const { return m_tableOccupancy; }
+QVariantList DataService::waiterStats() const { return m_waiterStats; }
 QVariantList DataService::paidOrders() const { return m_paidOrders; }
 QVariantList DataService::orderLines() const { return m_orderLines; }
 
@@ -208,6 +209,14 @@ void DataService::loadTableOccupancy()
              [this](const QVariantList &rows) { setTableOccupancy(rows); });
 }
 
+void DataService::loadWaiterStats(const QString &waiter)
+{
+    QVariantMap q;
+    q.insert(QStringLiteral("waiter"), waiter.trimmed());
+    getArray(QStringLiteral("get_waiter_stats"), q,
+             [this](const QVariantList &rows) { setWaiterStats(rows); });
+}
+
 void DataService::loadPaidOrders(const QString &waiter)
 {
     QVariantMap q;
@@ -353,6 +362,12 @@ void DataService::setTableOccupancy(const QVariantList &rows)
 {
     m_tableOccupancy = rows;
     emit tableOccupancyChanged();
+}
+
+void DataService::setWaiterStats(const QVariantList &rows)
+{
+    m_waiterStats = rows;
+    emit waiterStatsChanged();
 }
 
 void DataService::setPaidOrders(const QVariantList &rows)
