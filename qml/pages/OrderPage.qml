@@ -32,6 +32,10 @@ Page {
     property string loadError: ""
 
     property int currentCategory: 0
+    // Căutare: cât timp e activă, tab-urile de categorii sunt ascunse și
+    // productsModel arată rezultate din toate categoriile (nu doar cea curentă).
+    property bool searchActive: false
+    property string searchQuery: ""
     property bool summaryExpanded: false
     readonly property int summaryMaxRows: 5
     // true dacă masa are deja o comandă trimisă (deschisă din TablesPage) — arată butonul de ștergere.
@@ -103,6 +107,29 @@ Page {
                 hasAddons: items[k].addons !== undefined && items[k].addons.length > 0,
                 addonCount: root.addonCountFor(items[k].name)
             })
+        }
+    }
+
+    // Căutare peste tot meniul (toate categoriile), nu doar cea selectată —
+    // meniul complet e deja în memorie (menuData), deci nu cerem nimic nou.
+    function applySearch(query) {
+        productsModel.clear()
+        var q = query.toLowerCase()
+        if (!menuData) return
+        for (var ci = 0; ci < menuData.length; ++ci) {
+            var items = menuData[ci].items
+            for (var k = 0; k < items.length; ++k) {
+                var it = items[k]
+                if (it.name.toLowerCase().indexOf(q) === -1) continue
+                productsModel.append({
+                    name: it.name,
+                    unit: it.unit,
+                    price: it.price,
+                    qty: root.qtyStore[it.name] ? root.qtyStore[it.name] : 0,
+                    hasAddons: it.addons !== undefined && it.addons.length > 0,
+                    addonCount: root.addonCountFor(it.name)
+                })
+            }
         }
     }
 
@@ -615,40 +642,148 @@ Page {
         anchors.fill: parent
         spacing: 0
 
-        // Chips de categorii
-        ListView {
-            id: categoryList
+        // Chips de categorii + lupă. Cât timp cauți, bara de căutare ia locul
+        // tab-urilor (nu avem loc pentru amândouă) — căutarea acoperă tot
+        // meniul, nu doar categoria curentă, ca să nu mai trebuiască ghicit
+        // în ce categorie e produsul.
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 56
-            orientation: ListView.Horizontal
-            spacing: 8
-            leftMargin: 16
-            rightMargin: 16
-            clip: true
-            model: root.menuData
 
-            delegate: Rectangle {
-                anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+            ListView {
+                id: categoryList
+                visible: !root.searchActive
+                anchors.left: parent.left
+                anchors.right: searchButton.left
+                anchors.rightMargin: 4
+                anchors.verticalCenter: parent.verticalCenter
                 height: 36
-                width: catLabel.implicitWidth + 32
-                radius: 18
-                color: index === root.currentCategory ? Theme.primary : Theme.surface
-                border.width: 1
-                border.color: index === root.currentCategory ? Theme.primary : Theme.border
+                orientation: ListView.Horizontal
+                spacing: 8
+                leftMargin: 16
+                clip: true
+                model: root.menuData
 
-                Label {
-                    id: catLabel
+                delegate: Rectangle {
+                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+                    height: 36
+                    width: catLabel.implicitWidth + 32
+                    radius: 18
+                    color: index === root.currentCategory ? Theme.primary : Theme.surface
+                    border.width: 1
+                    border.color: index === root.currentCategory ? Theme.primary : Theme.border
+
+                    Label {
+                        id: catLabel
+                        anchors.centerIn: parent
+                        text: modelData.cat
+                        font.pixelSize: 14 * Theme.fontScale
+                        color: index === root.currentCategory ? "white" : Theme.textPrimary
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            root.currentCategory = index
+                            root.populateCategory(index)
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                id: searchButton
+                visible: !root.searchActive
+                anchors.right: parent.right
+                anchors.rightMargin: 16
+                anchors.verticalCenter: parent.verticalCenter
+                width: 36; height: 36; radius: 18
+                color: Theme.keyBackground
+
+                Icons.IconSearch {
                     anchors.centerIn: parent
-                    text: modelData.cat
-                    font.pixelSize: 14 * Theme.fontScale
-                    color: index === root.currentCategory ? "white" : Theme.textPrimary
+                    color: Theme.textSecondary
                 }
 
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        root.currentCategory = index
-                        root.populateCategory(index)
+                        root.searchActive = true
+                        searchField.forceActiveFocus()
+                    }
+                }
+            }
+
+            Rectangle {
+                visible: root.searchActive
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
+                anchors.verticalCenter: parent.verticalCenter
+                height: 36
+                radius: 18
+                color: Theme.surface
+                border.width: 1
+                border.color: Theme.primary
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 12
+                    anchors.rightMargin: 8
+                    spacing: 8
+
+                    Icons.IconSearch {
+                        Layout.alignment: Qt.AlignVCenter
+                        color: Theme.textSecondary
+                    }
+
+                    TextField {
+                        id: searchField
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+                        font.pixelSize: 14 * Theme.fontScale
+                        color: Theme.textPrimary
+                        placeholderText: qsTr("Search products…")
+                        placeholderTextColor: Theme.textSecondary
+                        selectByMouse: true
+                        background: null
+                        topPadding: 0
+                        bottomPadding: 0
+                        onTextChanged: {
+                            root.searchQuery = text
+                            if (text.trim() === "")
+                                root.populateCategory(root.currentCategory)
+                            else
+                                root.applySearch(text)
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 26
+                        Layout.preferredHeight: 26
+                        Layout.alignment: Qt.AlignVCenter
+                        radius: 13
+                        color: "transparent"
+
+                        Icons.IconClose {
+                            anchors.centerIn: parent
+                            color: Theme.textSecondary
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                searchField.text = ""
+                                root.searchActive = false
+                                root.searchQuery = ""
+                                root.populateCategory(root.currentCategory)
+                                // Ascunderea câmpului nu închide singură tastatura pe Android -
+                                // trebuie să-i luăm explicit focusul și să cerem input panel-ului să dispară.
+                                searchField.focus = false
+                                Qt.inputMethod.hide()
+                            }
+                        }
                     }
                 }
             }

@@ -25,6 +25,7 @@
         <file alias="components/icons/IconPerson.qml">../qml/components/icons/IconPerson.qml</file>
         <file alias="components/icons/IconChevron.qml">../qml/components/icons/IconChevron.qml</file>
         <file alias="components/icons/IconTrash.qml">../qml/components/icons/IconTrash.qml</file>
+        <file alias="components/icons/IconSearch.qml">../qml/components/icons/IconSearch.qml</file>
         <file alias="components/controls/BackButton.qml">../qml/components/controls/BackButton.qml</file>
         <file alias="components/controls/SegmentedControl.qml">../qml/components/controls/SegmentedControl.qml</file>
         <file alias="components/controls/AppDrawer.qml">../qml/components/controls/AppDrawer.qml</file>

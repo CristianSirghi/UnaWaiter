@@ -2,6 +2,51 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>AchitatePage</name>
+    <message>
+        <location filename="../qml/pages/AchitatePage.qml" line="+33"/>
+        <source>Table %1</source>
+        <translation>Table %1</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Unknown table</source>
+        <translation>Unknown table</translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Paid orders</source>
+        <translation>Paid orders</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>No paid orders yet today</source>
+        <translation>No paid orders yet today</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Orders closed at the register will show up here.</source>
+        <translation>Orders closed at the register will show up here.</translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>Paid</source>
+        <translation>Paid</translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>Loading…</source>
+        <translation>Loading…</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Couldn&apos;t load paid orders:
+%1</source>
+        <translation>Couldn&apos;t load paid orders:
+%1</translation>
+    </message>
+</context>
+<context>
     <name>AddonSheet</name>
     <message>
         <location filename="../qml/components/controls/AddonSheet.qml" line="+85"/>
@@ -35,10 +80,6 @@
         <location line="+39"/>
         <source>Server</source>
         <translation>Server</translation>
-    </message>
-    <message>
-        <source>https://server/oracle_waiter.php</source>
-        <translation type="vanished">https://server/oracle_waiter.php</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -100,7 +141,7 @@
 <context>
     <name>AppDrawer</name>
     <message>
-        <location filename="../qml/components/controls/AppDrawer.qml" line="+102"/>
+        <location filename="../qml/components/controls/AppDrawer.qml" line="+103"/>
         <source>Profile</source>
         <translation>Profile</translation>
     </message>
@@ -113,6 +154,11 @@
         <location line="+35"/>
         <source>Stock</source>
         <translation>Stock</translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Paid orders</source>
+        <translation>Paid orders</translation>
     </message>
     <message>
         <location line="+44"/>
@@ -154,7 +200,7 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+80"/>
+        <location filename="../src/core/dataservice.cpp" line="+82"/>
         <source>Invalid response from server: %1</source>
         <translation>Invalid response from server: %1</translation>
     </message>
@@ -171,14 +217,6 @@
         <location filename="../qml/pages/LoginPage.qml" line="+213"/>
         <source>Enter PIN</source>
         <translation>Enter PIN</translation>
-    </message>
-    <message>
-        <source>Wrong username or password</source>
-        <translation type="vanished">Wrong username or password</translation>
-    </message>
-    <message>
-        <source>This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</source>
-        <translation type="vanished">This account isn&apos;t linked to a waiter yet - ask an admin to set it up in UAMenu</translation>
     </message>
     <message>
         <location line="-118"/>
@@ -206,23 +244,15 @@
         <translation>Continue</translation>
     </message>
     <message>
-        <location line="+156"/>
+        <location line="+171"/>
         <source>Switch user</source>
         <translation>Switch user</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="vanished">Password</translation>
-    </message>
-    <message>
-        <source>Logging in…</source>
-        <translation type="vanished">Logging in…</translation>
     </message>
 </context>
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+66"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+84"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -232,35 +262,33 @@
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+169"/>
-        <location line="+21"/>
-        <location line="+192"/>
-        <location line="+514"/>
+        <location line="+223"/>
+        <location line="+52"/>
+        <location line="+186"/>
+        <location line="+64"/>
+        <location line="+639"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-726"/>
+        <location line="-940"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+231"/>
-        <location line="+363"/>
+        <location line="+320"/>
+        <location line="+473"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <source>Editing</source>
-        <translation type="vanished">Editing</translation>
+        <location line="-358"/>
+        <source>Search products…</source>
+        <translation>Search products…</translation>
     </message>
     <message>
-        <source>Change table</source>
-        <translation type="vanished">Change table</translation>
-    </message>
-    <message>
-        <location line="-266"/>
+        <location line="+86"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
@@ -275,7 +303,7 @@
         <translation>Add-ons</translation>
     </message>
     <message>
-        <location line="+154"/>
+        <location line="+158"/>
         <source>%1 products selected</source>
         <translation>%1 products selected</translation>
     </message>
@@ -285,7 +313,7 @@
         <translation>No products selected</translation>
     </message>
     <message>
-        <location line="+114"/>
+        <location line="+116"/>
         <source>Couldn&apos;t send the order:
 %1</source>
         <translation>Couldn&apos;t send the order:
@@ -314,6 +342,18 @@
         <translation>Loading menu…</translation>
     </message>
     <message>
+        <location line="+14"/>
+        <source>Couldn&apos;t load the existing order:
+%1</source>
+        <translation>Couldn&apos;t load the existing order:
+%1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Loading order…</source>
+        <translation>Loading order…</translation>
+    </message>
+    <message>
         <location line="+7"/>
         <source>Delete order?</source>
         <translation>Delete order?</translation>
@@ -329,15 +369,7 @@
         <translation>Delete</translation>
     </message>
     <message>
-        <source>+%1 MDL</source>
-        <translation type="vanished">+%1 MDL</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation type="vanished">Done</translation>
-    </message>
-    <message>
-        <location line="-43"/>
+        <location line="-58"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -540,10 +572,6 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <source>Printer selected: %1</source>
-        <translation type="vanished">Printer selected: %1</translation>
-    </message>
-    <message>
         <location filename="../qml/pages/SettingsPage.qml" line="+36"/>
         <source>Settings</source>
         <translation>Settings</translation>
@@ -603,58 +631,6 @@
         <source>Server, printer</source>
         <translation>Server, printer</translation>
     </message>
-    <message>
-        <source>Server</source>
-        <translation type="vanished">Server</translation>
-    </message>
-    <message>
-        <source>https://server/oracle_waiter.php</source>
-        <translation type="vanished">https://server/oracle_waiter.php</translation>
-    </message>
-    <message>
-        <source>Printer</source>
-        <translation type="vanished">Printer</translation>
-    </message>
-    <message>
-        <source>No printer selected</source>
-        <translation type="vanished">No printer selected</translation>
-    </message>
-    <message>
-        <source>Printer IP</source>
-        <translation type="vanished">Printer IP</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">Port</translation>
-    </message>
-    <message>
-        <source>Search printers</source>
-        <translation type="vanished">Search printers</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="vanished">Test</translation>
-    </message>
-    <message>
-        <source>Testing...</source>
-        <translation type="vanished">Testing...</translation>
-    </message>
-    <message>
-        <source>Print test receipt</source>
-        <translation type="vanished">Print test receipt</translation>
-    </message>
-    <message>
-        <source>Printing...</source>
-        <translation type="vanished">Printing...</translation>
-    </message>
-    <message>
-        <source>Test receipt sent.</source>
-        <translation type="vanished">Test receipt sent.</translation>
-    </message>
-    <message>
-        <source>Failed to send data to printer.</source>
-        <translation type="vanished">Failed to send data to printer.</translation>
-    </message>
 </context>
 <context>
     <name>StockPage</name>
@@ -682,7 +658,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+101"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+267"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -692,7 +668,7 @@
         <translation>All</translation>
     </message>
     <message>
-        <location line="-79"/>
+        <location line="-210"/>
         <source>Hall</source>
         <translation>Hall</translation>
     </message>
@@ -702,7 +678,17 @@
         <translation>Terrace</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+52"/>
+        <source>Table %1</source>
+        <translation>Table %1</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Unknown table</source>
+        <translation>Unknown table</translation>
+    </message>
+    <message>
+        <location line="+122"/>
         <source>Sign out?</source>
         <translation>Sign out?</translation>
     </message>
@@ -717,7 +703,22 @@
         <translation>Sign out</translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+10"/>
+        <source>Not editable here yet</source>
+        <translation>Not editable here yet</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This order was started on another device and can&apos;t be opened here yet.</source>
+        <translation>This order was started on another device and can&apos;t be opened here yet.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location line="+64"/>
         <source>No open orders</source>
         <translation>No open orders</translation>
     </message>
@@ -725,6 +726,18 @@
         <location line="+10"/>
         <source>There are no open orders. Please start a new one.</source>
         <translation>There are no open orders. Please start a new one.</translation>
+    </message>
+    <message>
+        <location line="+267"/>
+        <source>Loading…</source>
+        <translation>Loading…</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Couldn&apos;t load open orders:
+%1</source>
+        <translation>Couldn&apos;t load open orders:
+%1</translation>
     </message>
 </context>
 <context>
