@@ -264,31 +264,41 @@
     <message>
         <location line="+223"/>
         <location line="+52"/>
-        <location line="+186"/>
+        <location line="+204"/>
         <location line="+64"/>
-        <location line="+639"/>
+        <location line="+643"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
     <message>
-        <location line="-940"/>
+        <location line="-962"/>
         <source>Waiter</source>
         <translation>Chelner</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+320"/>
-        <location line="+473"/>
+        <location line="+338"/>
+        <location line="+477"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-358"/>
+        <location line="-745"/>
+        <source>Table %1 was just taken by %2 - pick another table.</source>
+        <translation>Masa %1 tocmai a fost luată de %2 - alege altă masă.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 was just taken by someone else - pick another table.</source>
+        <translation>Masa %1 tocmai a fost luată de altcineva - alege altă masă.</translation>
+    </message>
+    <message>
+        <location line="+382"/>
         <source>Search products…</source>
         <translation>Caută produse…</translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+90"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
@@ -542,7 +552,17 @@
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+65"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+78"/>
+        <source>Table %1 is already open by %2 (order #%3).</source>
+        <translation>Masa %1 e deja ocupată de %2 (comanda #%3).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 is already open (order #%2).</source>
+        <translation>Masa %1 e deja ocupată (comanda #%2).</translation>
+    </message>
+    <message>
+        <location line="+38"/>
         <source>Select table</source>
         <translation>Selectați masa</translation>
     </message>
@@ -552,12 +572,12 @@
         <translation>Sala</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+66"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+71"/>
         <source>Couldn&apos;t load tables:
 %1</source>
         <translation>Nu s-au putut încărca mesele:
@@ -567,6 +587,16 @@
         <location line="+1"/>
         <source>Loading tables…</source>
         <translation>Se încarcă mesele…</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Table occupied</source>
+        <translation>Masă ocupată</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
 </context>
 <context>

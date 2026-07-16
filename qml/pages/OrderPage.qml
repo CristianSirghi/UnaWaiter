@@ -366,6 +366,24 @@ Page {
             return
         }
 
+        // Ultima barieră înainte de create_order: SelectTablePage deja a blocat
+        // mesele ocupate la alegere, dar dacă masa a fost luată de altcineva
+        // exact cât ai completat comanda (sau ai ajuns aici direct, fără să
+        // treci prin SelectTablePage), tot nu trimitem un al doilea create_order
+        // pe aceeași masă - vezi discuția despre comenzile duble de pe Masa 8.
+        var openRows = dataService.openOrders
+        for (var oi = 0; oi < openRows.length; ++oi) {
+            var orow = openRows[oi]
+            var hasDesk = orow.DESK !== undefined && orow.DESK !== null && String(orow.DESK).trim() !== ""
+            if (!hasDesk || parseInt(orow.DESK) !== root.tableNumber)
+                continue
+            var owner = orow.CLCOFICIANTT ? String(orow.CLCOFICIANTT).trim() : ""
+            root.sendError = owner
+                ? qsTr("Table %1 was just taken by %2 - pick another table.").arg(root.tableNumber).arg(owner)
+                : qsTr("Table %1 was just taken by someone else - pick another table.").arg(root.tableNumber)
+            return
+        }
+
         root.sendError = ""
         root.sending = true
         dataService.createOrder(AppSettings.waiterOficiant, root.tableNumber, "", root.guestCount)
