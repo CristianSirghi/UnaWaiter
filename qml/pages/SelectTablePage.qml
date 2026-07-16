@@ -84,7 +84,12 @@ Page {
         target: dataService
 
         function onTablesChanged() { root.buildTables(dataService.tables) }
-        function onOpenOrdersChanged() { root.buildOccupied(dataService.openOrders) }
+        // tableOccupancy e o proprietate separată de openOrders (vezi
+        // DataService) - dacă am fi refolosit openOrders aici, cererea
+        // nefiltrată ar fi suprascris lista filtrată "Ale mele"/"Toate" a
+        // TablesPage-ului, care ascultă același semnal chiar și cât timp
+        // stă sub SelectTablePage/OrderPage pe stivă.
+        function onTableOccupancyChanged() { root.buildOccupied(dataService.tableOccupancy) }
         function onRequestFailed(command, error) {
             if (command === "get_tables")
                 root.loadError = error
@@ -93,8 +98,7 @@ Page {
 
     Component.onCompleted: {
         dataService.loadTables()
-        // Fără filtru de chelner - vrem TOATE mesele ocupate, nu doar ale mele.
-        dataService.loadOpenOrders("")
+        dataService.loadTableOccupancy()
     }
 
     background: Rectangle {

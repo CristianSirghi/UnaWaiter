@@ -368,10 +368,12 @@ Page {
 
         // Ultima barieră înainte de create_order: SelectTablePage deja a blocat
         // mesele ocupate la alegere, dar dacă masa a fost luată de altcineva
-        // exact cât ai completat comanda (sau ai ajuns aici direct, fără să
-        // treci prin SelectTablePage), tot nu trimitem un al doilea create_order
-        // pe aceeași masă - vezi discuția despre comenzile duble de pe Masa 8.
-        var openRows = dataService.openOrders
+        // exact cât ai completat comanda, tot nu trimitem un al doilea
+        // create_order pe aceeași masă - vezi discuția despre comenzile duble
+        // de pe Masa 8. Citim tableOccupancy (toți chelnerii), NU openOrders -
+        // acela e filtrat de TablesPage pe "Ale mele"/"Toate" și ar rata
+        // mesele luate de alți chelneri când "Ale mele" era tab-ul activ.
+        var openRows = dataService.tableOccupancy
         for (var oi = 0; oi < openRows.length; ++oi) {
             var orow = openRows[oi]
             var hasDesk = orow.DESK !== undefined && orow.DESK !== null && String(orow.DESK).trim() !== ""

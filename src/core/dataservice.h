@@ -24,6 +24,14 @@ class DataService : public QObject
     Q_PROPERTY(QVariantList paymentTypes READ paymentTypes NOTIFY paymentTypesChanged)
     Q_PROPERTY(QVariantList tables READ tables NOTIFY tablesChanged)
     Q_PROPERTY(QVariantList openOrders READ openOrders NOTIFY openOrdersChanged)
+    // Occupation check for SelectTablePage (ALL waiters, not just the current
+    // one) - kept separate from `openOrders` on purpose. TablesPage listens to
+    // openOrdersChanged and rebuilds its ("Ale mele"/"Toate") list from
+    // whatever it last holds, even while off-screen underneath OrderPage; if
+    // SelectTablePage reused the same property for its unfiltered query, it
+    // would clobber TablesPage's filtered data and flash the wrong list for a
+    // moment when popping back.
+    Q_PROPERTY(QVariantList tableOccupancy READ tableOccupancy NOTIFY tableOccupancyChanged)
     Q_PROPERTY(QVariantList paidOrders READ paidOrders NOTIFY paidOrdersChanged)
     Q_PROPERTY(QVariantList orderLines READ orderLines NOTIFY orderLinesChanged)
 
@@ -40,6 +48,7 @@ public:
     QVariantList paymentTypes() const;
     QVariantList tables() const;
     QVariantList openOrders() const;
+    QVariantList tableOccupancy() const;
     QVariantList paidOrders() const;
     QVariantList orderLines() const;
 
@@ -50,6 +59,10 @@ public:
     Q_INVOKABLE void loadPaymentTypes();
     Q_INVOKABLE void loadTables();
     Q_INVOKABLE void loadOpenOrders(const QString &waiter = QString());
+    // Same backend command as loadOpenOrders, always unfiltered (all waiters) -
+    // fills `tableOccupancy` instead of `openOrders`, so SelectTablePage's
+    // "is this table taken" check never clobbers TablesPage's filtered list.
+    Q_INVOKABLE void loadTableOccupancy();
     // Comenzile achitate (STATE=3) de azi - vezi get_paid_orders. Folosit de
     // AchitatePage, filtrat implicit pe chelnerul logat (waiterOficiant).
     Q_INVOKABLE void loadPaidOrders(const QString &waiter = QString());
@@ -89,6 +102,7 @@ signals:
     void paymentTypesChanged();
     void tablesChanged();
     void openOrdersChanged();
+    void tableOccupancyChanged();
     void paidOrdersChanged();
     void orderLinesChanged();
 
@@ -128,6 +142,7 @@ private:
     void setPaymentTypes(const QVariantList &rows);
     void setTables(const QVariantList &rows);
     void setOpenOrders(const QVariantList &rows);
+    void setTableOccupancy(const QVariantList &rows);
     void setPaidOrders(const QVariantList &rows);
     void setOrderLines(const QVariantList &rows);
 
@@ -141,6 +156,7 @@ private:
     QVariantList m_paymentTypes;
     QVariantList m_tables;
     QVariantList m_openOrders;
+    QVariantList m_tableOccupancy;
     QVariantList m_paidOrders;
     QVariantList m_orderLines;
     int m_pending = 0; // in-flight request count, drives `busy`
