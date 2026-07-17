@@ -9,7 +9,6 @@ Page {
 
 
     signal authenticateRequested()
-    signal demoRequested()
     signal settingsRequested()
 
     background: Rectangle {
@@ -82,27 +81,6 @@ Page {
             MouseArea {
                 anchors.fill: parent
                 onClicked: root.authenticateRequested()
-            }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 52
-            radius: 26
-            color: "transparent"
-            border.color: Theme.border
-
-            Label {
-                anchors.centerIn: parent
-                text: qsTr("Demo")
-                color: Theme.textPrimary
-                font.pixelSize: 16 * Theme.fontScale
-                font.bold: true
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.demoRequested()
             }
         }
     }

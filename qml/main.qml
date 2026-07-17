@@ -56,7 +56,6 @@ ApplicationWindow {
 
         initialItem: Pages.WelcomePage {
             onAuthenticateRequested: stackView.push(loginPageComponent)
-            onDemoRequested: stackView.push(loginPageComponent)
             onSettingsRequested: stackView.push(settingsPageComponent)
         }
     }
