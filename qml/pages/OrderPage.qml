@@ -59,11 +59,14 @@ Page {
     // Stare trimitere reală către Oracle (create_order + add_order_line).
     property bool sending: false
     property string sendError: ""
+    // Dialog, nu banner - vezi sendErrorDialog mai jos în fișier.
+    onSendErrorChanged: if (root.sendError !== "") sendErrorDialog.open()
 
     // Stare anulare comandă (cancel_order) - separată de `sending`, ca
     // trimiterea și ștergerea să nu se poată amesteca.
     property bool deleting: false
     property string deleteError: ""
+    onDeleteErrorChanged: if (root.deleteError !== "") deleteErrorDialog.open()
 
     // Numărul real de comandă (nr_comand) din Oracle pentru masa curentă, când
     // se editează o comandă deja trimisă - 0 dacă e o comandă nouă sau dacă
@@ -330,6 +333,19 @@ Page {
             return
         }
         dataService.addOrderLines(String(root.sentNrComand), deltaLines)
+    }
+
+    // create_order poate fi respinsă de backend (pg_mobile_web_waiter,
+    // blocare DBMS_LOCK pe numărul mesei) dacă alt chelner tocmai a creat o
+    // comandă pe aceeași masă chiar înainte de check-ul local de mai jos -
+    // arătăm același mesaj prietenos ca la acel check, nu textul brut Oracle
+    // (ORA-20061/ORA-20060).
+    function friendlyCreateOrderError(error) {
+        if (error.indexOf("ORA-20061") !== -1)
+            return qsTr("Table %1 was just taken by someone else - pick another table.").arg(root.tableNumber)
+        if (error.indexOf("ORA-20060") !== -1)
+            return qsTr("Couldn't create the order right now - please try again.")
+        return error
     }
 
     function submitOrder() {
@@ -610,7 +626,10 @@ Page {
             }
             if (root.sending && (command === "create_order" || command === "add_order_lines" || command === "update_order_desk")) {
                 root.sending = false
-                root.sendError = error
+                if (command === "create_order")
+                    root.sendError = root.friendlyCreateOrderError(error)
+                else
+                    root.sendError = error
                 return
             }
             if (root.deleting && command === "cancel_order") {
@@ -1181,30 +1200,6 @@ Page {
             }
         }
 
-        // Eroare la trimiterea reală a comenzii (create_order/add_order_lines).
-        Label {
-            Layout.fillWidth: true
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-            Layout.topMargin: root.sendError !== "" ? 8 : 0
-            visible: root.sendError !== ""
-            text: qsTr("Couldn't send the order:\n%1").arg(root.sendError)
-            wrapMode: Text.WordWrap
-            font.pixelSize: 13 * Theme.fontScale
-            color: Theme.danger
-        }
-
-        Label {
-            Layout.fillWidth: true
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-            Layout.topMargin: root.deleteError !== "" ? 8 : 0
-            visible: root.deleteError !== ""
-            text: qsTr("Couldn't delete the order:\n%1").arg(root.deleteError)
-            wrapMode: Text.WordWrap
-            font.pixelSize: 13 * Theme.fontScale
-            color: Theme.danger
-        }
 
         // Bara de jos — ștergere (doar la editare) + trimite comanda
         Rectangle {
@@ -1322,6 +1317,25 @@ Page {
         confirmText: qsTr("Delete")
         destructive: true
         onConfirmed: root.deleteOrder()
+    }
+
+    // Eroare la trimiterea reală a comenzii (create_order/add_order_lines/
+    // update_order_desk) - dialog, nu banner inline, ca să nu fie ratată
+    // (schimbă complet ce trebuie să facă chelnerul, ex. alege altă masă).
+    Components.ConfirmDialog {
+        id: sendErrorDialog
+        title: qsTr("Couldn't send the order")
+        message: root.sendError
+        confirmText: qsTr("OK")
+        infoOnly: true
+    }
+
+    Components.ConfirmDialog {
+        id: deleteErrorDialog
+        title: qsTr("Couldn't delete the order")
+        message: root.deleteError
+        confirmText: qsTr("OK")
+        infoOnly: true
     }
 
     // Sheet de jos pentru alegerea adaosurilor unui produs (vezi components/AddonSheet.qml).

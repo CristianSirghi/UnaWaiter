@@ -201,7 +201,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+89"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+92"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -212,37 +212,43 @@
     </message>
     <message>
         <location line="+223"/>
-        <location line="+52"/>
+        <location line="+65"/>
         <location line="+220"/>
-        <location line="+80"/>
-        <location line="+657"/>
+        <location line="+83"/>
+        <location line="+633"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-1008"/>
+        <location line="-1000"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+370"/>
+        <location line="+386"/>
         <location line="+477"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-775"/>
+        <location line="-778"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-60"/>
+        <location line="+61"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Table %1 was just taken by someone else - pick another table.</translation>
     </message>
     <message>
-        <location line="+412"/>
+        <location line="-59"/>
+        <source>Couldn&apos;t create the order right now - please try again.</source>
+        <translation>Couldn&apos;t create the order right now - please try again.</translation>
+    </message>
+    <message>
+        <location line="+474"/>
         <source>Search products…</source>
         <translation>Search products…</translation>
     </message>
@@ -272,21 +278,7 @@
         <translation>No products selected</translation>
     </message>
     <message>
-        <location line="+116"/>
-        <source>Couldn&apos;t send the order:
-%1</source>
-        <translation>Couldn&apos;t send the order:
-%1</translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Couldn&apos;t delete the order:
-%1</source>
-        <translation>Couldn&apos;t delete the order:
-%1</translation>
-    </message>
-    <message>
-        <location line="+57"/>
+        <location line="+161"/>
         <source>Sending…</source>
         <translation>Sending…</translation>
     </message>
@@ -335,7 +327,23 @@
         <translation>Delete</translation>
     </message>
     <message>
-        <location line="-58"/>
+        <location line="+10"/>
+        <source>Couldn&apos;t send the order</source>
+        <translation>Couldn&apos;t send the order</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <location line="+8"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location line="-2"/>
+        <source>Couldn&apos;t delete the order</source>
+        <translation>Couldn&apos;t delete the order</translation>
+    </message>
+    <message>
+        <location line="-76"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
