@@ -10,6 +10,12 @@ int main(int argc, char *argv[])
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+#ifdef Q_OS_ANDROID
+    // Ascunde "picătura" albastră de selecție text nativă Android (handle-ul
+    // QPA peste TextField-urile QML) - trebuie setat înainte de a construi
+    // QGuiApplication. Vezi D:\UamobiUtil\UamobiUtil\main.cpp.
+    qputenv("QT_QPA_NO_TEXT_HANDLES", "1");
+#endif
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
