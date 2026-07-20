@@ -274,58 +274,6 @@ Page {
             }
         }
 
-        // Empty state — nicio comandă deschisă (doar după ce a sosit primul răspuns real).
-        ColumnLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            visible: root.ordersReady && root.loadError === "" && tableOrdersModel.count === 0
-            spacing: 8
-
-            Item { Layout.fillHeight: true }
-
-            // Iconiță bon desenată din forme (fără dependență de font).
-            Item {
-                Layout.alignment: Qt.AlignHCenter
-                width: 64
-                height: 72
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: 6
-                    color: "transparent"
-                    border.width: 3
-                    border.color: Theme.border
-                }
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 7
-                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
-                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
-                    Rectangle { width: 22; height: 3; radius: 1.5; color: Theme.border }
-                }
-            }
-
-            Label {
-                Layout.alignment: Qt.AlignHCenter
-                text: qsTr("No open orders")
-                font.pixelSize: 20 * Theme.fontScale
-                font.bold: true
-                color: Theme.textPrimary
-            }
-
-            Label {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignHCenter
-                text: qsTr("There are no open orders. Please start a new one.")
-                font.pixelSize: 14 * Theme.fontScale
-                color: Theme.textSecondary
-                wrapMode: Text.WordWrap
-            }
-
-            Item { Layout.fillHeight: true }
-        }
-
         // Container pentru listă + indicatorul de pull, care stă FIX în
         // spatele ei (z mai mic) - lista are fundal transparent, deci golul ei
         // de sus, dezvăluit natural la supra-tragere (contentY negativ) sau
@@ -397,7 +345,11 @@ Page {
                 anchors.fill: parent
                 spacing: 12
                 clip: true
-                visible: tableOrdersModel.count > 0
+                // Rămâne mereu vizibilă (chiar și goală) - altfel, cu
+                // visible:false, Flickable-ul nu mai primește gesturi de
+                // tragere deloc și pull-to-refresh nu mai poate fi declanșat
+                // când nu există nicio comandă. Mesajul "Fără comenzi" e desenat
+                // deasupra (vezi mai jos), nu ascunde lista.
                 model: tableOrdersModel
 
                 // Permite tragerea dincolo de vârf (efect elastic) - fără asta,
@@ -576,6 +528,62 @@ Page {
                     }
                 }
             }
+        }
+
+        // Empty state — nicio comandă deschisă (doar după ce a sosit primul
+        // răspuns real). Desenat DEASUPRA lui tableList (z mai mare), nu ca
+        // frate în ColumnLayout-ul de mai sus - fără MouseArea propriu, deci
+        // gesturile de tragere trec prin el direct la listă, iar
+        // pull-to-refresh funcționează chiar și cu lista goală.
+        ColumnLayout {
+            z: 2
+            anchors.fill: parent
+            visible: root.ordersReady && root.loadError === "" && tableOrdersModel.count === 0
+            spacing: 8
+
+            Item { Layout.fillHeight: true }
+
+            // Iconiță bon desenată din forme (fără dependență de font).
+            Item {
+                Layout.alignment: Qt.AlignHCenter
+                width: 64
+                height: 72
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 6
+                    color: "transparent"
+                    border.width: 3
+                    border.color: Theme.border
+                }
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 7
+                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
+                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
+                    Rectangle { width: 22; height: 3; radius: 1.5; color: Theme.border }
+                }
+            }
+
+            Label {
+                Layout.alignment: Qt.AlignHCenter
+                text: qsTr("No open orders")
+                font.pixelSize: 20 * Theme.fontScale
+                font.bold: true
+                color: Theme.textPrimary
+            }
+
+            Label {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                text: qsTr("There are no open orders. Please start a new one.")
+                font.pixelSize: 14 * Theme.fontScale
+                color: Theme.textSecondary
+                wrapMode: Text.WordWrap
+            }
+
+            Item { Layout.fillHeight: true }
         }
         } // sfârșitul containerului listă + pullIndicator
     }
