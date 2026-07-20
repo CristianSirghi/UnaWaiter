@@ -67,75 +67,14 @@
 <context>
     <name>AdminPage</name>
     <message>
-        <location filename="../qml/pages/AdminPage.qml" line="+24"/>
-        <source>Printer selected: %1</source>
-        <translation>Printer selected: %1</translation>
-    </message>
-    <message>
-        <location line="+43"/>
+        <location filename="../qml/pages/AdminPage.qml" line="+31"/>
         <source>Administration</source>
         <translation>Administration</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+30"/>
         <source>Server</source>
         <translation>Server</translation>
-    </message>
-    <message>
-        <location line="+20"/>
-        <location line="+37"/>
-        <source>Printer</source>
-        <translation>Printer</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>No printer selected</source>
-        <translation>No printer selected</translation>
-    </message>
-    <message>
-        <location line="+27"/>
-        <source>Printer IP</source>
-        <translation>Printer IP</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Port</source>
-        <translation>Port</translation>
-    </message>
-    <message>
-        <location line="+22"/>
-        <source>Search printers</source>
-        <translation>Search printers</translation>
-    </message>
-    <message>
-        <location line="+21"/>
-        <source>Test</source>
-        <translation>Test</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Testing...</source>
-        <translation>Testing...</translation>
-    </message>
-    <message>
-        <location line="+19"/>
-        <source>Print test receipt</source>
-        <translation>Print test receipt</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Printing...</source>
-        <translation>Printing...</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Test receipt sent.</source>
-        <translation>Test receipt sent.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Failed to send data to printer.</source>
-        <translation>Failed to send data to printer.</translation>
     </message>
 </context>
 <context>
@@ -200,7 +139,7 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+82"/>
+        <location filename="../src/core/dataservice.cpp" line="+84"/>
         <source>Invalid response from server: %1</source>
         <translation>Invalid response from server: %1</translation>
     </message>
@@ -214,17 +153,27 @@
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+213"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+246"/>
         <source>Enter PIN</source>
         <translation>Enter PIN</translation>
     </message>
     <message>
-        <location line="-118"/>
+        <location line="-151"/>
         <source>Wrong PIN</source>
         <translation>Wrong PIN</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+11"/>
+        <source>Login failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Log in</source>
         <translation>Log in</translation>
     </message>
@@ -244,7 +193,7 @@
         <translation>Continue</translation>
     </message>
     <message>
-        <location line="+171"/>
+        <location line="+190"/>
         <source>Switch user</source>
         <translation>Switch user</translation>
     </message>
@@ -252,7 +201,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+84"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+89"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -264,26 +213,26 @@
     <message>
         <location line="+223"/>
         <location line="+52"/>
-        <location line="+204"/>
-        <location line="+64"/>
-        <location line="+643"/>
+        <location line="+220"/>
+        <location line="+80"/>
+        <location line="+657"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-962"/>
+        <location line="-1008"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+338"/>
+        <location line="+370"/>
         <location line="+477"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-745"/>
+        <location line="-775"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
@@ -293,7 +242,7 @@
         <translation>Table %1 was just taken by someone else - pick another table.</translation>
     </message>
     <message>
-        <location line="+382"/>
+        <location line="+412"/>
         <source>Search products…</source>
         <translation>Search products…</translation>
     </message>
@@ -330,7 +279,14 @@
 %1</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+12"/>
+        <source>Couldn&apos;t delete the order:
+%1</source>
+        <translation>Couldn&apos;t delete the order:
+%1</translation>
+    </message>
+    <message>
+        <location line="+57"/>
         <source>Sending…</source>
         <translation>Sending…</translation>
     </message>
@@ -390,131 +346,9 @@
     </message>
 </context>
 <context>
-    <name>PrinterDiscoveryDialog</name>
-    <message>
-        <location filename="../qml/components/controls/PrinterDiscoveryDialog.qml" line="+103"/>
-        <source>Find printer</source>
-        <translation>Find printer</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Network %1</source>
-        <translation>Network %1</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Local network</source>
-        <translation>Local network</translation>
-    </message>
-    <message>
-        <location line="+37"/>
-        <source>Scanning %1/%2</source>
-        <translation>Scanning %1/%2</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>%1 printers found</source>
-        <translation>%1 printers found</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>SCANNING</source>
-        <translation>SCANNING</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>READY</source>
-        <translation>READY</translation>
-    </message>
-    <message>
-        <location line="+73"/>
-        <source>Raw TCP printer</source>
-        <translation>Raw TCP printer</translation>
-    </message>
-    <message>
-        <location line="+38"/>
-        <source>Scanning...</source>
-        <translation>Scanning...</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>No printers found</source>
-        <translation>No printers found</translation>
-    </message>
-    <message>
-        <location line="+23"/>
-        <source>Cancel</source>
-        <translation>Cancel</translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>Rescan</source>
-        <translation>Rescan</translation>
-    </message>
-    <message>
-        <location line="+22"/>
-        <source>Use</source>
-        <translation>Use</translation>
-    </message>
-</context>
-<context>
-    <name>PrinterManager</name>
-    <message>
-        <location filename="../src/printing/printermanager.cpp" line="+77"/>
-        <source>Invalid printer port.</source>
-        <translation>Invalid printer port.</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>No local Wi-Fi network was found for scanning.</source>
-        <translation>No local Wi-Fi network was found for scanning.</translation>
-    </message>
-    <message>
-        <location line="+264"/>
-        <source>Raw printer candidate %1:%2</source>
-        <translation>Raw printer candidate %1:%2</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>%1 %2:%3</source>
-        <translation>%1 %2:%3</translation>
-    </message>
-    <message>
-        <location line="+18"/>
-        <source>Printer IP address is not set.</source>
-        <translation>Printer IP address is not set.</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Could not connect to printer %1:%2.</source>
-        <translation>Could not connect to printer %1:%2.</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <location line="+10"/>
-        <source>Failed to send data to printer.</source>
-        <translation>Failed to send data to printer.</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>IP address is empty.</source>
-        <translation>IP address is empty.</translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Printer connected successfully.</source>
-        <translation>Printer connected successfully.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Could not connect to printer. Check IP and network.</source>
-        <translation>Could not connect to printer. Check IP and network.</translation>
-    </message>
-</context>
-<context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+38"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+84"/>
         <source>Profile</source>
         <translation>Profile</translation>
     </message>
@@ -529,7 +363,7 @@
         <translation>Tables served</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+43"/>
         <source>Day</source>
         <translation>Day</translation>
     </message>
@@ -562,7 +396,7 @@
         <translation>Table %1 is already open (order #%2).</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+42"/>
         <source>Select table</source>
         <translation>Select table</translation>
     </message>
@@ -658,8 +492,8 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Server, printer</source>
-        <translation>Server, printer</translation>
+        <source>Server</source>
+        <translation>Server</translation>
     </message>
 </context>
 <context>
@@ -773,7 +607,7 @@
 <context>
     <name>WelcomePage</name>
     <message>
-        <location filename="../qml/pages/WelcomePage.qml" line="+28"/>
+        <location filename="../qml/pages/WelcomePage.qml" line="+27"/>
         <location line="+24"/>
         <source>Welcome</source>
         <translation>Welcome</translation>
@@ -787,11 +621,6 @@
         <location line="+16"/>
         <source>Sign in</source>
         <translation>Sign in</translation>
-    </message>
-    <message>
-        <location line="+21"/>
-        <source>Demo</source>
-        <translation>Demo</translation>
     </message>
 </context>
 </TS>

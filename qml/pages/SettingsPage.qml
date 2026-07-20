@@ -180,7 +180,7 @@ Page {
                         }
 
                         Label {
-                            text: qsTr("Server, printer")
+                            text: qsTr("Server")
                             font.pixelSize: 12 * Theme.fontScale
                             color: Theme.textSecondary
                         }

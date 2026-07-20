@@ -28,14 +28,6 @@ QtObject {
     // vorbească tăcut cu backend-ul Foișor.
     property string serverUrl: "http://una.md:3323/um/una_waiter/foisor.php"
 
-    // --- Imprimantă de rețea (LAN, raw TCP) ---
-    // IP-ul/portul se aleg din secțiunea Imprimantă (Administrare), prin căutarea
-    // de imprimante (printerManager) sau manual. Nimic hardcodat — se salvează aici.
-    property string printerIp: ""
-    property int printerPort: 9100
-    // Nume prietenos afișat în Administrare (producător/model), completat la selecție.
-    property string printerName: ""
-
     // Persistă setările între lansări (aceleași chei ca vechiul bloc din main.qml).
     property var _persist: Settings {
         property alias language: root.language
@@ -43,8 +35,5 @@ QtObject {
         property alias waiterOficiant: root.waiterOficiant
         property alias waiterUsername: root.waiterUsername
         property alias serverUrl: root.serverUrl
-        property alias printerIp: root.printerIp
-        property alias printerPort: root.printerPort
-        property alias printerName: root.printerName
     }
 }
