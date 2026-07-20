@@ -297,6 +297,17 @@ void DataService::updateOrderDesk(const QString &nrComand, const QString &desk)
                });
 }
 
+void DataService::cancelOrder(const QString &nrComand)
+{
+    QVariantMap fields;
+    fields.insert(QStringLiteral("nrComand"), nrComand);
+
+    postObject(QStringLiteral("cancel_order"), fields,
+               [this](const QVariantMap &obj) {
+                   emit orderCancelled(obj.value(QStringLiteral("nrComand")).toInt());
+               });
+}
+
 void DataService::setBusy(bool busy)
 {
     // Reference-count in-flight requests so overlapping calls don't clear

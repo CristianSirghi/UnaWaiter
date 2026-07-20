@@ -60,6 +60,11 @@ Page {
     property bool sending: false
     property string sendError: ""
 
+    // Stare anulare comandă (cancel_order) - separată de `sending`, ca
+    // trimiterea și ștergerea să nu se poată amesteca.
+    property bool deleting: false
+    property string deleteError: ""
+
     // Numărul real de comandă (nr_comand) din Oracle pentru masa curentă, când
     // se editează o comandă deja trimisă - 0 dacă e o comandă nouă sau dacă
     // masa are doar o copie locală veche (dinainte ca acest tracking să existe).
@@ -391,12 +396,26 @@ Page {
         dataService.createOrder(AppSettings.waiterOficiant, root.tableNumber, "", root.guestCount)
     }
 
+    // Comanda salvată e mereu la masa originală — o mutăm doar la trimitere
+    // (submitOrder), nu la simpla selecție în picker; ștergerea trebuie să
+    // acționeze pe aceeași masă.
     function deleteOrder() {
-        // Comanda salvată e mereu la masa originală — o mutăm doar la
-        // trimitere (submitOrder), nu la simpla selecție în picker.
-        OrdersStore.removeOrder(root.isEditing ? root.originalZone : root.zone,
-                                 root.isEditing ? root.originalTableNumber : root.tableNumber)
-        root.done()
+        if (root.sentNrComand > 0) {
+            // Anulăm mai întâi în Oracle (STATE=4) — altfel comanda rămâne
+            // deschisă acolo dar dispare din cache-ul local, și la
+            // următoarea apăsare pe masă apare dialogul "Încă nu se poate
+            // edita aici" (marcată editable:false, pare pornită de pe alt
+            // dispozitiv). Golim cache-ul local DOAR după ce Oracle confirmă.
+            root.deleteError = ""
+            root.deleting = true
+            dataService.cancelOrder(String(root.sentNrComand))
+        } else {
+            // Comandă locală veche, fără nr_comand real reținut (dinainte ca
+            // acest tracking să existe) - nu avem ce anula în Oracle.
+            OrdersStore.removeOrder(root.isEditing ? root.originalZone : root.zone,
+                                     root.isEditing ? root.originalTableNumber : root.tableNumber)
+            root.done()
+        }
     }
 
     function buildMenuData(cats, items) {
@@ -568,6 +587,17 @@ Page {
             root.sendDeltaOrFinish()
         }
 
+        // cancel_order a reușit — abia acum e sigur să golim cache-ul local
+        // (vezi comentariul din deleteOrder despre comenzile "orfane").
+        function onOrderCancelled(nrComand) {
+            if (!root.deleting)
+                return
+            root.deleting = false
+            OrdersStore.removeOrder(root.isEditing ? root.originalZone : root.zone,
+                                     root.isEditing ? root.originalTableNumber : root.tableNumber)
+            root.done()
+        }
+
         function onRequestFailed(command, error) {
             if (command === "get_menu" || command === "get_categories") {
                 root.loadError = error
@@ -581,6 +611,11 @@ Page {
             if (root.sending && (command === "create_order" || command === "add_order_lines" || command === "update_order_desk")) {
                 root.sending = false
                 root.sendError = error
+                return
+            }
+            if (root.deleting && command === "cancel_order") {
+                root.deleting = false
+                root.deleteError = error
             }
         }
     }
@@ -1159,6 +1194,18 @@ Page {
             color: Theme.danger
         }
 
+        Label {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.topMargin: root.deleteError !== "" ? 8 : 0
+            visible: root.deleteError !== ""
+            text: qsTr("Couldn't delete the order:\n%1").arg(root.deleteError)
+            wrapMode: Text.WordWrap
+            font.pixelSize: 13 * Theme.fontScale
+            color: Theme.danger
+        }
+
         // Bara de jos — ștergere (doar la editare) + trimite comanda
         Rectangle {
             Layout.fillWidth: true
@@ -1180,6 +1227,7 @@ Page {
                     Layout.preferredHeight: 48
                     radius: 24
                     color: "transparent"
+                    opacity: root.deleting ? 0.5 : 1
                     border.width: 1.5
                     border.color: Theme.danger
 
@@ -1190,6 +1238,7 @@ Page {
 
                     MouseArea {
                         anchors.fill: parent
+                        enabled: !root.deleting
                         onClicked: deleteDialog.open()
                     }
                 }
