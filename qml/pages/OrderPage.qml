@@ -82,6 +82,42 @@ Page {
     property bool awaitingOrderLines: false
     property string linesLoadError: ""
 
+    // Zonă reală per masă + "zonă_masă" → { waiter, orderNo } pentru orice
+    // masă cu comandă deschisă în Oracle (toți chelnerii, indiferent de
+    // telefon) - același tipar ca SelectTablePage, dat mai departe la
+    // ChangeTablePicker ca să arate acolo cine ocupă efectiv masa, nu doar
+    // un dreptunghi estompat fără nume.
+    property var pickerDeskZone: ({})
+    property var occupiedByDesk: ({})
+    property var lastOccupancyRows: null
+
+    function buildPickerDeskZone(rows) {
+        var map = {}
+        for (var i = 0; i < rows.length; ++i)
+            map[parseInt(rows[i].TABLE_NO)] = rows[i].ZONE
+        root.pickerDeskZone = map
+        if (root.lastOccupancyRows !== null)
+            root.buildOccupiedTables(root.lastOccupancyRows)
+    }
+
+    function buildOccupiedTables(rows) {
+        root.lastOccupancyRows = rows
+        var map = {}
+        for (var i = 0; i < rows.length; ++i) {
+            var r = rows[i]
+            var hasDesk = r.DESK !== undefined && r.DESK !== null && String(r.DESK).trim() !== ""
+            if (!hasDesk) continue
+            var deskNo = parseInt(r.DESK)
+            if (deskNo <= 0) continue
+            var zone = root.pickerDeskZone[deskNo] ? root.pickerDeskZone[deskNo] : "hall"
+            map[zone + "_" + deskNo] = {
+                waiter: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
+                orderNo: r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : ""
+            }
+        }
+        root.occupiedByDesk = map
+    }
+
     function fmt(v) {
         return v.toFixed(2).replace(".", ",")
     }
@@ -348,6 +384,15 @@ Page {
         return error
     }
 
+    // Traduce eroarea brută Oracle de la update_order_desk (ex. stiva
+    // ORA-06512 pe zeci de linii) într-un mesaj clar pentru chelner - vezi
+    // și friendlyCreateOrderError mai sus.
+    function friendlyUpdateOrderDeskError(error) {
+        if (error.indexOf("ORA-20050") !== -1)
+            return qsTr("Table %1 already has another open order - pick another table.").arg(root.tableNumber)
+        return qsTr("Couldn't move the order right now - please try again.")
+    }
+
     function submitOrder() {
         if (root.sending)
             return
@@ -552,6 +597,8 @@ Page {
 
         function onMenuChanged() { root.tryBuildMenu() }
         function onCategoriesChanged() { root.tryBuildMenu() }
+        function onTablesChanged() { root.buildPickerDeskZone(dataService.tables) }
+        function onTableOccupancyChanged() { root.buildOccupiedTables(dataService.tableOccupancy) }
 
         // Liniile reale ale comenzii editate (cerute din setupAfterMenu)
         // tocmai au sosit - devin noul prag/punct de plecare.
@@ -626,10 +673,18 @@ Page {
             }
             if (root.sending && (command === "create_order" || command === "add_order_lines" || command === "update_order_desk")) {
                 root.sending = false
-                if (command === "create_order")
+                if (command === "create_order") {
                     root.sendError = root.friendlyCreateOrderError(error)
-                else
+                } else if (command === "update_order_desk") {
+                    root.sendError = root.friendlyUpdateOrderDeskError(error)
+                    // Mutarea a fost respinsă de Oracle - masa afișată trebuie
+                    // să rămână cea reală (originală), nu ținta neconfirmată
+                    // aleasă din ChangeTablePicker.
+                    root.zone = root.originalZone
+                    root.tableNumber = root.originalTableNumber
+                } else {
                     root.sendError = error
+                }
                 return
             }
             if (root.deleting && command === "cancel_order") {
@@ -644,6 +699,8 @@ Page {
         // de categorii. tryBuildMenu le îmbină când amândouă sosesc.
         dataService.loadCategories()
         dataService.loadMenu(0)
+        dataService.loadTables()
+        dataService.loadTableOccupancy()
     }
 
     background: Rectangle {
@@ -689,7 +746,13 @@ Page {
                     MouseArea {
                         anchors.fill: parent
                         anchors.margins: -6
-                        onClicked: tablePicker.openWith(root.zone, root.tableNumber)
+                        // Qt.callLater, nu apel direct: deschiderea acestui
+                        // Popup imediat după ce alt Popup modal (ex.
+                        // sendErrorDialog) tocmai s-a închis poate lăsa
+                        // sheet-ul "deschis" dar invizibil (focus/overlay
+                        // rămas de la popup-ul anterior) - amânăm o
+                        // iterație de event loop ca să se termine curățenia.
+                        onClicked: Qt.callLater(tablePicker.openWith, root.zone, root.tableNumber)
                     }
                 }
 
@@ -1349,6 +1412,7 @@ Page {
     // mutarea reală în OrdersStore are loc abia la "Actualizează comanda".
     Components.ChangeTablePicker {
         id: tablePicker
+        occupiedByDesk: root.occupiedByDesk
         onTableSelected: function(zone, tableNumber) {
             root.zone = zone
             root.tableNumber = tableNumber

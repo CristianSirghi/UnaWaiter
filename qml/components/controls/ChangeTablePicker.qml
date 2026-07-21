@@ -23,11 +23,26 @@ Popup {
     property string currentZone: ""
     property int currentTableNumber: 0
 
+    // "zonă_masă" → { waiter, orderNo } - completat de OrderPage din
+    // dataService.tableOccupancy (Oracle, toți chelnerii/toate telefoanele).
+    // Sursa de adevăr pentru cine ocupă efectiv o masă - vezi și OrdersStore
+    // mai jos, folosit doar ca plasă de siguranță suplimentară.
+    property var occupiedByDesk: ({})
+
     signal tableSelected(string zone, int tableNumber)
+
+    function occupantFor(zone, tableNumber) {
+        return root.occupiedByDesk[zone + "_" + tableNumber]
+    }
 
     function isTaken(zone, tableNumber) {
         if (zone === root.currentZone && tableNumber === root.currentTableNumber)
             return false
+        if (root.occupantFor(zone, tableNumber))
+            return true
+        // Plasă de siguranță locală (cache OrdersStore) - pentru cazul rar în
+        // care occupiedByDesk încă nu a sosit de la server, dar acest telefon
+        // știe deja local că masa e ocupată.
         return OrdersStore.hasOrder(zone, tableNumber)
     }
 
@@ -47,12 +62,19 @@ Popup {
     y: parent ? parent.height - height : 0
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
+    // IMPORTANT: animăm contentItem/background, NU root - root.y are un binding
+    // (y: parent.height - height) care trebuie să rămână viu la fiecare
+    // deschidere. O animație directă pe root.y îl suprascrie (scriere
+    // imperativă rupe binding-ul QML) - la a doua deschidere rămânea înghețat
+    // pe ultima valoare animată (sheet-ul apărea sub ecran, invizibil, doar
+    // dim-ul se vedea). Vezi exact același bug, deja reparat o dată pentru
+    // scale, în comentariul din ConfirmDialog.qml.
     enter: Transition {
-        NumberAnimation { property: "y"; from: root.parent ? root.parent.height : 400; duration: 220; easing.type: Easing.OutCubic }
+        NumberAnimation { targets: [root.contentItem, root.background]; property: "y"; from: root.height; to: 0; duration: 220; easing.type: Easing.OutCubic }
         NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 160 }
     }
     exit: Transition {
-        NumberAnimation { property: "y"; to: root.parent ? root.parent.height : 400; duration: 180; easing.type: Easing.InCubic }
+        NumberAnimation { targets: [root.contentItem, root.background]; property: "y"; from: 0; to: root.height; duration: 180; easing.type: Easing.InCubic }
         NumberAnimation { property: "opacity"; from: 1; to: 0; duration: 140 }
     }
 
@@ -139,6 +161,7 @@ Popup {
 
                         Rectangle {
                             readonly property bool isCurrent: root.currentZone === "hall" && root.currentTableNumber === index + 1
+                            readonly property var occupant: root.occupantFor("hall", index + 1)
                             readonly property bool taken: root.isTaken("hall", index + 1)
 
                             width: contentCol.cardSize
@@ -151,10 +174,24 @@ Popup {
 
                             Label {
                                 anchors.centerIn: parent
+                                anchors.verticalCenterOffset: (taken && occupant) ? -6 : 0
                                 text: index + 1
                                 font.pixelSize: 20 * Theme.fontScale
                                 font.bold: true
                                 color: isCurrent ? "white" : Theme.textPrimary
+                            }
+
+                            Label {
+                                visible: taken && !!occupant
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 6
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: parent.width - 8
+                                horizontalAlignment: Text.AlignHCenter
+                                elide: Text.ElideRight
+                                text: occupant ? occupant.waiter : ""
+                                font.pixelSize: 10 * Theme.fontScale
+                                color: Theme.textSecondary
                             }
 
                             MouseArea {
@@ -190,6 +227,7 @@ Popup {
 
                         Rectangle {
                             readonly property bool isCurrent: root.currentZone === "terrace" && root.currentTableNumber === index + 1
+                            readonly property var occupant: root.occupantFor("terrace", index + 1)
                             readonly property bool taken: root.isTaken("terrace", index + 1)
 
                             width: contentCol.cardSize
@@ -202,10 +240,24 @@ Popup {
 
                             Label {
                                 anchors.centerIn: parent
+                                anchors.verticalCenterOffset: (taken && occupant) ? -6 : 0
                                 text: index + 1
                                 font.pixelSize: 20 * Theme.fontScale
                                 font.bold: true
                                 color: isCurrent ? "white" : Theme.textPrimary
+                            }
+
+                            Label {
+                                visible: taken && !!occupant
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 6
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: parent.width - 8
+                                horizontalAlignment: Text.AlignHCenter
+                                elide: Text.ElideRight
+                                text: occupant ? occupant.waiter : ""
+                                font.pixelSize: 10 * Theme.fontScale
+                                color: Theme.textSecondary
                             }
 
                             MouseArea {

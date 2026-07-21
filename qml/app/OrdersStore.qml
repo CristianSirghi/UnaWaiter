@@ -1,10 +1,18 @@
 pragma Singleton
 import QtQuick 2.15
+import Qt.labs.settings 1.0
 
-// Comenzile active, ținute în memorie cât timp rulează aplicația (singleton
-// global, accesat ca `OrdersStore.submitOrder(...)` — import "../app").
-// Va fi înlocuit cu apeluri reale către Oracle (via PHP) — până atunci,
-// "Trimite comanda" scrie aici, iar TablesPage citește de aici.
+// Comenzile active pe ACEST dispozitiv (singleton global, accesat ca
+// `OrdersStore.submitOrder(...)` — import "../app"). Va fi înlocuit cu
+// apeluri reale către Oracle (via PHP) — până atunci, "Trimite comanda"
+// scrie aici, iar TablesPage citește de aici (inclusiv marcajul "editable"
+// care spune dacă masa poate fi editată pe acest telefon).
+//
+// Persistat pe disc (nu doar în memorie): fără asta, orice repornire a
+// aplicației - rebuild/redeploy, crash, sau Android omorând procesul în
+// fundal (frecvent) - pierde marcajul "am creat-o eu" pentru toate mesele
+// deschise, iar chelnerul vede fals "Această comandă a fost începută pe alt
+// dispozitiv" pentru propriile lui comenzi, pe propriul lui telefon.
 QtObject {
     id: root
 
@@ -21,6 +29,66 @@ QtObject {
     // existe. Permite lui OrderPage să reîncarce liniile reale (get_order_lines)
     // și să trimită doar diferența la o actualizare, în loc să rămână local-only.
     property var nrComandByKey: ({})
+
+    // Stare serializată (JSON) a tot ce e mai sus - vezi persist()/restoreState().
+    property string _persistedJson: ""
+
+    property var _persist: Settings {
+        category: "OrdersStore"
+        property alias ordersJson: root._persistedJson
+    }
+
+    Component.onCompleted: root.restoreState()
+
+    // Adună starea curentă într-un singur string JSON, salvat prin Settings.
+    function serializeState() {
+        var entries = []
+        for (var i = 0; i < ordersModel.count; ++i) {
+            var e = ordersModel.get(i)
+            entries.push({
+                tableKey: e.tableKey, zone: e.zone, tableNumber: e.tableNumber,
+                tableName: e.tableName, active: e.active, orderTime: e.orderTime,
+                waiterName: e.waiterName, orderNo: e.orderNo, preview: e.preview,
+                guestCount: e.guestCount, total: e.total
+            })
+        }
+        return JSON.stringify({
+            entries: entries,
+            itemsByKey: itemsByKey,
+            addonsByKey: addonsByKey,
+            nrComandByKey: nrComandByKey,
+            nextOrderNo: nextOrderNo
+        })
+    }
+
+    // Scrie starea curentă pe disc - apelat după fiecare mutație (submitOrder,
+    // removeOrder, pruneMissing, moveOrder), ca nicio schimbare să nu se
+    // piardă la o repornire a aplicației.
+    function persist() {
+        root._persistedJson = root.serializeState()
+    }
+
+    // Reface starea salvată la pornirea aplicației (Component.onCompleted).
+    function restoreState() {
+        if (root._persistedJson === "")
+            return
+        var state
+        try {
+            state = JSON.parse(root._persistedJson)
+        } catch (e) {
+            return
+        }
+        if (!state)
+            return
+        root.itemsByKey = state.itemsByKey || ({})
+        root.addonsByKey = state.addonsByKey || ({})
+        root.nrComandByKey = state.nrComandByKey || ({})
+        root.nextOrderNo = state.nextOrderNo || root.nextOrderNo
+        ordersModel.clear()
+        var entries = state.entries || []
+        for (var i = 0; i < entries.length; ++i)
+            ordersModel.append(entries[i])
+    }
 
     function keyFor(zone, tableNumber) {
         return zone + "-" + tableNumber
@@ -117,6 +185,7 @@ QtObject {
             ordersModel.insert(pos, entry)
         }
 
+        root.persist()
         return orderNo
     }
 
@@ -128,6 +197,7 @@ QtObject {
         delete itemsByKey[key]
         delete addonsByKey[key]
         delete nrComandByKey[key]
+        root.persist()
     }
 
     // Curăță mesele salvate local a căror comandă nu mai e printre comenzile
@@ -138,6 +208,7 @@ QtObject {
     // openKeys = lista de tableKey-uri active acum, construită de TablesPage
     // din rândurile primite la fiecare refresh.
     function pruneMissing(openKeys) {
+        var changed = false
         for (var key in itemsByKey) {
             if (openKeys.indexOf(key) === -1) {
                 var idx = indexForKey(key)
@@ -146,8 +217,11 @@ QtObject {
                 delete itemsByKey[key]
                 delete addonsByKey[key]
                 delete nrComandByKey[key]
+                changed = true
             }
         }
+        if (changed)
+            root.persist()
     }
 
     // True dacă masa dată are deja o comandă activă — folosit la schimbarea
@@ -207,6 +281,7 @@ QtObject {
             }
         }
         ordersModel.insert(pos, entry)
+        root.persist()
         return true
     }
 }
