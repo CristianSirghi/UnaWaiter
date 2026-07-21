@@ -72,6 +72,10 @@ Page {
     // se editează o comandă deja trimisă - 0 dacă e o comandă nouă sau dacă
     // masa are doar o copie locală veche (dinainte ca acest tracking să existe).
     property int sentNrComand: 0
+    // Numărul de clienți deja confirmat în Oracle - dacă root.guestCount
+    // diferă de asta la trimitere, înseamnă că a fost schimbat în acest
+    // ecran și trebuie trimis prin update_guest_count.
+    property int sentGuestCount: 1
     // Cantitățile deja confirmate în Oracle (per produs) - pragul sub care
     // butonul "-" nu poate coborî, pentru că nu avem cum să ștergem o linie
     // deja trimisă la bucătărie din acest ecran (add_order_line doar adaugă).
@@ -399,16 +403,22 @@ Page {
 
         var tableChanged = root.isEditing
             && (root.zone !== root.originalZone || root.tableNumber !== root.originalTableNumber)
+        var guestCountChanged = root.isEditing && root.sentNrComand > 0
+            && root.guestCount !== root.sentGuestCount
 
         if (root.isEditing && root.sentNrComand > 0) {
             // Comandă reală, cunoscută - orice schimbare merge direct în
             // Oracle; cache-ul local (OrdersStore) se actualizează abia după
             // ce Oracle confirmă, ca să nu rămână niciodată în urma realității
             // (exact ce producea "Not editable here yet" înainte: masa se
-            // muta doar local, DESK-ul real rămânea neschimbat).
+            // muta doar local, DESK-ul real rămânea neschimbat). Ordinea nu
+            // contează funcțional (fiecare pas e independent) - guestCount
+            // primul doar ca să respectăm ordinea firească a formularului.
             root.sendError = ""
             root.sending = true
-            if (tableChanged) {
+            if (guestCountChanged) {
+                dataService.updateGuestCount(String(root.sentNrComand), String(root.guestCount))
+            } else if (tableChanged) {
                 dataService.updateOrderDesk(String(root.sentNrComand), String(root.tableNumber))
             } else {
                 root.sendDeltaOrFinish()
@@ -541,6 +551,7 @@ Page {
             root.originalZone = root.zone
             root.originalTableNumber = root.tableNumber
             root.guestCount = OrdersStore.guestsFor(root.zone, root.tableNumber)
+            root.sentGuestCount = root.guestCount
 
             var savedAddons = OrdersStore.addonsFor(root.zone, root.tableNumber)
             var loadedAddons = {}
@@ -617,6 +628,7 @@ Page {
             if (!root.sending)
                 return
             root.sentNrComand = nrComand
+            root.sentGuestCount = root.guestCount
             var lines = root.buildOrderLines()
             if (lines.length === 0) {
                 root.sending = false
@@ -650,6 +662,19 @@ Page {
             root.sendDeltaOrFinish()
         }
 
+        // update_guest_count a reușit - primul pas al unei actualizări (vezi
+        // submitOrder), continuăm cu mutarea mesei (dacă s-a schimbat și ea)
+        // sau direct cu liniile de produse.
+        function onOrderGuestCountUpdated(nrComand, guestCount) {
+            if (!root.sending)
+                return
+            root.sentGuestCount = guestCount
+            if (root.zone !== root.originalZone || root.tableNumber !== root.originalTableNumber)
+                dataService.updateOrderDesk(String(root.sentNrComand), String(root.tableNumber))
+            else
+                root.sendDeltaOrFinish()
+        }
+
         // cancel_order a reușit — abia acum e sigur să golim cache-ul local
         // (vezi comentariul din deleteOrder despre comenzile "orfane").
         function onOrderCancelled(nrComand) {
@@ -671,7 +696,7 @@ Page {
                 root.linesLoadError = error
                 return
             }
-            if (root.sending && (command === "create_order" || command === "add_order_lines" || command === "update_order_desk")) {
+            if (root.sending && (command === "create_order" || command === "add_order_lines" || command === "update_order_desk" || command === "update_guest_count")) {
                 root.sending = false
                 if (command === "create_order") {
                     root.sendError = root.friendlyCreateOrderError(error)

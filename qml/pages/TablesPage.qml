@@ -236,6 +236,14 @@ Page {
         onConfirmed: root.StackView.view.pop(null)
     }
 
+    // Apelat din main.qml când butonul de back Android e apăsat pe această
+    // pagină (ecranul "acasă" după login) - arată aceeași confirmare ca din
+    // meniul hamburger, în loc să navigheze silențios înapoi la LoginPage
+    // (ceea ce părea o deconectare bruscă, fără nicio întrebare).
+    function confirmSignOut() {
+        signOutDialog.open()
+    }
+
     // Avertisment când chelnerul apasă o masă ocupată de o comandă reală care
     // n-a fost creată din acest dispozitiv/sesiune - vezi comentariul din
     // buildOrders() despre riscul de comandă dublă.

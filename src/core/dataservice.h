@@ -98,6 +98,10 @@ public:
     // dacă masa țintă are deja altă comandă deschisă, sau dacă bonul comenzii
     // e deja printat la bucătărie (aceleași reguli ca UAMenu însuși).
     Q_INVOKABLE void updateOrderDesk(const QString &nrComand, const QString &desk);
+    // Actualizează numărul de clienți (barmen/PERSON) al unei comenzi deja
+    // trimise - createOrder îl trimite doar o dată, la creare, prin
+    // update_guest_count (nou, 2026-07-21).
+    Q_INVOKABLE void updateGuestCount(const QString &nrComand, const QString &guestCount);
     // Anulează o comandă deja trimisă (STATE=4 în Oracle, prin
     // pg_mobile_web_waiter.cancel_order) - vezi comentariul din
     // OrderPage.deleteOrder() despre bug-ul comenzilor "orfane" (șterse doar
@@ -125,6 +129,7 @@ signals:
     void orderCreated(int nrComand);
     void orderLinesAdded(int nrComand, const QVariantList &lines);
     void orderDeskUpdated(int nrComand, int desk);
+    void orderGuestCountUpdated(int nrComand, int guestCount);
     void orderCancelled(int nrComand);
     // Fired whenever any command fails (network or backend "error" payload).
     void requestFailed(const QString &command, const QString &error);

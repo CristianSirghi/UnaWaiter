@@ -22,6 +22,26 @@ ApplicationWindow {
 
     visibility: isDesktopPlatform ? Window.AutomaticVisibility : Window.AutomaticVisibility
 
+    // Pe Android, butonul fizic/gestul de back declanșează closing() direct pe
+    // fereastră (nu navigare în StackView) - fără asta, orice apăsare de back
+    // închide toată aplicația, indiferent pe ce pagină ești. Cât mai sunt
+    // pagini pe stivă, facem pop() în loc să ieșim; doar la pagina de start
+    // (WelcomePage, depth === 1) lăsăm back-ul să închidă aplicația normal.
+    //
+    // Excepție: pe TablesPage (ecranul "acasă" după login), un pop simplu ar
+    // naviga înapoi la LoginPage - tehnic corect, dar arată ca o deconectare
+    // bruscă, fără nicio întrebare. Acolo arătăm aceeași confirmare "Sign
+    // out?" ca din meniul hamburger, în loc să navigăm silențios.
+    onClosing: function(close) {
+        if (!appWindow.isDesktopPlatform && stackView.depth > 1) {
+            close.accepted = false
+            if (stackView.currentItem === appWindow.tablesPage)
+                appWindow.tablesPage.confirmSignOut()
+            else
+                stackView.pop()
+        }
+    }
+
     // Theme / AppSettings / OrdersStore sunt acum singleton-uri (qml/theme, qml/app),
     // accesate direct oriunde — nu se mai instanțiază și nu se mai pasează prin proprietăți.
     // Aplică limba curentă la pornire și când se schimbă din Setări
