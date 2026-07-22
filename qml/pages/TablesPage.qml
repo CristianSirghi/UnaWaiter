@@ -137,8 +137,16 @@ Page {
 
     Connections {
         target: dataService
-        function onTablesChanged() { root.buildDeskZone(dataService.tables) }
+        function onTablesChanged() {
+            root.loadError = ""
+            root.buildDeskZone(dataService.tables)
+        }
         function onOpenOrdersChanged() {
+            // Un răspuns reușit înseamnă că suntem iar online - ștergem orice
+            // eroare rămasă de la un blip anterior, altfel mesajul roșu
+            // "Couldn't load open orders" rămânea înfipt pe ecran până la
+            // repornirea aplicației, chiar dacă totul funcționa iar.
+            root.loadError = ""
             root.buildOrders(dataService.openOrders)
             root.pullDataArrived = true
             root.maybeFinishRefresh()
