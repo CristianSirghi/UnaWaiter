@@ -30,12 +30,12 @@ Page {
         root.statsReady = true
     }
 
+    Component.onCompleted: dataService.loadWaiterStats(String(AppSettings.waiterOficiant))
+
     Connections {
         target: dataService
         function onWaiterStatsChanged() { root.applyStats(dataService.waiterStats) }
     }
-
-    Component.onCompleted: dataService.loadWaiterStats(String(AppSettings.waiterOficiant))
 
     function pad2(n) { return (n < 10 ? "0" : "") + n }
 

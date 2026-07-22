@@ -20,5 +20,6 @@ void TranslationManager::setLanguage(const QString &languageCode)
             qApp->installTranslator(&m_translator);
     }
 
-    m_engine->retranslate();
+    if (m_engine)
+        m_engine->retranslate();
 }

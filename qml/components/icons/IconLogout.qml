@@ -16,5 +16,7 @@ Item {
         fillMode: Image.PreserveAspectFit
         smooth: true
         mipmap: true
+        sourceSize.width: width
+        sourceSize.height: height
     }
 }

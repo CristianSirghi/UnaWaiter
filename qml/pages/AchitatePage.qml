@@ -43,6 +43,8 @@ Page {
         dataService.loadPaidOrders(String(AppSettings.waiterOficiant))
     }
 
+    Component.onCompleted: root.refresh()
+
     ListModel { id: ordersModel }
 
     Connections {
@@ -53,8 +55,6 @@ Page {
                 root.loadError = error
         }
     }
-
-    Component.onCompleted: root.refresh()
 
     // Poll ușor cât timp pagina e activă pe stivă (nu și când e sub alta) -
     // nici UAMenu nu are auto-refresh pentru propriul grid, deci asta e

@@ -110,11 +110,10 @@ Popup {
             spacing: 0
 
             // Anulează (ascuns în modul infoOnly - rămâne doar butonul de confirmare)
-            Rectangle {
+            Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 52
                 visible: !root.infoOnly
-                color: "transparent"
 
                 Label {
                     anchors.centerIn: parent
@@ -137,10 +136,9 @@ Popup {
             }
 
             // Confirmă
-            Rectangle {
+            Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 52
-                color: "transparent"
 
                 Label {
                     anchors.centerIn: parent

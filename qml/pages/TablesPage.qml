@@ -360,6 +360,18 @@ Page {
                 // deasupra (vezi mai jos), nu ascunde lista.
                 model: tableOrdersModel
 
+                // Grupăm cardurile pe zonă (Sala / Terasă), cu un antet per grup.
+                section.property: "zone"
+                section.delegate: Label {
+                    width: ListView.view.width
+                    topPadding: 4
+                    bottomPadding: 8
+                    text: root.zoneLabel(section)
+                    font.pixelSize: 18 * Theme.fontScale
+                    font.bold: true
+                    color: Theme.textPrimary
+                }
+
                 // Permite tragerea dincolo de vârf (efect elastic) - fără asta,
                 // Flickable oprește contentY la 0 și n-avem cum detecta "trage
                 // pentru reîmprospătare".
@@ -407,18 +419,6 @@ Page {
                     root.pullMinElapsed = true
                     root.maybeFinishRefresh()
                 }
-            }
-
-            // Grupăm cardurile pe zonă (Sala / Terasă), cu un antet per grup.
-            section.property: "zone"
-            section.delegate: Label {
-                width: ListView.view.width
-                topPadding: 4
-                bottomPadding: 8
-                text: root.zoneLabel(section)
-                font.pixelSize: 18 * Theme.fontScale
-                font.bold: true
-                color: Theme.textPrimary
             }
 
             delegate: Rectangle {

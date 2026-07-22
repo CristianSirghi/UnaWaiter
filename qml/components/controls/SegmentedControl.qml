@@ -38,6 +38,17 @@ Item {
         return i
     }
 
+    // Poziția pastilei sub deget cât timp e apăsată (tap simplu sau începutul
+    // unui drag, înainte ca drag.active să pornească) - aceleași limite ca
+    // drag.minimumX/maximumX de mai jos.
+    function pressedTargetX(mouseX) {
+        var t = mouseX - indicator.width / 2
+        var maxX = track.width - indicator.width - 3
+        if (t < 3) t = 3
+        if (t > maxX) t = maxX
+        return t
+    }
+
     // Șina (fundalul) controlului.
     Rectangle {
         id: track
@@ -66,11 +77,19 @@ Item {
         }
     }
 
-    // Ține pastila sincronizată cu selecția curentă cât timp nu e trasă cu degetul.
+    // Ține pastila sincronizată cu selecția curentă / cu degetul, complet
+    // declarativ. NU scriem niciodată indicator.x imperativ (ex. din
+    // onPressed/onReleased): o scriere directă rupe binding-ul instalat de
+    // acest Binding, iar cum `when` rămâne true pe durata unui tap simplu
+    // (nu există o tranziție false→true care să-l repornească), pastila ar
+    // rămâne "moartă" la orice schimbare ulterioară a currentValue care nu
+    // vine dintr-un tap pe acest control chiar el. Vezi bug similar (scriere
+    // imperativă peste un binding activ) în unawaiter-build-env.md #6.
     Binding {
         target: indicator
         property: "x"
-        value: root.currentIndex * root.segmentWidth + 3
+        value: dragArea.pressed ? root.pressedTargetX(dragArea.mouseX)
+                                 : root.currentIndex * root.segmentWidth + 3
         when: !dragArea.drag.active
         restoreMode: Binding.RestoreBinding
     }
@@ -107,29 +126,38 @@ Item {
 
     MouseArea {
         id: dragArea
-        anchors.fill: parent
 
+        // Urmărește dacă gestul curent a devenit vreodată un drag real -
+        // citim asta la onReleased în loc de `drag.active` direct, pentru că
+        // ordinea exactă (drag.active revine la false chiar înainte/după
+        // semnalul released) nu e garantată.
+        property bool dragHappened: false
+
+        anchors.fill: parent
         drag.target: indicator
         drag.axis: Drag.XAxis
         drag.minimumX: 3
         drag.maximumX: Math.max(3, track.width - indicator.width - 3)
 
-        // La apăsare, pastila sare imediat sub deget — un tap simplu pe altă
-        // opțiune se simte instantaneu, iar dacă degetul continuă să se miște,
-        // `drag.target` preia controlul și pastila urmărește mișcarea.
-        onPressed: function (mouse) {
-            var targetX = mouse.x - indicator.width / 2
-            if (targetX < drag.minimumX) targetX = drag.minimumX
-            if (targetX > drag.maximumX) targetX = drag.maximumX
-            indicator.x = targetX
-        }
+        onPressed: dragArea.dragHappened = false
+        drag.onActiveChanged: if (drag.active) dragArea.dragHappened = true
 
-        onReleased: {
-            var snapIndex = root.nearestIndex(indicator.x - 3)
+        // Poziția pastilei e gestionată declarativ de Binding-ul de mai sus
+        // (pastila sare sub deget la apăsare via `dragArea.pressed`, apoi
+        // urmărește mișcarea via `drag.target` odată ce pornește un drag real).
+
+        onReleased: function (mouse) {
+            // Dacă a fost un drag real, `indicator.x` e deja poziția corectă
+            // (scrisă de mecanismul intern drag.target, nu de Binding-ul de mai
+            // sus - Binding-ul e oricum inactiv cât timp drag.active e true).
+            // Altfel (tap simplu, fără drag), folosim poziția din eveniment,
+            // nu `indicator.x` - Binding-ul poate deja s-o fi resetat la
+            // selecția curentă în clipa în care `dragArea.pressed` a devenit false.
+            var releaseX = dragArea.dragHappened ? (indicator.x - 3)
+                                                  : (root.pressedTargetX(mouse.x) - 3)
+            var snapIndex = root.nearestIndex(releaseX)
             if (!root.isEnabledAt(snapIndex))
                 snapIndex = root.currentIndex
-
-            indicator.x = snapIndex * root.segmentWidth + 3
 
             if (snapIndex !== root.currentIndex)
                 root.optionSelected(root.options[snapIndex].value)

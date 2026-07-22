@@ -12,10 +12,6 @@ Page {
     property string zone: ""
     property int tableNumber: 0
 
-    // Semnalăm către main.qml că am terminat (trimis sau șters) — el ne readuce
-    // la lista de mese, indiferent câte pagini sunt pe stivă.
-    signal done()
-
     // ---- Meniu real (din backend, via dataService) ----
     // Structura pe categorii: [{ cat, grp, items: [{ name, unit, price, cod }] }].
     // Construită din dataService.categories + dataService.menu (vezi buildMenuData).
@@ -94,6 +90,10 @@ Page {
     property var pickerDeskZone: ({})
     property var occupiedByDesk: ({})
     property var lastOccupancyRows: null
+
+    // Semnalăm către main.qml că am terminat (trimis sau șters) — el ne readuce
+    // la lista de mese, indiferent câte pagini sunt pe stivă.
+    signal done()
 
     function buildPickerDeskZone(rows) {
         var map = {}
@@ -914,19 +914,28 @@ Page {
                         bottomPadding: 0
                         onTextChanged: {
                             root.searchQuery = text
-                            if (text.trim() === "")
-                                root.populateCategory(root.currentCategory)
-                            else
-                                root.applySearch(text)
+                            searchDebounce.restart()
+                        }
+
+                        // Rescanarea întregului meniu la fiecare literă tastată e
+                        // inutilă pentru un meniu mare - amânăm căutarea propriu-zisă
+                        // până când utilizatorul se oprește din tastat 150ms.
+                        Timer {
+                            id: searchDebounce
+                            interval: 150
+                            onTriggered: {
+                                if (searchField.text.trim() === "")
+                                    root.populateCategory(root.currentCategory)
+                                else
+                                    root.applySearch(searchField.text)
+                            }
                         }
                     }
 
-                    Rectangle {
+                    Item {
                         Layout.preferredWidth: 26
                         Layout.preferredHeight: 26
                         Layout.alignment: Qt.AlignVCenter
-                        radius: 13
-                        color: "transparent"
 
                         Icons.IconClose {
                             anchors.centerIn: parent
@@ -936,6 +945,7 @@ Page {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
+                                searchDebounce.stop()
                                 searchField.text = ""
                                 root.searchActive = false
                                 root.searchQuery = ""

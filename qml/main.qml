@@ -7,10 +7,6 @@ import "pages" as Pages
 
 ApplicationWindow {
     id: appWindow
-    visible: true
-    width: 400
-    height: 860
-    title: "UnaWaiter"
 
     // Referință la pagina de mese, ca să putem reveni direct la ea din OrderPage
     // (fluxul de comandă nouă trece prin SelectTablePage, deci un simplu pop nu ajunge).
@@ -20,6 +16,10 @@ ApplicationWindow {
         || Qt.platform.os === "osx"
         || Qt.platform.os === "linux"
 
+    visible: true
+    width: 400
+    height: 860
+    title: "UnaWaiter"
     visibility: isDesktopPlatform ? Window.AutomaticVisibility : Window.AutomaticVisibility
 
     // Pe Android, butonul fizic/gestul de back declanșează closing() direct pe

@@ -21,6 +21,11 @@ DataService::DataService(QObject *parent)
 {
 }
 
+namespace {
+// Stalled request safety net so a dead connection can't hold `busy` forever.
+constexpr int kRequestTimeoutMs = 15000;
+}
+
 QString DataService::baseUrl() const { return m_baseUrl; }
 
 void DataService::setBaseUrl(const QString &baseUrl)
@@ -116,20 +121,34 @@ void DataService::getArray(const QString &command,
         return;
     }
 
+    QNetworkRequest request((QUrl(url)));
+    request.setTransferTimeout(kRequestTimeoutMs);
+
     setBusy(true);
-    QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(url)));
+    QNetworkReply *reply = m_network->get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply, command, onRows]() {
         reply->deleteLater();
         bool ok = false;
         const QVariant value = parseReply(reply, command, &ok);
-        if (ok)
-            onRows(value.toList());
+        if (!ok) {
+            setBusy(false);
+            return;
+        }
+        if (value.type() != QVariant::List) {
+            const QString err = tr("Unexpected response shape from server.");
+            setLastError(err);
+            emit requestFailed(command, err);
+            setBusy(false);
+            return;
+        }
+        onRows(value.toList());
         setBusy(false);
     });
 }
 
 void DataService::postObject(const QString &command,
                              const QVariantMap &formFields,
+                             const QStringList &requiredKeys,
                              const std::function<void(const QVariantMap &)> &onObject)
 {
     const QString url = buildUrl(command);
@@ -148,16 +167,37 @@ void DataService::postObject(const QString &command,
     QNetworkRequest request((QUrl(url)));
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       QStringLiteral("application/x-www-form-urlencoded"));
+    request.setTransferTimeout(kRequestTimeoutMs);
 
     setBusy(true);
     const QByteArray payload = body.toString(QUrl::FullyEncoded).toUtf8();
     QNetworkReply *reply = m_network->post(request, payload);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, command, onObject]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, command, requiredKeys, onObject]() {
         reply->deleteLater();
         bool ok = false;
         const QVariant value = parseReply(reply, command, &ok);
-        if (ok)
-            onObject(value.toMap());
+        if (!ok) {
+            setBusy(false);
+            return;
+        }
+        if (value.type() != QVariant::Map) {
+            const QString err = tr("Unexpected response shape from server.");
+            setLastError(err);
+            emit requestFailed(command, err);
+            setBusy(false);
+            return;
+        }
+        const QVariantMap obj = value.toMap();
+        for (const QString &key : requiredKeys) {
+            if (!obj.contains(key) || obj.value(key).isNull()) {
+                const QString err = tr("Incomplete response from server.");
+                setLastError(err);
+                emit requestFailed(command, err);
+                setBusy(false);
+                return;
+            }
+        }
+        onObject(obj);
         setBusy(false);
     });
 }
@@ -241,6 +281,7 @@ void DataService::login(const QString &username, const QString &password)
     fields.insert(QStringLiteral("password"), password);
 
     postObject(QStringLiteral("log_in"), fields,
+               {QStringLiteral("oficiant"), QStringLiteral("name"), QStringLiteral("username")},
                [this](const QVariantMap &obj) {
                    emit loggedIn(obj.value(QStringLiteral("oficiant")).toInt(),
                                  obj.value(QStringLiteral("name")).toString(),
@@ -262,6 +303,7 @@ void DataService::createOrder(const QString &waiter,
         fields.insert(QStringLiteral("guestCount"), guestCount);
 
     postObject(QStringLiteral("create_order"), fields,
+               {QStringLiteral("nrComand")},
                [this](const QVariantMap &obj) {
                    emit orderCreated(obj.value(QStringLiteral("nrComand")).toInt());
                });
@@ -278,6 +320,7 @@ void DataService::addOrderLines(const QString &nrComand, const QVariantList &lin
     fields.insert(QStringLiteral("lines"), QString::fromUtf8(linesJson));
 
     postObject(QStringLiteral("add_order_lines"), fields,
+               {QStringLiteral("nrComand"), QStringLiteral("lines")},
                [this](const QVariantMap &obj) {
                    emit orderLinesAdded(obj.value(QStringLiteral("nrComand")).toInt(),
                                         obj.value(QStringLiteral("lines")).toList());
@@ -291,6 +334,7 @@ void DataService::updateOrderDesk(const QString &nrComand, const QString &desk)
     fields.insert(QStringLiteral("desk"), desk);
 
     postObject(QStringLiteral("update_order_desk"), fields,
+               {QStringLiteral("nrComand"), QStringLiteral("desk")},
                [this](const QVariantMap &obj) {
                    emit orderDeskUpdated(obj.value(QStringLiteral("nrComand")).toInt(),
                                         obj.value(QStringLiteral("desk")).toInt());
@@ -304,6 +348,7 @@ void DataService::updateGuestCount(const QString &nrComand, const QString &guest
     fields.insert(QStringLiteral("guestCount"), guestCount);
 
     postObject(QStringLiteral("update_guest_count"), fields,
+               {QStringLiteral("nrComand"), QStringLiteral("guestCount")},
                [this](const QVariantMap &obj) {
                    emit orderGuestCountUpdated(obj.value(QStringLiteral("nrComand")).toInt(),
                                                obj.value(QStringLiteral("guestCount")).toInt());
@@ -316,6 +361,7 @@ void DataService::cancelOrder(const QString &nrComand)
     fields.insert(QStringLiteral("nrComand"), nrComand);
 
     postObject(QStringLiteral("cancel_order"), fields,
+               {QStringLiteral("nrComand")},
                [this](const QVariantMap &obj) {
                    emit orderCancelled(obj.value(QStringLiteral("nrComand")).toInt());
                });

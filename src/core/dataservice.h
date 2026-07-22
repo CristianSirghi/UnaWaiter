@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QString>
+#include <QStringList>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -144,9 +145,13 @@ private:
                   const std::function<void(const QVariantList &)> &onRows);
 
     // Fires a POST for `command` with form-encoded `formFields`; on success
-    // parses a JSON object and hands it to `onObject`.
+    // parses a JSON object and hands it to `onObject`. `requiredKeys` guards
+    // against a malformed-but-non-error response silently defaulting missing
+    // fields to 0/empty (e.g. nrComand=0): if any key is absent or null,
+    // the request is treated as failed instead of calling `onObject`.
     void postObject(const QString &command,
                     const QVariantMap &formFields,
+                    const QStringList &requiredKeys,
                     const std::function<void(const QVariantMap &)> &onObject);
 
     // Returns the parsed JSON on success. On a backend {"error":...} payload or

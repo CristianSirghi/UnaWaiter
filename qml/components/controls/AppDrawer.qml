@@ -81,11 +81,9 @@ Drawer {
         }
 
         // ----- Profil -----
-        Rectangle {
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 52
-            radius: 12
-            color: "transparent"
 
             RowLayout {
                 anchors.fill: parent
@@ -116,11 +114,9 @@ Drawer {
         }
 
         // ----- Setări -----
-        Rectangle {
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 52
-            radius: 12
-            color: "transparent"
 
             RowLayout {
                 anchors.fill: parent
@@ -134,6 +130,8 @@ Drawer {
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     mipmap: true
+                    sourceSize.width: width
+                    sourceSize.height: height
                 }
 
                 Label {
@@ -154,11 +152,9 @@ Drawer {
         }
 
         // ----- Stocuri -----
-        Rectangle {
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 52
-            radius: 12
-            color: "transparent"
 
             RowLayout {
                 anchors.fill: parent
@@ -189,11 +185,9 @@ Drawer {
         }
 
         // ----- Achitate -----
-        Rectangle {
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 52
-            radius: 12
-            color: "transparent"
 
             RowLayout {
                 anchors.fill: parent
@@ -233,11 +227,9 @@ Drawer {
         }
 
         // ----- Deconectare -----
-        Rectangle {
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 52
-            radius: 12
-            color: "transparent"
 
             RowLayout {
                 anchors.fill: parent

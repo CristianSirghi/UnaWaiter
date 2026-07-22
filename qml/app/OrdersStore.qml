@@ -34,8 +34,9 @@ QtObject {
     property string _persistedJson: ""
 
     property var _persist: Settings {
-        category: "OrdersStore"
         property alias ordersJson: root._persistedJson
+
+        category: "OrdersStore"
     }
 
     Component.onCompleted: root.restoreState()
