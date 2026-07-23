@@ -85,6 +85,7 @@ ApplicationWindow {
 
         Pages.SettingsPage {
             onAdminRequested: stackView.push(adminPageComponent)
+            onUpdateRequested: stackView.push(updatePageComponent)
         }
     }
 
@@ -92,6 +93,12 @@ ApplicationWindow {
         id: adminPageComponent
 
         Pages.AdminPage {}
+    }
+
+    Component {
+        id: updatePageComponent
+
+        Pages.UpdatePage {}
     }
 
     Component {

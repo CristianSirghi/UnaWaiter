@@ -15,6 +15,8 @@ Page {
 
     // Cerere de deschidere a paginii Administrare (tratata in main.qml).
     signal adminRequested()
+    // Cerere de deschidere a paginii Actualizari (tratata in main.qml).
+    signal updateRequested()
 
     background: Rectangle {
         color: Theme.background
@@ -196,6 +198,58 @@ Page {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: root.adminRequested()
+                }
+            }
+
+            // Rand de navigare catre pagina Actualizari.
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 64
+                radius: 14
+                color: Theme.surface
+                border.width: 1
+                border.color: Theme.border
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+                    spacing: 12
+
+                    Icons.IconSettings {
+                        Layout.preferredWidth: 22
+                        Layout.preferredHeight: 22
+                        dark: Theme.darkMode
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 1
+
+                        Label {
+                            text: qsTr("Updates")
+                            font.pixelSize: 15 * Theme.fontScale
+                            font.bold: true
+                            color: Theme.textPrimary
+                        }
+
+                        Label {
+                            text: appUpdateManager.currentVersion !== "" ? qsTr("Version %1").arg(appUpdateManager.currentVersion) : ""
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: Theme.textSecondary
+                        }
+                    }
+
+                    Icons.IconChevron {
+                        Layout.preferredWidth: 16
+                        Layout.preferredHeight: 16
+                        color: Theme.textSecondary
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.updateRequested()
                 }
             }
         }

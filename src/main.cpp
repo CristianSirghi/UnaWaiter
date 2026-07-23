@@ -4,6 +4,7 @@
 
 #include "translationmanager.h"
 #include "dataservice.h"
+#include "updatemanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +27,9 @@ int main(int argc, char *argv[])
 
     DataService dataService;
     engine.rootContext()->setContextProperty(QStringLiteral("dataService"), &dataService);
+
+    UpdateManager updateManager;
+    engine.rootContext()->setContextProperty(QStringLiteral("appUpdateManager"), &updateManager);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(

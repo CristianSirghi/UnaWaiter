@@ -38,6 +38,9 @@ class DataService : public QObject
     Q_PROPERTY(QVariantList waiterStats READ waiterStats NOTIFY waiterStatsChanged)
     Q_PROPERTY(QVariantList paidOrders READ paidOrders NOTIFY paidOrdersChanged)
     Q_PROPERTY(QVariantList orderLines READ orderLines NOTIFY orderLinesChanged)
+    // URL-ul catre version.json, pentru verificarea de actualizari (UpdateManager
+    // in QML nu are voie sa vorbeasca direct la backend, ca orice alta cerere).
+    Q_PROPERTY(QString updateInfoUrl READ updateInfoUrl NOTIFY updateInfoUrlChanged)
 
 public:
     explicit DataService(QObject *parent = nullptr);
@@ -56,6 +59,7 @@ public:
     QVariantList waiterStats() const;
     QVariantList paidOrders() const;
     QVariantList orderLines() const;
+    QString updateInfoUrl() const;
 
     // Reads (GET) -> fill the matching property, emit its *Changed signal.
     Q_INVOKABLE void loadWaiters();
@@ -79,6 +83,8 @@ public:
     // local OrdersStore (care poate fi depășit față de ce e cu-adevărat în
     // Oracle, ex. dacă o comandă a fost achitată direct din UAMenu).
     Q_INVOKABLE void loadOrderLines(const QString &nrComand);
+    // URL-ul version.json curent (get_update_info) - vezi UpdatePage.qml.
+    Q_INVOKABLE void loadUpdateInfo();
 
     // Auth (POST) against our own uw_waiters roster: username + 4-digit PIN,
     // each row linked to the real vms_univers waiter code (oficiant) used on
@@ -124,6 +130,7 @@ signals:
     void waiterStatsChanged();
     void paidOrdersChanged();
     void orderLinesChanged();
+    void updateInfoUrlChanged();
 
     // One-shot action results.
     void loggedIn(int oficiant, const QString &name, const QString &username);
@@ -154,6 +161,13 @@ private:
                     const QStringList &requiredKeys,
                     const std::function<void(const QVariantMap &)> &onObject);
 
+    // Fires a GET for `command`; on success parses a JSON object (not array)
+    // and hands it to `onObject`, same requiredKeys guard as postObject.
+    void getObject(const QString &command,
+                   const QVariantMap &queryItems,
+                   const QStringList &requiredKeys,
+                   const std::function<void(const QVariantMap &)> &onObject);
+
     // Returns the parsed JSON on success. On a backend {"error":...} payload or
     // a parse problem, returns false-ish: sets lastError, emits requestFailed,
     // and *ok is set to false.
@@ -171,6 +185,7 @@ private:
     void setWaiterStats(const QVariantList &rows);
     void setPaidOrders(const QVariantList &rows);
     void setOrderLines(const QVariantList &rows);
+    void setUpdateInfoUrl(const QString &url);
 
     QNetworkAccessManager *m_network = nullptr;
     QString m_baseUrl;
@@ -186,6 +201,7 @@ private:
     QVariantList m_waiterStats;
     QVariantList m_paidOrders;
     QVariantList m_orderLines;
+    QString m_updateInfoUrl;
     int m_pending = 0; // in-flight request count, drives `busy`
 };
 

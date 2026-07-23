@@ -49,6 +49,7 @@ QVariantList DataService::tableOccupancy() const { return m_tableOccupancy; }
 QVariantList DataService::waiterStats() const { return m_waiterStats; }
 QVariantList DataService::paidOrders() const { return m_paidOrders; }
 QVariantList DataService::orderLines() const { return m_orderLines; }
+QString DataService::updateInfoUrl() const { return m_updateInfoUrl; }
 
 QString DataService::buildUrl(const QString &command, const QVariantMap &queryItems) const
 {
@@ -202,6 +203,54 @@ void DataService::postObject(const QString &command,
     });
 }
 
+void DataService::getObject(const QString &command,
+                            const QVariantMap &queryItems,
+                            const QStringList &requiredKeys,
+                            const std::function<void(const QVariantMap &)> &onObject)
+{
+    const QString url = buildUrl(command, queryItems);
+    if (url.isEmpty()) {
+        const QString err = tr("Missing backend address.");
+        setLastError(err);
+        emit requestFailed(command, err);
+        return;
+    }
+
+    QNetworkRequest request((QUrl(url)));
+    request.setTransferTimeout(kRequestTimeoutMs);
+
+    setBusy(true);
+    QNetworkReply *reply = m_network->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, command, requiredKeys, onObject]() {
+        reply->deleteLater();
+        bool ok = false;
+        const QVariant value = parseReply(reply, command, &ok);
+        if (!ok) {
+            setBusy(false);
+            return;
+        }
+        if (value.type() != QVariant::Map) {
+            const QString err = tr("Unexpected response shape from server.");
+            setLastError(err);
+            emit requestFailed(command, err);
+            setBusy(false);
+            return;
+        }
+        const QVariantMap obj = value.toMap();
+        for (const QString &key : requiredKeys) {
+            if (!obj.contains(key) || obj.value(key).isNull()) {
+                const QString err = tr("Incomplete response from server.");
+                setLastError(err);
+                emit requestFailed(command, err);
+                setBusy(false);
+                return;
+            }
+        }
+        onObject(obj);
+        setBusy(false);
+    });
+}
+
 void DataService::loadWaiters()
 {
     getArray(QStringLiteral("get_waiters"), QVariantMap(),
@@ -272,6 +321,15 @@ void DataService::loadOrderLines(const QString &nrComand)
     q.insert(QStringLiteral("nrComand"), nrComand);
     getArray(QStringLiteral("get_order_lines"), q,
              [this](const QVariantList &rows) { setOrderLines(rows); });
+}
+
+void DataService::loadUpdateInfo()
+{
+    getObject(QStringLiteral("get_update_info"), QVariantMap(),
+              {QStringLiteral("url")},
+              [this](const QVariantMap &obj) {
+                  setUpdateInfoUrl(obj.value(QStringLiteral("url")).toString());
+              });
 }
 
 void DataService::login(const QString &username, const QString &password)
@@ -450,4 +508,13 @@ void DataService::setOrderLines(const QVariantList &rows)
 {
     m_orderLines = rows;
     emit orderLinesChanged();
+}
+
+void DataService::setUpdateInfoUrl(const QString &url)
+{
+    // Unlike the other setters, this always emits (no equality guard): every
+    // loadUpdateInfo() call should re-trigger UpdatePage's checkForUpdate()
+    // chain, even when the URL happens to be unchanged from last time.
+    m_updateInfoUrl = url;
+    emit updateInfoUrlChanged();
 }
