@@ -27,9 +27,18 @@ Page {
     property string errorText: ""
     property string newVersion: ""
     property string newNotes: ""
+    // true → pagina a fost deschisă din dialogul obligatoriu de la pornire
+    // (main.qml), cu updateState/newVersion/newNotes deja setate: nu mai
+    // așteptăm nicio apăsare, pornim direct descărcarea.
+    property bool autoDownload: false
 
     background: Rectangle {
         color: Theme.background
+    }
+
+    Component.onCompleted: {
+        if (autoDownload)
+            appUpdateManager.downloadAndInstall()
     }
 
     header: RowLayout {

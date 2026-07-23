@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import "theme"
 import "app"
 import "pages" as Pages
+import "components/controls" as Components
 
 ApplicationWindow {
     id: appWindow
@@ -42,11 +43,86 @@ ApplicationWindow {
         }
     }
 
+    // Adevărat cât timp verificarea automată de actualizări pornită la
+    // deschiderea aplicației e în zbor. Semnalele dataService/appUpdateManager
+    // sunt globale - fără acest guard, o verificare manuală din UpdatePage ar
+    // declanșa și dialogul obligatoriu de aici (și invers).
+    property bool startupCheckPending: false
+
     // Theme / AppSettings / OrdersStore sunt acum singleton-uri (qml/theme, qml/app),
     // accesate direct oriunde — nu se mai instanțiază și nu se mai pasează prin proprietăți.
     // Aplică limba curentă la pornire și când se schimbă din Setări
     // (translationManager e expus din C++, main.cpp).
-    Component.onCompleted: translationManager.setLanguage(AppSettings.language)
+    Component.onCompleted: {
+        translationManager.setLanguage(AppSettings.language)
+
+        // Verificare automată de versiune, o singură dată, la pornire (pe
+        // WelcomePage, înainte de login - să nu întrerupem chelnerul din
+        // lucru). Dacă serverul nu răspunde, pornirea continuă normal.
+        appWindow.startupCheckPending = true
+        dataService.loadUpdateInfo()
+    }
+
+    // ===================== Auto-update la pornire =====================
+    Connections {
+        target: dataService
+
+        function onUpdateInfoUrlChanged() {
+            if (appWindow.startupCheckPending)
+                appUpdateManager.checkForUpdate(dataService.updateInfoUrl)
+        }
+
+        function onRequestFailed(command, error) {
+            // Fără net / server căzut la pornire: renunțăm silențios, nu
+            // blocăm aplicația - chelnerul poate lucra, iar dialogul va
+            // reapărea la următoarea pornire reușită.
+            if (command === "get_update_info" && appWindow.startupCheckPending)
+                appWindow.startupCheckPending = false
+        }
+    }
+
+    Connections {
+        target: appUpdateManager
+
+        function onUpdateAvailable(version, notes) {
+            if (!appWindow.startupCheckPending)
+                return
+            appWindow.startupCheckPending = false
+            startupUpdateDialog.version = version
+            startupUpdateDialog.notes = notes
+            startupUpdateDialog.open()
+        }
+
+        function onUpToDate() {
+            appWindow.startupCheckPending = false
+        }
+
+        function onCheckFailed(error) {
+            appWindow.startupCheckPending = false
+        }
+    }
+
+    // Dialogul obligatoriu: nu se poate închide prin tap în afară/Escape,
+    // singura opțiune e "Actualizează acum" - care duce în UpdatePage cu
+    // descărcarea pornită automat (autoDownload).
+    Components.ConfirmDialog {
+        id: startupUpdateDialog
+
+        property string version: ""
+        property string notes: ""
+
+        mandatory: true
+        infoOnly: true
+        title: qsTr("New version available: %1").arg(version)
+        message: notes !== "" ? notes : qsTr("The app must be updated to continue.")
+        confirmText: qsTr("Update now")
+        onConfirmed: stackView.push(updatePageComponent, {
+            updateState: "available",
+            newVersion: version,
+            newNotes: notes,
+            autoDownload: true
+        })
+    }
 
     Connections {
         target: AppSettings

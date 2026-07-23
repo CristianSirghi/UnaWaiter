@@ -692,7 +692,7 @@
 <context>
     <name>UpdatePage</name>
     <message>
-        <location filename="../qml/pages/UpdatePage.qml" line="+48"/>
+        <location filename="../qml/pages/UpdatePage.qml" line="+57"/>
         <source>Updates</source>
         <translation>Updates</translation>
     </message>
@@ -790,6 +790,24 @@
         <location line="+16"/>
         <source>Sign in</source>
         <translation>Sign in</translation>
+    </message>
+</context>
+<context>
+    <name>main</name>
+    <message>
+        <location filename="../qml/main.qml" line="+116"/>
+        <source>New version available: %1</source>
+        <translation>New version available: %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The app must be updated to continue.</source>
+        <translation>The app must be updated to continue.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Update now</source>
+        <translation>Update now</translation>
     </message>
 </context>
 </TS>

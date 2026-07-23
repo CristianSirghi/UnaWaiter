@@ -30,6 +30,10 @@ Popup {
     // true → doar un buton (confirmText), fără opțiunea de anulare - pentru
     // mesaje pur informative (ex. "nu poți edita asta încă"), nu confirmări.
     property bool infoOnly: false
+    // true → nu se poate închide prin Escape / tap în afară - singura ieșire
+    // e butonul de confirmare. Pentru dialoguri care impun o acțiune
+    // (ex. actualizarea obligatorie de la pornire, main.qml).
+    property bool mandatory: false
 
     signal confirmed()
 
@@ -39,7 +43,8 @@ Popup {
     dim: true
     padding: 0
     width: Math.min(320, (parent ? parent.width : 320) - 48)
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+    closePolicy: mandatory ? Popup.NoAutoClose
+                           : (Popup.CloseOnEscape | Popup.CloseOnPressOutside)
 
     // Dialogul e centrat (anchors.centerIn), nu ancorat jos ca AddonSheet, deci
     // aici scale + fade se potrivește mai bine decât o alunecare — "apare" din
