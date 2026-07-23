@@ -80,7 +80,7 @@
 <context>
     <name>AppDrawer</name>
     <message>
-        <location filename="../qml/components/controls/AppDrawer.qml" line="+103"/>
+        <location filename="../qml/components/controls/AppDrawer.qml" line="+101"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
@@ -90,17 +90,17 @@
         <translation>Setări</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+33"/>
         <source>Stock</source>
         <translation>Stocuri</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+33"/>
         <source>Paid orders</source>
         <translation>Comenzi achitate</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+42"/>
         <source>Sign out</source>
         <translation>Deconectare</translation>
     </message>
@@ -108,7 +108,7 @@
 <context>
     <name>ChangeTablePicker</name>
     <message>
-        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+89"/>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+111"/>
         <source>Move to table</source>
         <translation>Mută pe altă masă</translation>
     </message>
@@ -118,7 +118,7 @@
         <translation>Sala</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+66"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -139,15 +139,29 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+84"/>
+        <location filename="../src/core/dataservice.cpp" line="+90"/>
         <source>Invalid response from server: %1</source>
         <translation>Răspuns invalid de la server: %1</translation>
     </message>
     <message>
         <location line="+29"/>
-        <location line="+24"/>
+        <location line="+38"/>
+        <location line="+56"/>
         <source>Missing backend address.</source>
         <translation>Adresa serverului lipsește.</translation>
+    </message>
+    <message>
+        <location line="-74"/>
+        <location line="+46"/>
+        <location line="+48"/>
+        <source>Unexpected response shape from server.</source>
+        <translation>Răspuns neașteptat de la server.</translation>
+    </message>
+    <message>
+        <location line="-39"/>
+        <location line="+48"/>
+        <source>Incomplete response from server.</source>
+        <translation>Răspuns incomplet de la server.</translation>
     </message>
 </context>
 <context>
@@ -165,12 +179,12 @@
     <message>
         <location line="+11"/>
         <source>Login failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Autentificare eșuată</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location line="+31"/>
@@ -201,7 +215,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+92"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+132"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -212,48 +226,58 @@
     </message>
     <message>
         <location line="+223"/>
-        <location line="+65"/>
-        <location line="+220"/>
-        <location line="+83"/>
-        <location line="+633"/>
+        <location line="+80"/>
+        <location line="+224"/>
+        <location line="+106"/>
+        <location line="+649"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
     <message>
-        <location line="-1000"/>
+        <location line="-1058"/>
         <source>Waiter</source>
         <translation>Chelner</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+386"/>
-        <location line="+477"/>
+        <location line="+434"/>
+        <location line="+487"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-778"/>
+        <location line="-821"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Masa %1 tocmai a fost luată de %2 - alege altă masă.</translation>
     </message>
     <message>
-        <location line="-60"/>
-        <location line="+61"/>
+        <location line="-75"/>
+        <location line="+76"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Masa %1 tocmai a fost luată de altcineva - alege altă masă.</translation>
     </message>
     <message>
-        <location line="-59"/>
+        <location line="-74"/>
         <source>Couldn&apos;t create the order right now - please try again.</source>
         <translation>Comanda nu a putut fi creată acum - încearcă din nou.</translation>
     </message>
     <message>
-        <location line="+474"/>
+        <location line="+9"/>
+        <source>Table %1 already has another open order - pick another table.</source>
+        <translation>Masa %1 are deja o altă comandă deschisă - alege altă masă.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Couldn&apos;t move the order right now - please try again.</source>
+        <translation>Comanda nu a putut fi mutată acum - încearcă din nou.</translation>
+    </message>
+    <message>
+        <location line="+512"/>
         <source>Search products…</source>
         <translation>Caută produse…</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+100"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
@@ -444,7 +468,7 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+36"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+38"/>
         <source>Settings</source>
         <translation>Setări</translation>
     </message>
@@ -494,7 +518,7 @@
         <translation>Mare</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+47"/>
         <source>Administration</source>
         <translation>Administrare</translation>
     </message>
@@ -502,6 +526,16 @@
         <location line="+7"/>
         <source>Server</source>
         <translation>Server</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Updates</source>
+        <translation>Actualizări</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Version %1</source>
+        <translation>Versiunea %1</translation>
     </message>
 </context>
 <context>
@@ -530,7 +564,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+267"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+283"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>
@@ -540,7 +574,7 @@
         <translation>Toate</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-226"/>
         <source>Hall</source>
         <translation>Sala</translation>
     </message>
@@ -560,7 +594,7 @@
         <translation>Masă necunoscută</translation>
     </message>
     <message>
-        <location line="+122"/>
+        <location line="+130"/>
         <source>Sign out?</source>
         <translation>Vă deconectați?</translation>
     </message>
@@ -575,7 +609,7 @@
         <translation>Deconectare</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+18"/>
         <source>Not editable here yet</source>
         <translation>Încă nu se poate edita aici</translation>
     </message>
@@ -590,7 +624,7 @@
         <translation>OK</translation>
     </message>
     <message>
-        <location line="+64"/>
+        <location line="+324"/>
         <source>No open orders</source>
         <translation>Nu există comenzi deschise</translation>
     </message>
@@ -600,7 +634,7 @@
         <translation>Nu există comenzi deschise. Vă rugăm să începeți una nouă.</translation>
     </message>
     <message>
-        <location line="+267"/>
+        <location line="+15"/>
         <source>Loading…</source>
         <translation>Se încarcă…</translation>
     </message>
@@ -610,6 +644,133 @@
 %1</source>
         <translation>Nu s-au putut încărca comenzile deschise:
 %1</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateManager</name>
+    <message>
+        <location filename="../src/core/updatemanager.cpp" line="+80"/>
+        <source>Update check is not configured.</source>
+        <translation>Verificarea actualizărilor nu este configurată.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Invalid response from server.</source>
+        <translation>Răspuns invalid de la server.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>version.json is incomplete (missing version or url).</source>
+        <translation>version.json este incomplet (lipsește version sau url).</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>No download URL is available.</source>
+        <translation>Nu există un link de descărcare.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Android context is unavailable.</source>
+        <translation>Contextul Android nu este disponibil.</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Could not start the download.</source>
+        <translation>Descărcarea nu a putut porni.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Automatic installation is available only on Android.</source>
+        <translation>Instalarea automată este disponibilă doar pe Android.</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Download failed.</source>
+        <translation>Descărcarea a eșuat.</translation>
+    </message>
+</context>
+<context>
+    <name>UpdatePage</name>
+    <message>
+        <location filename="../qml/pages/UpdatePage.qml" line="+48"/>
+        <source>Updates</source>
+        <translation>Actualizări</translation>
+    </message>
+    <message>
+        <location line="+113"/>
+        <source>Version %1</source>
+        <translation>Versiunea %1</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>unknown</source>
+        <translation>necunoscută</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Checking for updates…</source>
+        <translation>Se caută actualizări…</translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>You&apos;re up to date</source>
+        <translation>Ești la zi</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>You have the latest version of the app.</source>
+        <translation>Ai cea mai recentă versiune a aplicației.</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>New version available</source>
+        <translation>Versiune nouă disponibilă</translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Download and install</source>
+        <translation>Descarcă și instalează</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Downloading update…</source>
+        <translation>Se descarcă actualizarea…</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Keep the app open until the installer appears.</source>
+        <translation>Ține aplicația deschisă până apare ecranul de instalare.</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Download complete</source>
+        <translation>Descărcare finalizată</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Confirm the installation on the screen.</source>
+        <translation>Confirmă instalarea pe ecran.</translation>
+    </message>
+    <message>
+        <location line="+78"/>
+        <source>Check for updates</source>
+        <translation>Caută actualizări</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>The new version installs over the current app — orders and settings are kept.</source>
+        <translation>Versiunea nouă se instalează peste aplicația curentă — comenzile și setările se păstrează.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <location line="+20"/>
+        <source>Could not check for updates.</source>
+        <translation>Nu s-au putut verifica actualizările.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Download failed.</source>
+        <translation>Descărcarea a eșuat.</translation>
     </message>
 </context>
 <context>

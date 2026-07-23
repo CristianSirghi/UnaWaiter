@@ -22,3 +22,7 @@ Chelnerul introduce comanda pe telefon (produse, cantități), o trimite la buc�
 ## Build
 
 Deschide `UnaWaiter.pro` în Qt Creator (Qt 5.15.2) și rulează pe kit-ul Desktop sau Android.
+
+## Documentație
+
+- [`docs/auto-update/`](docs/auto-update/README.md) — mecanismul de auto-update (verificare versiune + download/install APK fără Play Store). Conține prezentarea generală, checklist-ul de deploy pe producție și fluxul de publicare a unei versiuni noi.

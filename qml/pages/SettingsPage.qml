@@ -150,7 +150,14 @@ Page {
             }
 
             // Rand de navigare catre pagina Administrare (setari de sistem).
+            // Ascuns momentan (2026-07-23, la cererea lui Kristian): aplicatia
+            // ruleaza pentru un singur client, iar URL-ul backend-ului are
+            // valoare implicita hardcodata in AppSettings.serverUrl - nu e
+            // nevoie de UI pentru el. Pagina AdminPage si semnalul
+            // adminRequested raman pe loc, doar re-pui visible cand va fi
+            // nevoie (ex. mai multi clienti).
             Rectangle {
+                visible: false
                 Layout.fillWidth: true
                 Layout.preferredHeight: 64
                 radius: 14

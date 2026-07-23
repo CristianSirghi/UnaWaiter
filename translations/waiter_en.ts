@@ -80,7 +80,7 @@
 <context>
     <name>AppDrawer</name>
     <message>
-        <location filename="../qml/components/controls/AppDrawer.qml" line="+103"/>
+        <location filename="../qml/components/controls/AppDrawer.qml" line="+101"/>
         <source>Profile</source>
         <translation>Profile</translation>
     </message>
@@ -90,17 +90,17 @@
         <translation>Settings</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+33"/>
         <source>Stock</source>
         <translation>Stock</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+33"/>
         <source>Paid orders</source>
         <translation>Paid orders</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+42"/>
         <source>Sign out</source>
         <translation>Sign out</translation>
     </message>
@@ -108,7 +108,7 @@
 <context>
     <name>ChangeTablePicker</name>
     <message>
-        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+89"/>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+111"/>
         <source>Move to table</source>
         <translation>Move to table</translation>
     </message>
@@ -118,7 +118,7 @@
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+66"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -139,15 +139,29 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+84"/>
+        <location filename="../src/core/dataservice.cpp" line="+90"/>
         <source>Invalid response from server: %1</source>
         <translation>Invalid response from server: %1</translation>
     </message>
     <message>
         <location line="+29"/>
-        <location line="+24"/>
+        <location line="+38"/>
+        <location line="+56"/>
         <source>Missing backend address.</source>
         <translation>Missing backend address.</translation>
+    </message>
+    <message>
+        <location line="-74"/>
+        <location line="+46"/>
+        <location line="+48"/>
+        <source>Unexpected response shape from server.</source>
+        <translation>Unexpected response shape from server.</translation>
+    </message>
+    <message>
+        <location line="-39"/>
+        <location line="+48"/>
+        <source>Incomplete response from server.</source>
+        <translation>Incomplete response from server.</translation>
     </message>
 </context>
 <context>
@@ -165,12 +179,12 @@
     <message>
         <location line="+11"/>
         <source>Login failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Login failed</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location line="+31"/>
@@ -201,7 +215,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+92"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+132"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -212,48 +226,58 @@
     </message>
     <message>
         <location line="+223"/>
-        <location line="+65"/>
-        <location line="+220"/>
-        <location line="+83"/>
-        <location line="+633"/>
+        <location line="+80"/>
+        <location line="+224"/>
+        <location line="+106"/>
+        <location line="+649"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-1000"/>
+        <location line="-1058"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+386"/>
-        <location line="+477"/>
+        <location line="+434"/>
+        <location line="+487"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-778"/>
+        <location line="-821"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
     <message>
-        <location line="-60"/>
-        <location line="+61"/>
+        <location line="-75"/>
+        <location line="+76"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Table %1 was just taken by someone else - pick another table.</translation>
     </message>
     <message>
-        <location line="-59"/>
+        <location line="-74"/>
         <source>Couldn&apos;t create the order right now - please try again.</source>
         <translation>Couldn&apos;t create the order right now - please try again.</translation>
     </message>
     <message>
-        <location line="+474"/>
+        <location line="+9"/>
+        <source>Table %1 already has another open order - pick another table.</source>
+        <translation>Table %1 already has another open order - pick another table.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Couldn&apos;t move the order right now - please try again.</source>
+        <translation>Couldn&apos;t move the order right now - please try again.</translation>
+    </message>
+    <message>
+        <location line="+512"/>
         <source>Search products…</source>
         <translation>Search products…</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+100"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
@@ -444,7 +468,7 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+36"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+38"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
@@ -494,7 +518,7 @@
         <translation>Large</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+47"/>
         <source>Administration</source>
         <translation>Administration</translation>
     </message>
@@ -502,6 +526,16 @@
         <location line="+7"/>
         <source>Server</source>
         <translation>Server</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Updates</source>
+        <translation>Updates</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Version %1</source>
+        <translation>Version %1</translation>
     </message>
 </context>
 <context>
@@ -530,7 +564,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+267"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+283"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -540,7 +574,7 @@
         <translation>All</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-226"/>
         <source>Hall</source>
         <translation>Hall</translation>
     </message>
@@ -560,7 +594,7 @@
         <translation>Unknown table</translation>
     </message>
     <message>
-        <location line="+122"/>
+        <location line="+130"/>
         <source>Sign out?</source>
         <translation>Sign out?</translation>
     </message>
@@ -575,7 +609,7 @@
         <translation>Sign out</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+18"/>
         <source>Not editable here yet</source>
         <translation>Not editable here yet</translation>
     </message>
@@ -590,7 +624,7 @@
         <translation>OK</translation>
     </message>
     <message>
-        <location line="+64"/>
+        <location line="+324"/>
         <source>No open orders</source>
         <translation>No open orders</translation>
     </message>
@@ -600,7 +634,7 @@
         <translation>There are no open orders. Please start a new one.</translation>
     </message>
     <message>
-        <location line="+267"/>
+        <location line="+15"/>
         <source>Loading…</source>
         <translation>Loading…</translation>
     </message>
@@ -610,6 +644,133 @@
 %1</source>
         <translation>Couldn&apos;t load open orders:
 %1</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateManager</name>
+    <message>
+        <location filename="../src/core/updatemanager.cpp" line="+80"/>
+        <source>Update check is not configured.</source>
+        <translation>Update check is not configured.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Invalid response from server.</source>
+        <translation>Invalid response from server.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>version.json is incomplete (missing version or url).</source>
+        <translation>version.json is incomplete (missing version or url).</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>No download URL is available.</source>
+        <translation>No download URL is available.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Android context is unavailable.</source>
+        <translation>Android context is unavailable.</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Could not start the download.</source>
+        <translation>Could not start the download.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Automatic installation is available only on Android.</source>
+        <translation>Automatic installation is available only on Android.</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Download failed.</source>
+        <translation>Download failed.</translation>
+    </message>
+</context>
+<context>
+    <name>UpdatePage</name>
+    <message>
+        <location filename="../qml/pages/UpdatePage.qml" line="+48"/>
+        <source>Updates</source>
+        <translation>Updates</translation>
+    </message>
+    <message>
+        <location line="+113"/>
+        <source>Version %1</source>
+        <translation>Version %1</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>unknown</source>
+        <translation>unknown</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Checking for updates…</source>
+        <translation>Checking for updates…</translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>You&apos;re up to date</source>
+        <translation>You&apos;re up to date</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>You have the latest version of the app.</source>
+        <translation>You have the latest version of the app.</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>New version available</source>
+        <translation>New version available</translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Download and install</source>
+        <translation>Download and install</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Downloading update…</source>
+        <translation>Downloading update…</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Keep the app open until the installer appears.</source>
+        <translation>Keep the app open until the installer appears.</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Download complete</source>
+        <translation>Download complete</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Confirm the installation on the screen.</source>
+        <translation>Confirm the installation on the screen.</translation>
+    </message>
+    <message>
+        <location line="+78"/>
+        <source>Check for updates</source>
+        <translation>Check for updates</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>The new version installs over the current app — orders and settings are kept.</source>
+        <translation>The new version installs over the current app — orders and settings are kept.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <location line="+20"/>
+        <source>Could not check for updates.</source>
+        <translation>Could not check for updates.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Download failed.</source>
+        <translation>Download failed.</translation>
     </message>
 </context>
 <context>

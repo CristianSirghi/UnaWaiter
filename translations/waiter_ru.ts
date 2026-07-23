@@ -80,7 +80,7 @@
 <context>
     <name>AppDrawer</name>
     <message>
-        <location filename="../qml/components/controls/AppDrawer.qml" line="+103"/>
+        <location filename="../qml/components/controls/AppDrawer.qml" line="+101"/>
         <source>Profile</source>
         <translation>Профиль</translation>
     </message>
@@ -90,17 +90,17 @@
         <translation>Настройки</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+33"/>
         <source>Stock</source>
         <translation>Склад</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+33"/>
         <source>Paid orders</source>
         <translation>Оплаченные заказы</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+42"/>
         <source>Sign out</source>
         <translation>Выйти</translation>
     </message>
@@ -108,7 +108,7 @@
 <context>
     <name>ChangeTablePicker</name>
     <message>
-        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+89"/>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+111"/>
         <source>Move to table</source>
         <translation>Перенести на другой стол</translation>
     </message>
@@ -118,7 +118,7 @@
         <translation>Зал</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+66"/>
         <source>Terrace</source>
         <translation>Терраса</translation>
     </message>
@@ -139,15 +139,29 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+84"/>
+        <location filename="../src/core/dataservice.cpp" line="+90"/>
         <source>Invalid response from server: %1</source>
         <translation>Некорректный ответ от сервера: %1</translation>
     </message>
     <message>
         <location line="+29"/>
-        <location line="+24"/>
+        <location line="+38"/>
+        <location line="+56"/>
         <source>Missing backend address.</source>
         <translation>Не указан адрес сервера.</translation>
+    </message>
+    <message>
+        <location line="-74"/>
+        <location line="+46"/>
+        <location line="+48"/>
+        <source>Unexpected response shape from server.</source>
+        <translation>Неожиданный формат ответа сервера.</translation>
+    </message>
+    <message>
+        <location line="-39"/>
+        <location line="+48"/>
+        <source>Incomplete response from server.</source>
+        <translation>Неполный ответ сервера.</translation>
     </message>
 </context>
 <context>
@@ -165,12 +179,12 @@
     <message>
         <location line="+11"/>
         <source>Login failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка входа</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>OK</source>
-        <translation type="unfinished">ОК</translation>
+        <translation>ОК</translation>
     </message>
     <message>
         <location line="+31"/>
@@ -201,7 +215,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+92"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+132"/>
         <source>Terrace</source>
         <translation>Терраса</translation>
     </message>
@@ -212,48 +226,58 @@
     </message>
     <message>
         <location line="+223"/>
-        <location line="+65"/>
-        <location line="+220"/>
-        <location line="+83"/>
-        <location line="+633"/>
+        <location line="+80"/>
+        <location line="+224"/>
+        <location line="+106"/>
+        <location line="+649"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
     <message>
-        <location line="-1000"/>
+        <location line="-1058"/>
         <source>Waiter</source>
         <translation>Официант</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+386"/>
-        <location line="+477"/>
+        <location line="+434"/>
+        <location line="+487"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-778"/>
+        <location line="-821"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Стол %1 только что заняла(-л) %2 - выберите другой стол.</translation>
     </message>
     <message>
-        <location line="-60"/>
-        <location line="+61"/>
+        <location line="-75"/>
+        <location line="+76"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Стол %1 только что заняли - выберите другой стол.</translation>
     </message>
     <message>
-        <location line="-59"/>
+        <location line="-74"/>
         <source>Couldn&apos;t create the order right now - please try again.</source>
         <translation>Не удалось создать заказ сейчас - попробуйте ещё раз.</translation>
     </message>
     <message>
-        <location line="+474"/>
+        <location line="+9"/>
+        <source>Table %1 already has another open order - pick another table.</source>
+        <translation>На столе %1 уже есть другой открытый заказ - выберите другой стол.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Couldn&apos;t move the order right now - please try again.</source>
+        <translation>Не удалось перенести заказ - попробуйте ещё раз.</translation>
+    </message>
+    <message>
+        <location line="+512"/>
         <source>Search products…</source>
         <translation>Поиск блюд…</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+100"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
@@ -444,7 +468,7 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="+36"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="+38"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -494,7 +518,7 @@
         <translation>Крупный</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+47"/>
         <source>Administration</source>
         <translation>Администрирование</translation>
     </message>
@@ -502,6 +526,16 @@
         <location line="+7"/>
         <source>Server</source>
         <translation>Сервер</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Updates</source>
+        <translation>Обновления</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Version %1</source>
+        <translation>Версия %1</translation>
     </message>
 </context>
 <context>
@@ -530,7 +564,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+267"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+283"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -540,7 +574,7 @@
         <translation>Все</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-226"/>
         <source>Hall</source>
         <translation>Зал</translation>
     </message>
@@ -560,7 +594,7 @@
         <translation>Неизвестный стол</translation>
     </message>
     <message>
-        <location line="+122"/>
+        <location line="+130"/>
         <source>Sign out?</source>
         <translation>Выйти?</translation>
     </message>
@@ -575,7 +609,7 @@
         <translation>Выйти</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+18"/>
         <source>Not editable here yet</source>
         <translation>Пока нельзя редактировать здесь</translation>
     </message>
@@ -590,7 +624,7 @@
         <translation>ОК</translation>
     </message>
     <message>
-        <location line="+64"/>
+        <location line="+324"/>
         <source>No open orders</source>
         <translation>Нет открытых заказов</translation>
     </message>
@@ -600,7 +634,7 @@
         <translation>Нет открытых заказов. Пожалуйста, начните новый.</translation>
     </message>
     <message>
-        <location line="+267"/>
+        <location line="+15"/>
         <source>Loading…</source>
         <translation>Загрузка…</translation>
     </message>
@@ -610,6 +644,133 @@
 %1</source>
         <translation>Не удалось загрузить открытые заказы:
 %1</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateManager</name>
+    <message>
+        <location filename="../src/core/updatemanager.cpp" line="+80"/>
+        <source>Update check is not configured.</source>
+        <translation>Проверка обновлений не настроена.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Invalid response from server.</source>
+        <translation>Неверный ответ сервера.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>version.json is incomplete (missing version or url).</source>
+        <translation>version.json неполный (отсутствует version или url).</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>No download URL is available.</source>
+        <translation>Ссылка для загрузки отсутствует.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Android context is unavailable.</source>
+        <translation>Контекст Android недоступен.</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Could not start the download.</source>
+        <translation>Не удалось начать загрузку.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Automatic installation is available only on Android.</source>
+        <translation>Автоматическая установка доступна только на Android.</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Download failed.</source>
+        <translation>Загрузка не удалась.</translation>
+    </message>
+</context>
+<context>
+    <name>UpdatePage</name>
+    <message>
+        <location filename="../qml/pages/UpdatePage.qml" line="+48"/>
+        <source>Updates</source>
+        <translation>Обновления</translation>
+    </message>
+    <message>
+        <location line="+113"/>
+        <source>Version %1</source>
+        <translation>Версия %1</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>unknown</source>
+        <translation>неизвестно</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Checking for updates…</source>
+        <translation>Проверка обновлений…</translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>You&apos;re up to date</source>
+        <translation>У вас всё актуально</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>You have the latest version of the app.</source>
+        <translation>У вас последняя версия приложения.</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>New version available</source>
+        <translation>Доступна новая версия</translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Download and install</source>
+        <translation>Скачать и установить</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Downloading update…</source>
+        <translation>Загрузка обновления…</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Keep the app open until the installer appears.</source>
+        <translation>Держите приложение открытым, пока не появится экран установки.</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Download complete</source>
+        <translation>Загрузка завершена</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Confirm the installation on the screen.</source>
+        <translation>Подтвердите установку на экране.</translation>
+    </message>
+    <message>
+        <location line="+78"/>
+        <source>Check for updates</source>
+        <translation>Проверить обновления</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>The new version installs over the current app — orders and settings are kept.</source>
+        <translation>Новая версия устанавливается поверх текущего приложения — заказы и настройки сохраняются.</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <location line="+20"/>
+        <source>Could not check for updates.</source>
+        <translation>Не удалось проверить обновления.</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Download failed.</source>
+        <translation>Загрузка не удалась.</translation>
     </message>
 </context>
 <context>
