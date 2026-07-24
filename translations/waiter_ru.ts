@@ -139,7 +139,7 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+90"/>
+        <location filename="../src/core/dataservice.cpp" line="+146"/>
         <source>Invalid response from server: %1</source>
         <translation>Некорректный ответ от сервера: %1</translation>
     </message>
@@ -571,7 +571,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+281"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+314"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -581,7 +581,7 @@
         <translation>Все</translation>
     </message>
     <message>
-        <location line="-225"/>
+        <location line="-258"/>
         <source>Hall</source>
         <translation>Зал</translation>
     </message>
@@ -627,11 +627,32 @@
     </message>
     <message>
         <location line="+1"/>
+        <location line="+14"/>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
     <message>
-        <location line="+324"/>
+        <location line="-5"/>
+        <source>Server connection</source>
+        <translation>Соединение с сервером</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Connected to the server.</source>
+        <translation>Есть соединение с сервером.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No connection to the server.</source>
+        <translation>Нет соединения с сервером.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Server: %1</source>
+        <translation>Сервер: %1</translation>
+    </message>
+    <message>
+        <location line="+344"/>
         <source>No open orders</source>
         <translation>Нет открытых заказов</translation>
     </message>

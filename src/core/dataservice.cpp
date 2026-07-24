@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTimer>
 
 // No baked-in default endpoint on purpose: a hardcoded URL from one client's
 // deployment would silently point every fresh install (any restaurant) at
@@ -18,7 +19,15 @@
 DataService::DataService(QObject *parent)
     : QObject(parent)
     , m_network(new QNetworkAccessManager(this))
+    , m_pingTimer(new QTimer(this))
 {
+    // Ping periodic de conexiune, ca beculețul din TablesPage să reflecte
+    // pierderea/revenirea legăturii chiar și când aplicația stă degeaba (fără
+    // vreo cerere declanșată de chelner). Fiecare cerere reală actualizează la
+    // rândul ei `online` prin parseReply, deci pierderea se vede și mai repede.
+    m_pingTimer->setInterval(8000);
+    connect(m_pingTimer, &QTimer::timeout, this, &DataService::sendPing);
+    m_pingTimer->start();
 }
 
 namespace {
@@ -35,10 +44,52 @@ void DataService::setBaseUrl(const QString &baseUrl)
         return;
     m_baseUrl = trimmed;
     emit baseUrlChanged();
+    // Adresa serverului tocmai s-a schimbat - verificăm imediat noua legătură.
+    sendPing();
 }
 
 bool DataService::busy() const { return m_busy; }
+bool DataService::online() const { return m_online; }
 QString DataService::lastError() const { return m_lastError; }
+
+void DataService::setOnline(bool online)
+{
+    if (m_online == online)
+        return;
+    m_online = online;
+    emit onlineChanged();
+}
+
+void DataService::checkConnection()
+{
+    sendPing();
+}
+
+// Sondă ușoară de conexiune: un GET la comanda "ping" (backend întoarce
+// {"status":"ok"}). Actualizează DOAR `online`, în funcție de dacă am reușit
+// să contactăm serverul - nu atinge busy și nu emite requestFailed, ca să nu
+// polueze UI-ul cu erori la fiecare tick.
+void DataService::sendPing()
+{
+    if (m_pinging)
+        return;
+
+    const QString url = buildUrl(QStringLiteral("ping"));
+    if (url.isEmpty()) {
+        setOnline(false);
+        return;
+    }
+
+    m_pinging = true;
+    QNetworkRequest request((QUrl(url)));
+    request.setTransferTimeout(kRequestTimeoutMs);
+    QNetworkReply *reply = m_network->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        m_pinging = false;
+        setOnline(reply->error() == QNetworkReply::NoError);
+    });
+}
 QVariantList DataService::waiters() const { return m_waiters; }
 QVariantList DataService::categories() const { return m_categories; }
 QVariantList DataService::menu() const { return m_menu; }
@@ -77,11 +128,16 @@ QVariant DataService::parseReply(QNetworkReply *reply, const QString &command, b
     *ok = false;
 
     if (reply->error() != QNetworkReply::NoError) {
+        setOnline(false);
         const QString err = reply->errorString();
         setLastError(err);
         emit requestFailed(command, err);
         return QVariant();
     }
+
+    // Am primit un răspuns HTTP de la server - suntem conectați, chiar dacă
+    // corpul se dovedește mai jos a fi un {"error":...} de la backend.
+    setOnline(true);
 
     const QByteArray body = reply->readAll();
     QJsonParseError parseError;

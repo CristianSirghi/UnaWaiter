@@ -8,6 +8,7 @@
 
 class QNetworkAccessManager;
 class QNetworkReply;
+class QTimer;
 
 // Generic HTTP bridge to the PHP/Oracle backend (foisor.php). Not tied to any
 // one screen or client: it just exposes the backend commands as Q_INVOKABLE
@@ -18,6 +19,9 @@ class DataService : public QObject
     Q_OBJECT
     Q_PROPERTY(QString baseUrl READ baseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
+    // Conexiunea la backend (rezultatul fiecărei cereri + un ping periodic):
+    // true = serverul răspunde, false = pierdută. Vezi beculețul din TablesPage.
+    Q_PROPERTY(bool online READ online NOTIFY onlineChanged)
     Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QVariantList waiters READ waiters NOTIFY waitersChanged)
     Q_PROPERTY(QVariantList categories READ categories NOTIFY categoriesChanged)
@@ -48,6 +52,7 @@ public:
     QString baseUrl() const;
     void setBaseUrl(const QString &baseUrl);
     bool busy() const;
+    bool online() const;
     QString lastError() const;
     QVariantList waiters() const;
     QVariantList categories() const;
@@ -85,6 +90,10 @@ public:
     Q_INVOKABLE void loadOrderLines(const QString &nrComand);
     // URL-ul version.json curent (get_update_info) - vezi UpdatePage.qml.
     Q_INVOKABLE void loadUpdateInfo();
+
+    // Verifică imediat conexiunea la server (ping) - folosit când chelnerul
+    // deschide dialogul de stare a conexiunii, pentru feedback instant.
+    Q_INVOKABLE void checkConnection();
 
     // Auth (POST): oficiant (POS operator code, chosen from the loadWaiters()
     // list) + 4-digit PIN. The backend accepts it only if the oficiant is in the
@@ -126,6 +135,7 @@ public:
 signals:
     void baseUrlChanged();
     void busyChanged();
+    void onlineChanged();
     void lastErrorChanged();
     void waitersChanged();
     void categoriesChanged();
@@ -183,6 +193,11 @@ private:
 
     void setBusy(bool busy);
     void setLastError(const QString &error);
+    void setOnline(bool online);
+    // Sondă de conexiune: GET la comanda "ping", actualizează DOAR `online`
+    // (nu atinge busy, nu emite requestFailed). Rulează periodic (m_pingTimer)
+    // și la schimbarea adresei serverului.
+    void sendPing();
     void setWaiters(const QVariantList &rows);
     void setCategories(const QVariantList &rows);
     void setMenu(const QVariantList &rows);
@@ -211,6 +226,9 @@ private:
     QVariantList m_orderLines;
     QString m_updateInfoUrl;
     int m_pending = 0; // in-flight request count, drives `busy`
+    bool m_online = false;
+    bool m_pinging = false; // evită ping-uri suprapuse pe o conexiune moartă
+    QTimer *m_pingTimer = nullptr;
 };
 
 #endif // DATASERVICE_H

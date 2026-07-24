@@ -261,6 +261,20 @@ Page {
         infoOnly: true
     }
 
+    // Stare conexiune la server - deschis din beculețul de sus. Mesajul e legat
+    // de dataService.online, deci se actualizează live dacă statusul se schimbă
+    // cât dialogul e deschis (checkConnection a cerut un ping proaspăt).
+    Components.ConfirmDialog {
+        id: connectionDialog
+        title: qsTr("Server connection")
+        message: (dataService.online
+                    ? qsTr("Connected to the server.")
+                    : qsTr("No connection to the server."))
+                 + "\n\n" + qsTr("Server: %1").arg(AppSettings.serverUrl)
+        confirmText: qsTr("OK")
+        infoOnly: true
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16
@@ -269,6 +283,25 @@ Page {
         RowLayout {
             Layout.fillWidth: true
             spacing: 12
+
+            // Beculeț stare conexiune la server: verde = conectat, roșu =
+            // pierdut. Tap → dialog cu detalii. Pe același rând cu filtrul.
+            Rectangle {
+                Layout.preferredWidth: 14
+                Layout.preferredHeight: 14
+                Layout.alignment: Qt.AlignVCenter
+                radius: 7
+                color: dataService.online ? Theme.success : Theme.danger
+
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.margins: -10   // zonă de atingere mai generoasă
+                    onClicked: {
+                        dataService.checkConnection()
+                        connectionDialog.open()
+                    }
+                }
+            }
 
             Item { Layout.fillWidth: true }
 

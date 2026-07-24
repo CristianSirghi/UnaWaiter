@@ -139,7 +139,7 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+90"/>
+        <location filename="../src/core/dataservice.cpp" line="+146"/>
         <source>Invalid response from server: %1</source>
         <translation>Invalid response from server: %1</translation>
     </message>
@@ -571,7 +571,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+281"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+314"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -581,7 +581,7 @@
         <translation>All</translation>
     </message>
     <message>
-        <location line="-225"/>
+        <location line="-258"/>
         <source>Hall</source>
         <translation>Hall</translation>
     </message>
@@ -627,11 +627,32 @@
     </message>
     <message>
         <location line="+1"/>
+        <location line="+14"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location line="+324"/>
+        <location line="-5"/>
+        <source>Server connection</source>
+        <translation>Server connection</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Connected to the server.</source>
+        <translation>Connected to the server.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No connection to the server.</source>
+        <translation>No connection to the server.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Server: %1</source>
+        <translation>Server: %1</translation>
+    </message>
+    <message>
+        <location line="+344"/>
         <source>No open orders</source>
         <translation>No open orders</translation>
     </message>
