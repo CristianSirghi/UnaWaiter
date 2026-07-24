@@ -5,7 +5,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../icons"
 
-// Meniu lateral (hamburger) — Profil / Setări / Stocuri / Deconectare.
+// Meniu lateral (hamburger) — Profil / Setări / Comenzi achitate / Deconectare.
 // Folosește Drawer-ul standard Qt Quick Controls (edge-swipe, dimming,
 // back-button de închidere — toate incluse), nu ceva desenat manual.
 Drawer {
@@ -14,7 +14,6 @@ Drawer {
 
     signal profileRequested()
     signal settingsRequested()
-    signal stockRequested()
     signal paidOrdersRequested()
     signal signOutRequested()
 
@@ -147,39 +146,6 @@ Drawer {
                 onClicked: {
                     root.close()
                     root.settingsRequested()
-                }
-            }
-        }
-
-        // ----- Stocuri -----
-        Item {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 52
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 4
-                spacing: 14
-
-                IconStock {
-                    Layout.preferredWidth: 22
-                    Layout.preferredHeight: 22
-                    color: Theme.textPrimary
-                }
-
-                Label {
-                    Layout.fillWidth: true
-                    text: qsTr("Stock")
-                    font.pixelSize: 15 * Theme.fontScale
-                    color: Theme.textPrimary
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    root.close()
-                    root.stockRequested()
                 }
             }
         }

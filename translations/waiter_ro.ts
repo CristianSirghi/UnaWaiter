@@ -80,7 +80,7 @@
 <context>
     <name>AppDrawer</name>
     <message>
-        <location filename="../qml/components/controls/AppDrawer.qml" line="+101"/>
+        <location filename="../qml/components/controls/AppDrawer.qml" line="+100"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
@@ -88,11 +88,6 @@
         <location line="+38"/>
         <source>Settings</source>
         <translation>Setări</translation>
-    </message>
-    <message>
-        <location line="+33"/>
-        <source>Stock</source>
-        <translation>Stocuri</translation>
     </message>
     <message>
         <location line="+33"/>
@@ -235,18 +230,6 @@
         <location line="+9"/>
         <source>Search name</source>
         <translation>Caută nume</translation>
-    </message>
-    <message>
-        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
-        <translation type="vanished">Introdu numele de utilizator o singură dată - telefonul îl va reține, apoi vei avea nevoie doar de PIN.</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation type="vanished">Utilizator</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation type="vanished">Continuă</translation>
     </message>
     <message>
         <location line="+235"/>
@@ -581,32 +564,9 @@
     </message>
 </context>
 <context>
-    <name>StockPage</name>
-    <message>
-        <location filename="../qml/pages/StockPage.qml" line="+25"/>
-        <source>Out of stock</source>
-        <translation>Stoc epuizat</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Low stock</source>
-        <translation>Stoc redus</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>In stock</source>
-        <translation>În stoc</translation>
-    </message>
-    <message>
-        <location line="+36"/>
-        <source>Stock</source>
-        <translation>Stocuri</translation>
-    </message>
-</context>
-<context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+283"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+281"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>
@@ -616,7 +576,7 @@
         <translation>Toate</translation>
     </message>
     <message>
-        <location line="-226"/>
+        <location line="-225"/>
         <source>Hall</source>
         <translation>Sala</translation>
     </message>
@@ -636,7 +596,7 @@
         <translation>Masă necunoscută</translation>
     </message>
     <message>
-        <location line="+130"/>
+        <location line="+129"/>
         <source>Sign out?</source>
         <translation>Vă deconectați?</translation>
     </message>

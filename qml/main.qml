@@ -193,7 +193,6 @@ ApplicationWindow {
             onOrderOpened: stackView.push(orderPageComponent, { zone: zone, tableNumber: tableNumber })
             onProfileRequested: stackView.push(profilePageComponent)
             onSettingsRequested: stackView.push(settingsPageComponent)
-            onStockRequested: stackView.push(stockPageComponent)
             onPaidOrdersRequested: stackView.push(paidOrdersPageComponent)
         }
     }
@@ -202,12 +201,6 @@ ApplicationWindow {
         id: profilePageComponent
 
         Pages.ProfilePage {}
-    }
-
-    Component {
-        id: stockPageComponent
-
-        Pages.StockPage {}
     }
 
     Component {

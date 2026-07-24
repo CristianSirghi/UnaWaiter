@@ -49,7 +49,6 @@ Page {
     signal orderOpened(string zone, int tableNumber)
     signal profileRequested()
     signal settingsRequested()
-    signal stockRequested()
     signal paidOrdersRequested()
 
     // "zone" e cod intern ("hall"/"terrace") — îl traducem la afișare, ca
@@ -230,7 +229,6 @@ Page {
 
         onProfileRequested: root.profileRequested()
         onSettingsRequested: root.settingsRequested()
-        onStockRequested: root.stockRequested()
         onPaidOrdersRequested: root.paidOrdersRequested()
         onSignOutRequested: signOutDialog.open()
     }

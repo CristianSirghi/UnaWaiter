@@ -21,7 +21,6 @@
         <file alias="components/icons/IconMinus.qml">../qml/components/icons/IconMinus.qml</file>
         <file alias="components/icons/IconSettings.qml">../qml/components/icons/IconSettings.qml</file>
         <file alias="components/icons/IconLogout.qml">../qml/components/icons/IconLogout.qml</file>
-        <file alias="components/icons/IconStock.qml">../qml/components/icons/IconStock.qml</file>
         <file alias="components/icons/IconPerson.qml">../qml/components/icons/IconPerson.qml</file>
         <file alias="components/icons/IconChevron.qml">../qml/components/icons/IconChevron.qml</file>
         <file alias="components/icons/IconTrash.qml">../qml/components/icons/IconTrash.qml</file>
@@ -42,7 +41,6 @@
         <file alias="pages/AdminPage.qml">../qml/pages/AdminPage.qml</file>
         <file alias="pages/UpdatePage.qml">../qml/pages/UpdatePage.qml</file>
         <file alias="pages/ProfilePage.qml">../qml/pages/ProfilePage.qml</file>
-        <file alias="pages/StockPage.qml">../qml/pages/StockPage.qml</file>
         <file alias="pages/AchitatePage.qml">../qml/pages/AchitatePage.qml</file>
     </qresource>
 </RCC>
