@@ -104,6 +104,11 @@
         <source>Sign out</source>
         <translation>Sign out</translation>
     </message>
+    <message>
+        <location line="+21"/>
+        <source>Version %1</source>
+        <translation>Version %1</translation>
+    </message>
 </context>
 <context>
     <name>ChangeTablePicker</name>
@@ -167,14 +172,44 @@
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+246"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+118"/>
+        <source>The PINs don&apos;t match. Try again.</source>
+        <translation>The PINs don&apos;t match. Try again.</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Enter PIN</source>
         <translation>Enter PIN</translation>
     </message>
     <message>
-        <location line="-151"/>
+        <location line="+1"/>
+        <source>Set your PIN</source>
+        <translation>Set your PIN</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Confirm your PIN</source>
+        <translation>Confirm your PIN</translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Wrong PIN</source>
         <translation>Wrong PIN</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>This waiter already has a PIN - enter it.</source>
+        <translation>This waiter already has a PIN - enter it.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>This account is not an active waiter.</source>
+        <translation>This account is not an active waiter.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>The PIN must be 4 digits.</source>
+        <translation>The PIN must be 4 digits.</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -187,27 +222,34 @@
         <translation>OK</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+37"/>
         <source>Log in</source>
         <translation>Log in</translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
-        <translation>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</translation>
+        <source>Choose your name from the list.</source>
+        <translation>Choose your name from the list.</translation>
     </message>
     <message>
         <location line="+9"/>
+        <source>Search name</source>
+        <translation>Search name</translation>
+    </message>
+    <message>
+        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
+        <translation type="vanished">Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</translation>
+    </message>
+    <message>
         <source>Username</source>
-        <translation>Username</translation>
+        <translation type="vanished">Username</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>Continue</source>
-        <translation>Continue</translation>
+        <translation type="vanished">Continue</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location line="+235"/>
         <source>Switch user</source>
         <translation>Switch user</translation>
     </message>

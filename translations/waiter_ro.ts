@@ -104,6 +104,11 @@
         <source>Sign out</source>
         <translation>Deconectare</translation>
     </message>
+    <message>
+        <location line="+21"/>
+        <source>Version %1</source>
+        <translation>Versiunea %1</translation>
+    </message>
 </context>
 <context>
     <name>ChangeTablePicker</name>
@@ -167,14 +172,44 @@
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+246"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+118"/>
+        <source>The PINs don&apos;t match. Try again.</source>
+        <translation>PIN-urile nu coincid. Încercați din nou.</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Enter PIN</source>
         <translation>Introduceți PIN-ul</translation>
     </message>
     <message>
-        <location line="-151"/>
+        <location line="+1"/>
+        <source>Set your PIN</source>
+        <translation>Setați PIN-ul</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Confirm your PIN</source>
+        <translation>Confirmați PIN-ul</translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Wrong PIN</source>
         <translation>PIN greșit</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>This waiter already has a PIN - enter it.</source>
+        <translation>Acest chelner are deja un PIN - introduceți-l.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>This account is not an active waiter.</source>
+        <translation>Acest cont nu este un chelner activ.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>The PIN must be 4 digits.</source>
+        <translation>PIN-ul trebuie să aibă 4 cifre.</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -187,27 +222,34 @@
         <translation>OK</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+37"/>
         <source>Log in</source>
         <translation>Autentificare</translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
-        <translation>Introdu numele de utilizator o singură dată - telefonul îl va reține, apoi vei avea nevoie doar de PIN.</translation>
+        <source>Choose your name from the list.</source>
+        <translation>Alegeți-vă numele din listă.</translation>
     </message>
     <message>
         <location line="+9"/>
+        <source>Search name</source>
+        <translation>Caută nume</translation>
+    </message>
+    <message>
+        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
+        <translation type="vanished">Introdu numele de utilizator o singură dată - telefonul îl va reține, apoi vei avea nevoie doar de PIN.</translation>
+    </message>
+    <message>
         <source>Username</source>
-        <translation>Utilizator</translation>
+        <translation type="vanished">Utilizator</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>Continue</source>
-        <translation>Continuă</translation>
+        <translation type="vanished">Continuă</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location line="+235"/>
         <source>Switch user</source>
         <translation>Schimbă utilizatorul</translation>
     </message>

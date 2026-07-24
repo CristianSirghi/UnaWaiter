@@ -86,11 +86,18 @@ public:
     // URL-ul version.json curent (get_update_info) - vezi UpdatePage.qml.
     Q_INVOKABLE void loadUpdateInfo();
 
-    // Auth (POST) against our own uw_waiters roster: username + 4-digit PIN,
-    // each row linked to the real vms_univers waiter code (oficiant) used on
-    // orders. On success emits loggedIn(oficiant, name, username); on bad
-    // credentials the failure arrives via requestFailed("log_in", "invalid_credentials").
-    Q_INVOKABLE void login(const QString &username, const QString &password);
+    // Auth (POST): oficiant (POS operator code, chosen from the loadWaiters()
+    // list) + 4-digit PIN. The backend accepts it only if the oficiant is in the
+    // real waiter roster (VSLRPRM_CALCD_R_502) AND the PIN in uw_waiters matches.
+    // On success emits loggedIn(oficiant, name); on bad credentials the failure
+    // arrives via requestFailed("log_in", "invalid_credentials").
+    Q_INVOKABLE void login(int oficiant, const QString &pin);
+
+    // Self-enrollment (POST): a waiter with no PIN yet (has_pin=0 in loadWaiters)
+    // sets one. On success emits pinSet(oficiant); on failure requestFailed(
+    // "set_pin", <code>) where code is pin_already_set / not_a_waiter /
+    // invalid_pin_format.
+    Q_INVOKABLE void setPin(int oficiant, const QString &pin);
 
     // Writes (POST). Results come back through the signals below rather than a
     // property, since they're one-shot actions, not persistent state.
@@ -133,7 +140,8 @@ signals:
     void updateInfoUrlChanged();
 
     // One-shot action results.
-    void loggedIn(int oficiant, const QString &name, const QString &username);
+    void loggedIn(int oficiant, const QString &name);
+    void pinSet(int oficiant);
     void orderCreated(int nrComand);
     void orderLinesAdded(int nrComand, const QVariantList &lines);
     void orderDeskUpdated(int nrComand, int desk);

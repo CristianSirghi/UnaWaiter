@@ -11,59 +11,123 @@ Page {
 
     property int pinLength: 4
 
-    // Utilizatorul curent al acestui telefon. La prima logare e gol și cerem
-    // numele de utilizator (pasul "user"); după logare reușită îl reținem în
-    // AppSettings.waiterUsername, iar data următoare sărim direct la PIN.
-    property string currentUsername: ""
-    property bool askUsername: true
+    // Chelnerul ales pe acest telefon. La prima logare alegem din lista reală
+    // (get_waiters); după o logare reușită reținem OFICIANT-ul în
+    // AppSettings.waiterOficiant, iar data următoare sărim direct la PIN.
+    property int currentOficiant: 0
+    property string currentName: ""
+    property bool currentHasPin: false
+
+    // Pasul 1 (alege chelnerul din listă) vs pasul 2 (PIN).
+    property bool askWaiter: true
+    // Am ajuns la PIN din listă (true) sau direct din chelnerul reținut
+    // (false)? Decide unde duce butonul înapoi din pasul PIN.
+    property bool cameFromPicker: false
+
+    // "enter" = chelnerul are deja PIN, îl introduce. "set" = prima dată, își
+    // setează PIN-ul (de 2 ori). setStage: 0 = tastează nou, 1 = confirmă.
+    property string pinMode: "enter"
+    property int setStage: 0
+    property string firstPin: ""
+    property string pendingPin: ""   // PIN-ul trimis la set_pin, ca să logăm după
 
     property string enteredPin: ""
-    property bool loggingIn: false
+    property bool busy: false
     property string errorText: ""
 
     signal loginConfirmed()
 
     Component.onCompleted: {
-        root.currentUsername = AppSettings.waiterUsername
-        root.askUsername = (root.currentUsername === "")
+        if (AppSettings.waiterOficiant !== 0) {
+            // Chelner reținut pe acest telefon → direct la PIN.
+            root.currentOficiant = AppSettings.waiterOficiant
+            root.currentName = AppSettings.waiterName
+            root.currentHasPin = true
+            root.pinMode = "enter"
+            root.askWaiter = false
+            root.cameFromPicker = false
+        } else {
+            root.askWaiter = true
+            dataService.loadWaiters()
+        }
     }
 
-    // Pasul 1 (doar la prima logare): confirmăm numele de utilizator tastat și
-    // trecem la PIN. Nu-l salvăm încă în cache - abia după un login reușit.
-    function chooseUsername(name) {
-        var u = name.trim()
-        if (u.length === 0)
-            return
-        root.currentUsername = u
-        root.askUsername = false
-        root.errorText = ""
+    // Lista de chelneri filtrată după căutare (case-insensitive pe nume).
+    readonly property var filteredWaiters: {
+        var out = []
+        var q = searchField.text.trim().toLowerCase()
+        var all = dataService.waiters
+        for (var i = 0; i < all.length; ++i) {
+            var nm = String(all[i].DENUMIREA)
+            if (q === "" || nm.toLowerCase().indexOf(q) !== -1)
+                out.push(all[i])
+        }
+        return out
     }
 
-    // "Schimbă utilizatorul" - revenim la pasul de user (ex. alt chelner preia
-    // telefonul). Cache-ul se suprascrie abia la următorul login reușit.
-    function switchUser() {
+    function chooseWaiter(oficiant, name, hasPin) {
+        root.currentOficiant = oficiant
+        root.currentName = name
+        root.currentHasPin = hasPin
+        root.pinMode = hasPin ? "enter" : "set"
+        root.setStage = 0
+        root.firstPin = ""
         root.enteredPin = ""
         root.errorText = ""
-        root.currentUsername = ""
-        root.askUsername = true
+        root.askWaiter = false
+        root.cameFromPicker = true
     }
 
-    function tryLogin() {
-        if (root.loggingIn)
-            return
-        root.loggingIn = true
+    // Înapoi la lista de chelneri (alt chelner preia telefonul, sau ne-am
+    // răzgândit). Nu golim waiterOficiant reținut - se suprascrie abia la
+    // următoarea logare reușită.
+    function backToPicker() {
+        root.enteredPin = ""
+        root.firstPin = ""
+        root.setStage = 0
         root.errorText = ""
-        dataService.login(root.currentUsername, root.enteredPin)
+        root.askWaiter = true
+        dataService.loadWaiters()
+    }
+
+    function submitPin() {
+        if (root.busy || root.enteredPin.length !== root.pinLength)
+            return
+
+        if (root.pinMode === "enter") {
+            root.busy = true
+            dataService.login(root.currentOficiant, root.enteredPin)
+            return
+        }
+
+        // pinMode === "set"
+        if (root.setStage === 0) {
+            root.firstPin = root.enteredPin
+            root.enteredPin = ""
+            root.setStage = 1
+            root.errorText = ""
+        } else {
+            if (root.enteredPin === root.firstPin) {
+                root.busy = true
+                root.pendingPin = root.enteredPin
+                dataService.setPin(root.currentOficiant, root.enteredPin)
+            } else {
+                root.enteredPin = ""
+                root.firstPin = ""
+                root.setStage = 0
+                root.errorText = qsTr("The PINs don't match. Try again.")
+                errorDialog.open()
+            }
+        }
     }
 
     function pushDigit(d) {
-        if (root.loggingIn || root.enteredPin.length >= root.pinLength)
+        if (root.busy || root.enteredPin.length >= root.pinLength)
             return
         root.errorText = ""
         root.enteredPin += d
-        // Auto-trimitere la a 4-a cifră - fără buton OK separat.
         if (root.enteredPin.length === root.pinLength)
-            root.tryLogin()
+            root.submitPin()
     }
 
     function delDigit() {
@@ -71,36 +135,69 @@ Page {
         root.enteredPin = root.enteredPin.slice(0, -1)
     }
 
+    // Subtitlul de pe ecranul de PIN, în funcție de mod/pas.
+    function pinPrompt() {
+        if (root.pinMode === "enter")
+            return qsTr("Enter PIN")
+        return root.setStage === 0 ? qsTr("Set your PIN") : qsTr("Confirm your PIN")
+    }
+
     Connections {
         target: dataService
 
-        function onLoggedIn(oficiant, name, username) {
-            if (!root.loggingIn)
+        function onLoggedIn(oficiant, name) {
+            if (!root.busy)
                 return
-            root.loggingIn = false
+            root.busy = false
             AppSettings.waiterOficiant = oficiant
             AppSettings.waiterName = name
-            AppSettings.waiterUsername = username   // reținem userul pe acest telefon
             root.enteredPin = ""
             root.errorText = ""
             root.loginConfirmed()
         }
 
-        function onRequestFailed(command, error) {
-            if (!root.loggingIn || command !== "log_in")
+        function onPinSet(oficiant) {
+            // PIN înrolat cu succes → logăm imediat cu PIN-ul tocmai setat.
+            if (!root.busy)
                 return
-            root.loggingIn = false
-            root.enteredPin = ""
-            root.errorText = (error === "invalid_credentials")
-                ? qsTr("Wrong PIN")
-                : error
-            errorDialog.open()
+            dataService.login(oficiant, root.pendingPin)
+        }
+
+        function onRequestFailed(command, error) {
+            if (command === "log_in") {
+                if (!root.busy)
+                    return
+                root.busy = false
+                root.enteredPin = ""
+                root.errorText = (error === "invalid_credentials")
+                    ? qsTr("Wrong PIN")
+                    : error
+                errorDialog.open()
+            } else if (command === "set_pin") {
+                if (!root.busy)
+                    return
+                root.busy = false
+                root.enteredPin = ""
+                root.firstPin = ""
+                root.setStage = 0
+                if (error === "pin_already_set") {
+                    // has_pin era depășit - chelnerul chiar are PIN. Trecem la
+                    // introducere în loc de setare.
+                    root.pinMode = "enter"
+                    root.currentHasPin = true
+                    root.errorText = qsTr("This waiter already has a PIN - enter it.")
+                } else if (error === "not_a_waiter") {
+                    root.errorText = qsTr("This account is not an active waiter.")
+                } else if (error === "invalid_pin_format") {
+                    root.errorText = qsTr("The PIN must be 4 digits.")
+                } else {
+                    root.errorText = error
+                }
+                errorDialog.open()
+            }
         }
     }
 
-    // Eroare de login (PIN greșit etc.) - același dialog reutilizabil folosit
-    // și în alte pagini (ex. SelectTablePage), în loc de un text inline care
-    // trecea neobservat sub tastatură.
     Components.ConfirmDialog {
         id: errorDialog
         title: qsTr("Login failed")
@@ -120,21 +217,27 @@ Page {
 
         Components.BackButton {
             color: Theme.textPrimary
-            onClicked: root.StackView.view.pop()
+            onClicked: {
+                if (root.askWaiter)
+                    root.StackView.view.pop()
+                else if (root.cameFromPicker)
+                    root.backToPicker()
+                else
+                    root.StackView.view.pop()
+            }
         }
 
         Item { Layout.fillWidth: true }
         Item { Layout.preferredWidth: 16 }
     }
 
-    // ---------- Pasul 1: nume de utilizator (doar prima logare) ----------
+    // ---------- Pasul 1: alege chelnerul (listă cu căutare) ----------
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 24
-        spacing: 18
-        visible: root.askUsername
-
-        Item { Layout.preferredHeight: 8 }
+        anchors.topMargin: 4
+        spacing: 14
+        visible: root.askWaiter
 
         Label {
             text: qsTr("Log in")
@@ -145,58 +248,94 @@ Page {
 
         Label {
             Layout.fillWidth: true
-            text: qsTr("Enter your username once - this phone will remember it, then you'll only need your PIN.")
+            text: qsTr("Choose your name from the list.")
             wrapMode: Text.WordWrap
             font.pixelSize: 14 * Theme.fontScale
             color: Theme.textSecondary
         }
 
         Components.TextInputField {
-            id: userField
+            id: searchField
             Layout.fillWidth: true
-            placeholder: qsTr("Username")
-            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
-            onEditingFinished: root.chooseUsername(text)
+            placeholder: qsTr("Search name")
+            inputMethodHints: Qt.ImhNoPredictiveText
         }
 
-        Item { Layout.fillHeight: true }
-
-        Rectangle {
+        ListView {
+            id: waiterList
             Layout.fillWidth: true
-            Layout.preferredHeight: 52
-            radius: 14
-            color: userField.text.trim().length > 0 ? Theme.primary : Theme.border
+            Layout.fillHeight: true
+            clip: true
+            model: root.filteredWaiters
+            spacing: 4
+            boundsBehavior: Flickable.StopAtBounds
 
-            Label {
-                anchors.centerIn: parent
-                text: qsTr("Continue")
-                color: userField.text.trim().length > 0 ? "white" : Theme.textSecondary
-                font.pixelSize: 16 * Theme.fontScale
-                font.bold: true
-            }
+            ScrollIndicator.vertical: ScrollIndicator {}
 
-            MouseArea {
-                anchors.fill: parent
-                enabled: userField.text.trim().length > 0
-                onClicked: root.chooseUsername(userField.text)
+            delegate: Rectangle {
+                width: waiterList.width
+                height: 54
+                radius: 12
+                color: Theme.surface
+                border.width: 1
+                border.color: Theme.border
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 14
+                    anchors.rightMargin: 14
+                    spacing: 12
+
+                    Rectangle {
+                        width: 34
+                        height: 34
+                        radius: 17
+                        color: Theme.primary
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: String(modelData.DENUMIREA).length > 0
+                                ? String(modelData.DENUMIREA).charAt(0).toUpperCase()
+                                : "?"
+                            color: "white"
+                            font.bold: true
+                            font.pixelSize: 15 * Theme.fontScale
+                        }
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+                        text: modelData.DENUMIREA
+                        font.pixelSize: 15 * Theme.fontScale
+                        color: Theme.textPrimary
+                        elide: Text.ElideRight
+                    }
+
+                    // Punct discret: chelnerul și-a setat deja PIN-ul.
+                    Rectangle {
+                        visible: parseInt(modelData.HAS_PIN) === 1
+                        width: 8
+                        height: 8
+                        radius: 4
+                        color: Theme.success
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.chooseWaiter(parseInt(modelData.COD),
+                                                 String(modelData.DENUMIREA),
+                                                 parseInt(modelData.HAS_PIN) === 1)
+                }
             }
         }
     }
 
-    // ---------- Pasul 2: PIN (după ce userul e ales/reținut) ----------
-    // Un singur Flickable cu conținut natural, de sus în jos - fără
-    // Layout.fillHeight, fără centrare, fără nicio presupunere despre cât
-    // spațiu e disponibil pe ecran. Dacă tot conținutul (feedback + tastatură)
-    // încape, pur și simplu stă acolo; dacă ecranul e mai mic, devine
-    // derulabil. Indiferent de dispozitiv, tastatura nu mai poate fi tăiată
-    // sau ascunsă - lecția din toate încercările anterioare (footer cu
-    // implicitHeight circular, apoi fillHeight cu presupuneri greșite despre
-    // înălțimea disponibilă) e că orice calcul fix de "cât spațiu e liber"
-    // pica pe dispozitivul real. Un Flickable elimină nevoia de a ghici.
+    // ---------- Pasul 2: PIN (introdu sau setează) ----------
     Flickable {
         id: pinFlick
         anchors.fill: parent
-        visible: !root.askUsername
+        visible: !root.askWaiter
         clip: true
         contentWidth: width
         contentHeight: pinColumn.implicitHeight
@@ -209,8 +348,6 @@ Page {
 
             Item { Layout.preferredHeight: 28 }
 
-            // Avatar + nume de utilizator, ca chelnerul să vadă clar cu ce
-            // cont urmează să intre.
             Rectangle {
                 Layout.alignment: Qt.AlignHCenter
                 width: 72
@@ -220,8 +357,8 @@ Page {
 
                 Label {
                     anchors.centerIn: parent
-                    text: root.currentUsername.length > 0
-                        ? root.currentUsername.charAt(0).toUpperCase()
+                    text: root.currentName.length > 0
+                        ? root.currentName.charAt(0).toUpperCase()
                         : "?"
                     color: "white"
                     font.pixelSize: 30 * Theme.fontScale
@@ -233,7 +370,7 @@ Page {
 
             Label {
                 Layout.alignment: Qt.AlignHCenter
-                text: root.currentUsername
+                text: root.currentName
                 font.pixelSize: 18 * Theme.fontScale
                 font.bold: true
                 color: Theme.textPrimary
@@ -243,7 +380,7 @@ Page {
 
             Label {
                 Layout.alignment: Qt.AlignHCenter
-                text: qsTr("Enter PIN")
+                text: root.pinPrompt()
                 font.pixelSize: 14 * Theme.fontScale
                 color: Theme.textSecondary
             }
@@ -298,7 +435,6 @@ Page {
                     columnSpacing: 10
 
                     Repeater {
-                        // Rândul de jos: șterge (X) stânga, 0 mijloc, confirmă (✓) dreapta.
                         model: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "DEL", "0", "OK"]
 
                         Rectangle {
@@ -310,10 +446,7 @@ Page {
                             readonly property bool isDigit: keyValue.length === 1 && keyValue >= "0" && keyValue <= "9"
                             readonly property bool isDelete: keyValue === "DEL"
                             readonly property bool isConfirm: keyValue === "OK"
-                            // Confirmarea e activă doar cu PIN complet. De obicei nici nu
-                            // apucă să fie apăsată (auto-login la a 4-a cifră), e un backup
-                            // vizual - dar rămâne funcțională.
-                            readonly property bool isConfirmEnabled: isConfirm && root.enteredPin.length === root.pinLength && !root.loggingIn
+                            readonly property bool isConfirmEnabled: isConfirm && root.enteredPin.length === root.pinLength && !root.busy
 
                             radius: 12
                             color: isConfirm
@@ -342,14 +475,14 @@ Page {
 
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !root.loggingIn && !(keyDelegate.isConfirm && !keyDelegate.isConfirmEnabled)
+                                enabled: !root.busy && !(keyDelegate.isConfirm && !keyDelegate.isConfirmEnabled)
                                 onClicked: {
                                     if (keyDelegate.isDigit)
                                         root.pushDigit(keyDelegate.keyValue)
                                     else if (keyDelegate.isDelete)
                                         root.delDigit()
                                     else if (keyDelegate.isConfirm)
-                                        root.tryLogin()
+                                        root.submitPin()
                                 }
                             }
                         }
@@ -367,8 +500,8 @@ Page {
                     MouseArea {
                         anchors.fill: parent
                         anchors.margins: -8
-                        enabled: !root.loggingIn
-                        onClicked: root.switchUser()
+                        enabled: !root.busy
+                        onClicked: root.backToPicker()
                     }
                 }
 

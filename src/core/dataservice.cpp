@@ -332,18 +332,30 @@ void DataService::loadUpdateInfo()
               });
 }
 
-void DataService::login(const QString &username, const QString &password)
+void DataService::login(int oficiant, const QString &pin)
 {
     QVariantMap fields;
-    fields.insert(QStringLiteral("username"), username.trimmed());
-    fields.insert(QStringLiteral("password"), password);
+    fields.insert(QStringLiteral("oficiant"), oficiant);
+    fields.insert(QStringLiteral("pin"), pin);
 
     postObject(QStringLiteral("log_in"), fields,
-               {QStringLiteral("oficiant"), QStringLiteral("name"), QStringLiteral("username")},
+               {QStringLiteral("oficiant"), QStringLiteral("name")},
                [this](const QVariantMap &obj) {
                    emit loggedIn(obj.value(QStringLiteral("oficiant")).toInt(),
-                                 obj.value(QStringLiteral("name")).toString(),
-                                 obj.value(QStringLiteral("username")).toString());
+                                 obj.value(QStringLiteral("name")).toString());
+               });
+}
+
+void DataService::setPin(int oficiant, const QString &pin)
+{
+    QVariantMap fields;
+    fields.insert(QStringLiteral("oficiant"), oficiant);
+    fields.insert(QStringLiteral("pin"), pin);
+
+    postObject(QStringLiteral("set_pin"), fields,
+               {QStringLiteral("ok")},
+               [this, oficiant](const QVariantMap &) {
+                   emit pinSet(oficiant);
                });
 }
 

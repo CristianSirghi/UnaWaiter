@@ -104,6 +104,11 @@
         <source>Sign out</source>
         <translation>Выйти</translation>
     </message>
+    <message>
+        <location line="+21"/>
+        <source>Version %1</source>
+        <translation>Версия %1</translation>
+    </message>
 </context>
 <context>
     <name>ChangeTablePicker</name>
@@ -167,14 +172,44 @@
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+246"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+118"/>
+        <source>The PINs don&apos;t match. Try again.</source>
+        <translation>PIN-коды не совпадают. Попробуйте снова.</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Enter PIN</source>
         <translation>Введите PIN-код</translation>
     </message>
     <message>
-        <location line="-151"/>
+        <location line="+1"/>
+        <source>Set your PIN</source>
+        <translation>Задайте PIN-код</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Confirm your PIN</source>
+        <translation>Подтвердите PIN-код</translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Wrong PIN</source>
         <translation>Неверный PIN-код</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>This waiter already has a PIN - enter it.</source>
+        <translation>У этого официанта уже есть PIN-код — введите его.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>This account is not an active waiter.</source>
+        <translation>Эта учётная запись не является активным официантом.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>The PIN must be 4 digits.</source>
+        <translation>PIN-код должен состоять из 4 цифр.</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -187,27 +222,34 @@
         <translation>ОК</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+37"/>
         <source>Log in</source>
         <translation>Вход</translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
-        <translation>Введите логин один раз - телефон запомнит его, дальше нужен будет только PIN-код.</translation>
+        <source>Choose your name from the list.</source>
+        <translation>Выберите своё имя из списка.</translation>
     </message>
     <message>
         <location line="+9"/>
+        <source>Search name</source>
+        <translation>Поиск имени</translation>
+    </message>
+    <message>
+        <source>Enter your username once - this phone will remember it, then you&apos;ll only need your PIN.</source>
+        <translation type="vanished">Введите логин один раз - телефон запомнит его, дальше нужен будет только PIN-код.</translation>
+    </message>
+    <message>
         <source>Username</source>
-        <translation>Логин</translation>
+        <translation type="vanished">Логин</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location line="+235"/>
         <source>Switch user</source>
         <translation>Сменить пользователя</translation>
     </message>

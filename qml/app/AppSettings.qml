@@ -10,13 +10,11 @@ QtObject {
 
     property string language: "ro"
     property string waiterName: "Waiter02"
-    // Codul real de chelner (OFICIANT din UAMenu), completat la login din
-    // uw_waiters. Folosit când creăm comenzi (dataService.createOrder).
+    // Codul real de chelner (OFICIANT din UAMenu), completat la login. E și
+    // identitatea reținută pe acest telefon: != 0 înseamnă că LoginPage sare
+    // direct la PIN pentru acest chelner; 0 = prima logare, se alege din listă.
+    // Folosit și când creăm comenzi (dataService.createOrder).
     property int waiterOficiant: 0
-    // Numele de utilizator (uw_waiters.username) reținut după prima logare -
-    // telefonul îl ține minte, apoi la login se cere doar PIN-ul. Gol = prima
-    // logare (se cere și user). Se golește din "Schimbă utilizatorul".
-    property string waiterUsername: ""
 
     // --- Server (backend PHP) ---
     // URL-ul către oracle_waiter.php. Valoare implicită vizibilă (ca la
@@ -33,7 +31,6 @@ QtObject {
         property alias language: root.language
         property alias waiterName: root.waiterName
         property alias waiterOficiant: root.waiterOficiant
-        property alias waiterUsername: root.waiterUsername
         property alias serverUrl: root.serverUrl
     }
 }
