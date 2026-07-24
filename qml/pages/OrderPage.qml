@@ -181,6 +181,18 @@ Page {
         }
     }
 
+    // Ascunde tastatura de căutare (dacă e deschisă). Chemat când chelnerul
+    // derulează lista sau apasă "+" la un produs - în ambele cazuri a terminat
+    // de tastat, iar tastatura doar ocupă ecranul. Ascunderea câmpului nu
+    // închide singură tastatura pe Android: îi luăm explicit focusul și cerem
+    // input panel-ului să dispară.
+    function dismissSearchKeyboard() {
+        if (root.searchActive && searchField.activeFocus) {
+            searchField.focus = false
+            Qt.inputMethod.hide()
+        }
+    }
+
     // Recalculează numărul de produse și totalul (părinți + adaosuri) din stări.
     // Mai robust decât actualizarea incrementală, mai ales cu adaosuri legate de produs.
     function recomputeTotals() {
@@ -848,6 +860,8 @@ Page {
                         onClicked: {
                             root.currentCategory = index
                             root.populateCategory(index)
+                            // Schimbarea grupei = alt context; pliem rezumatul.
+                            root.summaryExpanded = false
                         }
                     }
                 }
@@ -872,6 +886,8 @@ Page {
                     onClicked: {
                         root.searchActive = true
                         searchField.forceActiveFocus()
+                        // Deschidem căutarea = alt context; pliem rezumatul.
+                        root.summaryExpanded = false
                     }
                 }
             }
@@ -963,12 +979,37 @@ Page {
 
         Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
 
-        // Lista de produse
-        ListView {
+        // Lista de produse (+ mesaj când căutarea nu găsește niciun produs)
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            // Stare goală: căutare activă, cu text tastat, dar zero rezultate -
+            // ca să știe chelnerul clar că produsul nu există în meniu.
+            Label {
+                anchors.centerIn: parent
+                width: parent.width - 48
+                visible: root.searchActive && root.searchQuery.trim() !== "" && productsModel.count === 0
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                text: qsTr("No product found for “%1”.").arg(root.searchQuery.trim())
+                font.pixelSize: 15 * Theme.fontScale
+                color: Theme.textSecondary
+            }
+
+        ListView {
+            anchors.fill: parent
             clip: true
             model: ListModel { id: productsModel }
+
+            // Când chelnerul începe să deruleze lista (ca să vadă mai multe
+            // produse), ascundem tastatura ȘI pliem rezumatul "Comandă curentă"
+            // - amândouă eliberează ecranul pentru răsfoit. onMovementStarted
+            // prinde atât tragerea cu degetul, cât și flick-ul.
+            onMovementStarted: {
+                root.dismissSearchKeyboard()
+                root.summaryExpanded = false
+            }
 
             delegate: Rectangle {
                 width: ListView.view.width
@@ -1086,7 +1127,15 @@ Page {
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: root.adjustQty(name, 1)
+                            onClicked: {
+                                // Am găsit produsul și l-am adăugat - ascundem
+                                // tastatura (dacă mai era deschisă din căutare)
+                                // și deschidem rezumatul "Comandă curentă", ca
+                                // chelnerul să vadă pe loc ce a adăugat.
+                                root.dismissSearchKeyboard()
+                                root.adjustQty(name, 1)
+                                root.summaryExpanded = true
+                            }
                         }
                     }
                 }
@@ -1099,6 +1148,7 @@ Page {
                     color: Theme.border
                 }
             }
+        }
         }
 
         // Panou "Comandă curentă" — rezumatul produselor deja selectate, ca
@@ -1218,6 +1268,10 @@ Page {
                     Layout.preferredHeight: Math.min(selectedModel.count, root.summaryMaxRows) * 44
                     clip: true
                     model: selectedModel
+
+                    // Ca la lista de produse: la derularea rezumatului comenzii
+                    // ascundem tastatura (dacă mai era deschisă din căutare).
+                    onMovementStarted: root.dismissSearchKeyboard()
 
                     delegate: Rectangle {
                         width: ListView.view.width

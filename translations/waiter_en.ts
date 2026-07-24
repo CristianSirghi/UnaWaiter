@@ -250,28 +250,28 @@
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+223"/>
+        <location line="+235"/>
         <location line="+80"/>
         <location line="+224"/>
         <location line="+106"/>
-        <location line="+649"/>
+        <location line="+691"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-1058"/>
+        <location line="-1100"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
         <location line="+434"/>
-        <location line="+487"/>
+        <location line="+529"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-821"/>
+        <location line="-863"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
@@ -297,12 +297,17 @@
         <translation>Couldn&apos;t move the order right now - please try again.</translation>
     </message>
     <message>
-        <location line="+512"/>
+        <location line="+516"/>
         <source>Search products…</source>
         <translation>Search products…</translation>
     </message>
     <message>
-        <location line="+100"/>
+        <location line="+70"/>
+        <source>No product found for “%1”.</source>
+        <translation>No product found for “%1”.</translation>
+    </message>
+    <message>
+        <location line="+55"/>
         <source>%1  ·  %2 MDL</source>
         <translation>%1  ·  %2 MDL</translation>
     </message>
@@ -317,7 +322,7 @@
         <translation>Add-ons</translation>
     </message>
     <message>
-        <location line="+158"/>
+        <location line="+167"/>
         <source>%1 products selected</source>
         <translation>%1 products selected</translation>
     </message>
@@ -327,7 +332,7 @@
         <translation>No products selected</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+165"/>
         <source>Sending…</source>
         <translation>Sending…</translation>
     </message>
