@@ -16,7 +16,7 @@ import android.os.Build;
  * ecranul de instalare. Nu necesita FileProvider (DownloadManager ofera
  * direct un content:// URI valid pentru instalare).
  *
- * Apelat din C++ (UpdateManager) prin JNI. Portat din D:\MMOffline.
+ * Apelat din C++ (UpdateManager) prin JNI.
  */
 public class UpdateHelper {
 

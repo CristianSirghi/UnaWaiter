@@ -258,5 +258,16 @@ Drawer {
                 }
             }
         }
+
+        // ----- Versiunea aplicatiei (informativ) -----
+        Label {
+            Layout.fillWidth: true
+            Layout.topMargin: 4
+            horizontalAlignment: Text.AlignHCenter
+            visible: appUpdateManager.currentVersion !== ""
+            text: qsTr("Version %1").arg(appUpdateManager.currentVersion)
+            font.pixelSize: 12 * Theme.fontScale
+            color: Theme.textSecondary
+        }
     }
 }

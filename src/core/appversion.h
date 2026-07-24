@@ -6,7 +6,7 @@
 // this exact line (regex) to fill in AndroidManifest.xml's versionName /
 // versionCode at build time (see D:\MMOffline for the same pattern) - so bump
 // the version by editing ONLY this line, nowhere else.
-const char VERSION[] = "0.1";
+const char VERSION[] = "1.0";
 
 inline QString appVersionText()
 {
