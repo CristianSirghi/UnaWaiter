@@ -19,10 +19,14 @@ QtObject {
     property ListModel ordersModel: ListModel {}
     property int nextOrderNo: 441
 
-    // Produsele comandate per masă (cheie = tableKey), separat de ordersModel
-    // ca să putem reîncărca o comandă existentă în OrderPage la editare.
+    // Produsele comandate per masă: { tableKey: { codProdus: cantitate } },
+    // separat de ordersModel ca să putem reîncărca o comandă existentă în
+    // OrderPage la editare. Cheia interioară e COD-ul (vms_bliuda.cod), nu
+    // numele - vezi productByCode din OrderPage.qml pentru motiv. Intrările
+    // salvate în formatul vechi (pe nume) sunt convertite la deschidere, de
+    // OrderPage.migrateLegacyQty.
     property var itemsByKey: ({})
-    // Adaosurile per masă: { tableKey: { numeProdus: { numeAdaos: cantitate } } }.
+    // Adaosurile per masă: { tableKey: { codProdus: { numeAdaos: cantitate } } }.
     property var addonsByKey: ({})
     // Numărul real de comandă din Oracle (nr_comand) per masă - 0/absent dacă
     // masa are doar o comandă locală veche, dinainte ca acest tracking să
@@ -117,6 +121,10 @@ QtObject {
         return -1
     }
 
+    // ATENȚIE: `itemsMap` e cheiat pe COD de produs, deci textul rezultat e
+    // "2132 x2", nu "Calmari uscati x2". Câmpul `preview` din ordersModel nu e
+    // citit nicăieri (TablesPage își ia PREVIEW direct din Oracle), altfel ar
+    // trebui rezolvate codurile prin meniu înainte de afișare.
     function buildPreview(itemsMap) {
         var parts = []
         for (var name in itemsMap) {

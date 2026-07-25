@@ -12,13 +12,18 @@ import "../icons"
 // Utilizare:
 //   AddonSheet {
 //       id: addonSheet
-//       onAddonAdjusted: page.adjustAddon(productName, addonName, delta)
+//       onAddonAdjusted: page.adjustAddon(addonSheet.productCode, addonName, delta)
 //   }
 //   ...
-//   addonSheet.openWith("Blinie cu somon", [{ name: "Smântână", price: 8, qty: 0 }, ...])
+//   addonSheet.openWith(1234, "Blinie cu somon", [{ name: "Smântână", price: 8, qty: 0 }, ...])
 Popup {
     id: root
 
+    // Codul produsului-părinte (vms_bliuda.cod) - cheia sub care pagina ține
+    // adaosurile. Numele e doar pentru afișare: nu e unic în meniu, deci nu
+    // poate identifica produsul (vezi comentariul de la productByCode din
+    // OrderPage.qml).
+    property int productCode: 0
     property string productName: ""
 
     // Emis când chelnerul apasă +/- pe un adaos (delta = +1 / -1).
@@ -30,7 +35,8 @@ Popup {
 
     // Deschide sheet-ul pentru un produs, cu adaosurile lui și cantitățile curente.
     // `addons` = listă de { name, price, qty }.
-    function openWith(name, addons) {
+    function openWith(code, name, addons) {
+        root.productCode = code
         root.productName = name
         addonModel.clear()
         for (var i = 0; i < addons.length; ++i)

@@ -19,10 +19,24 @@ Page {
     // într-un pas separat; până atunci UI-ul de adaosuri rămâne inactiv de la sine
     // (hasAddons devine false când produsul n-are câmpul `addons`).
     property var menuData: []
-    // Codul de produs (bliuda) per nume — necesar la trimiterea comenzii (createOrder).
-    // Deocamdată tot codul cheamă produsele după nume; codeOf face puntea nume→cod
-    // pentru pasul de trimitere care urmează.
-    property var codeOf: ({})
+    // Produsele indexate după COD (vms_bliuda.cod), NU după nume - cheia
+    // folosită peste tot în starea comenzii. Numele nu e unic: pe baza de test
+    // "Varza" există cu cod 2157 ȘI 2614, ambele în grupa 2 (la fel
+    // "Inghetata", "Servicii de livrare"). Cu indexare după nume, harta
+    // nume→cod păstra ultimul cod citit, deci un tap pe rândul unui produs
+    // trimitea la bucătărie CELĂLALT produs cu același nume. În plus, numele
+    // se schimbă în timp (vmdb_comenzd.clcbliudat e un instantaneu de la
+    // momentul comenzii: "Calmar uscat" în linii vs "Calmari uscati" în meniu
+    // azi, pentru același cod 2132), deci o comandă existentă nu se putea
+    // reconcilia cu meniul curent. Codul e stabil: get_menu îl întoarce ca
+    // COD, get_order_lines ca BLIUDA, iar add_order_line îl primește ca
+    // p_product - aceeași valoare pe tot lanțul.
+    // Formă: { cod: { name, unit, price, cod } } (aceleași obiecte ca menuData).
+    property var productByCode: ({})
+    // Nume→cod, folosit EXCLUSIV la migrarea comenzilor locale vechi salvate
+    // pe nume (vezi migrateLegacyQty). Ambiguu prin natura lui - de-aceea nu
+    // are voie să fie folosit nicăieri altundeva.
+    property var codeOfName: ({})
     // true după ce meniul a fost încărcat și structurat; până atunci arătăm "se încarcă".
     property bool menuReady: false
     property string loadError: ""
@@ -43,9 +57,9 @@ Page {
     property string originalZone: ""
     property int originalTableNumber: 0
 
-    // Cantități per produs (cheie = nume, persistă la schimbarea categoriei).
+    // Cantități per produs (cheie = COD, persistă la schimbarea categoriei).
     property var qtyStore: ({})
-    // Adaosuri alese, grupate pe produsul-părinte: { numeProdus: { numeAdaos: cantitate } }.
+    // Adaosuri alese, grupate pe produsul-părinte: { codProdus: { numeAdaos: cantitate } }.
     property var addonStore: ({})
     property int orderCount: 0
     property real orderTotal: 0
@@ -87,7 +101,7 @@ Page {
     // diferă de asta la trimitere, înseamnă că a fost schimbat în acest
     // ecran și trebuie trimis prin update_guest_count.
     property int sentGuestCount: 1
-    // Cantitățile deja confirmate în Oracle (per produs) - pragul sub care
+    // Cantitățile deja confirmate în Oracle (per COD de produs) - pragul sub care
     // butonul "-" nu poate coborî, pentru că nu avem cum să ștergem o linie
     // deja trimisă la bucătărie din acest ecran (add_order_line doar adaugă).
     property var sentQtyStore: ({})
@@ -164,12 +178,26 @@ Page {
     }
 
     // Câte adaosuri (bucăți) sunt alese pentru un produs — pentru marcajul din rând.
-    function addonCountFor(name) {
-        var group = addonStore[name]
+    function addonCountFor(code) {
+        var group = addonStore[code]
         if (!group) return 0
         var n = 0
         for (var a in group) n += group[a]
         return n
+    }
+
+    // Rândul afișat pentru un produs din meniu - aceeași formă în lista de
+    // categorie și în rezultatele căutării.
+    function productRow(p) {
+        return {
+            code: p.cod,
+            name: p.name,
+            unit: p.unit,
+            price: p.price,
+            qty: root.qtyStore[p.cod] ? root.qtyStore[p.cod] : 0,
+            hasAddons: p.addons !== undefined && p.addons.length > 0,
+            addonCount: root.addonCountFor(p.cod)
+        }
     }
 
     function populateCategory(i) {
@@ -177,16 +205,8 @@ Page {
         if (!menuData || i < 0 || i >= menuData.length)
             return
         var items = menuData[i].items
-        for (var k = 0; k < items.length; ++k) {
-            productsModel.append({
-                name: items[k].name,
-                unit: items[k].unit,
-                price: items[k].price,
-                qty: root.qtyStore[items[k].name] ? root.qtyStore[items[k].name] : 0,
-                hasAddons: items[k].addons !== undefined && items[k].addons.length > 0,
-                addonCount: root.addonCountFor(items[k].name)
-            })
-        }
+        for (var k = 0; k < items.length; ++k)
+            productsModel.append(root.productRow(items[k]))
     }
 
     // Căutare peste tot meniul (toate categoriile), nu doar cea selectată —
@@ -200,14 +220,7 @@ Page {
             for (var k = 0; k < items.length; ++k) {
                 var it = items[k]
                 if (it.name.toLowerCase().indexOf(q) === -1) continue
-                productsModel.append({
-                    name: it.name,
-                    unit: it.unit,
-                    price: it.price,
-                    qty: root.qtyStore[it.name] ? root.qtyStore[it.name] : 0,
-                    hasAddons: it.addons !== undefined && it.addons.length > 0,
-                    addonCount: root.addonCountFor(it.name)
-                })
+                productsModel.append(root.productRow(it))
             }
         }
     }
@@ -226,23 +239,26 @@ Page {
 
     // Recalculează numărul de produse și totalul (părinți + adaosuri) din stări.
     // Mai robust decât actualizarea incrementală, mai ales cu adaosuri legate de produs.
+    //
+    // Parcurge qtyStore, NU meniul: un produs comandat care nu se mai regăsește
+    // în meniul curent trebuie să intre oricum în total. Înainte, parcurgând
+    // meniul, o astfel de linie era sărită tăcut - chelnerul vedea un total mai
+    // mic decât ce era efectiv pe comandă în Oracle. Prețul unor asemenea
+    // produse vine din chiar răspunsul get_order_lines (vezi applyServerLines).
     function recomputeTotals() {
         var count = 0
         var total = 0
-        for (var ci = 0; ci < menuData.length; ++ci) {
-            var items = menuData[ci].items
-            for (var ii = 0; ii < items.length; ++ii) {
-                var p = items[ii]
-                var pq = qtyStore[p.name] ? qtyStore[p.name] : 0
-                if (pq <= 0) continue
-                count += pq
-                total += pq * p.price
-                if (p.addons) {
-                    for (var ai = 0; ai < p.addons.length; ++ai) {
-                        var a = p.addons[ai]
-                        var aq = (addonStore[p.name] && addonStore[p.name][a.name]) ? addonStore[p.name][a.name] : 0
-                        total += aq * a.price
-                    }
+        for (var code in qtyStore) {
+            var pq = qtyStore[code]
+            if (pq <= 0) continue
+            var p = productByCode[code]
+            count += pq
+            total += pq * (p ? p.price : 0)
+            if (p && p.addons) {
+                for (var ai = 0; ai < p.addons.length; ++ai) {
+                    var a = p.addons[ai]
+                    var aq = (addonStore[code] && addonStore[code][a.name]) ? addonStore[code][a.name] : 0
+                    total += aq * a.price
                 }
             }
         }
@@ -252,32 +268,59 @@ Page {
 
     // Reconstruiește lista pentru panoul "Comandă curentă": fiecare produs urmat de
     // adaosurile lui (rânduri-copil, marcate cu isAddon pentru indentare).
+    // Ordinea urmează meniul (categorie, apoi produs), ca rezumatul să nu se
+    // rearanjeze aleatoriu. Produsele comandate care nu mai sunt în meniu vin
+    // la final, în loc să dispară din listă cum se întâmpla înainte.
     function rebuildSelectedModel() {
         selectedModel.clear()
+        var shown = ({})
+
         for (var ci = 0; ci < menuData.length; ++ci) {
             var items = menuData[ci].items
             for (var ii = 0; ii < items.length; ++ii) {
-                var p = items[ii]
-                var pq = qtyStore[p.name] ? qtyStore[p.name] : 0
-                if (pq <= 0) continue
-                selectedModel.append({ isAddon: false, parentName: "", name: p.name, qty: pq, lineTotal: pq * p.price })
-                if (p.addons) {
-                    for (var ai = 0; ai < p.addons.length; ++ai) {
-                        var a = p.addons[ai]
-                        var aq = (addonStore[p.name] && addonStore[p.name][a.name]) ? addonStore[p.name][a.name] : 0
-                        if (aq > 0)
-                            selectedModel.append({ isAddon: true, parentName: p.name, name: a.name, qty: aq, lineTotal: aq * a.price })
-                    }
-                }
+                root.appendSelectedRows(items[ii].cod)
+                shown[items[ii].cod] = true
             }
+        }
+
+        for (var code in qtyStore) {
+            if (!shown[code])
+                root.appendSelectedRows(code)
+        }
+    }
+
+    // Rândul unui produs în rezumat, urmat de rândurile-copil ale adaosurilor lui.
+    function appendSelectedRows(code) {
+        var pq = qtyStore[code] ? qtyStore[code] : 0
+        if (pq <= 0)
+            return
+
+        var p = productByCode[code]
+        var price = p ? p.price : 0
+        selectedModel.append({
+            isAddon: false, parentCode: 0, code: parseInt(code),
+            name: p ? p.name : qsTr("Product %1").arg(code),
+            qty: pq, lineTotal: pq * price
+        })
+
+        if (!p || !p.addons)
+            return
+        for (var ai = 0; ai < p.addons.length; ++ai) {
+            var a = p.addons[ai]
+            var aq = (addonStore[code] && addonStore[code][a.name]) ? addonStore[code][a.name] : 0
+            if (aq > 0)
+                selectedModel.append({
+                    isAddon: true, parentCode: parseInt(code), code: 0,
+                    name: a.name, qty: aq, lineTotal: aq * a.price
+                })
         }
     }
 
     // Actualizează marcajul de adaosuri dintr-un rând de produs (dacă e vizibil acum).
-    function refreshRowAddonCount(name) {
+    function refreshRowAddonCount(code) {
         for (var i = 0; i < productsModel.count; ++i) {
-            if (productsModel.get(i).name === name) {
-                productsModel.setProperty(i, "addonCount", addonCountFor(name))
+            if (productsModel.get(i).code === code) {
+                productsModel.setProperty(i, "addonCount", addonCountFor(code))
                 break
             }
         }
@@ -286,27 +329,27 @@ Page {
     // Cantitatea minimă permisă pentru un produs - ce a fost deja confirmat în
     // Oracle, dacă edităm o comandă reală (sub asta, "-" n-are ce face, vezi
     // sentQtyStore mai sus).
-    function floorFor(name) {
-        return (root.sentNrComand > 0 && root.sentQtyStore[name]) ? root.sentQtyStore[name] : 0
+    function floorFor(code) {
+        return (root.sentNrComand > 0 && root.sentQtyStore[code]) ? root.sentQtyStore[code] : 0
     }
 
     // Modifică cantitatea unui produs. La 0, îi eliminăm și adaosurile.
-    function adjustQty(name, delta) {
-        var oldQty = qtyStore[name] ? qtyStore[name] : 0
+    function adjustQty(code, delta) {
+        var oldQty = qtyStore[code] ? qtyStore[code] : 0
         var newQty = oldQty + delta
-        var floor = root.floorFor(name)
+        var floor = root.floorFor(code)
         if (newQty < floor) newQty = floor
         if (newQty < 0) newQty = 0
         if (newQty === oldQty) return
 
-        qtyStore[name] = newQty
-        if (newQty === 0 && addonStore[name])
-            delete addonStore[name]
+        qtyStore[code] = newQty
+        if (newQty === 0 && addonStore[code])
+            delete addonStore[code]
 
         for (var i = 0; i < productsModel.count; ++i) {
-            if (productsModel.get(i).name === name) {
+            if (productsModel.get(i).code === code) {
                 productsModel.setProperty(i, "qty", newQty)
-                productsModel.setProperty(i, "addonCount", addonCountFor(name))
+                productsModel.setProperty(i, "addonCount", addonCountFor(code))
                 break
             }
         }
@@ -316,38 +359,33 @@ Page {
     }
 
     // Construiește lista de adaosuri a unui produs (cu cantitățile curente) pentru AddonSheet.
-    function addonListFor(productName) {
+    function addonListFor(code) {
         var list = []
-        for (var ci = 0; ci < menuData.length; ++ci) {
-            var items = menuData[ci].items
-            for (var ii = 0; ii < items.length; ++ii) {
-                if (items[ii].name === productName && items[ii].addons) {
-                    var addons = items[ii].addons
-                    for (var ai = 0; ai < addons.length; ++ai) {
-                        var a = addons[ai]
-                        var cur = (addonStore[productName] && addonStore[productName][a.name])
-                            ? addonStore[productName][a.name] : 0
-                        list.push({ name: a.name, price: a.price, qty: cur })
-                    }
-                }
-            }
+        var p = productByCode[code]
+        if (!p || !p.addons)
+            return list
+        for (var ai = 0; ai < p.addons.length; ++ai) {
+            var a = p.addons[ai]
+            var cur = (addonStore[code] && addonStore[code][a.name])
+                ? addonStore[code][a.name] : 0
+            list.push({ name: a.name, price: a.price, qty: cur })
         }
         return list
     }
 
     // Modifică cantitatea unui adaos legat de un produs (necesită produsul-părinte prezent).
-    function adjustAddon(parent, addonName, delta) {
-        if ((qtyStore[parent] ? qtyStore[parent] : 0) <= 0) return
-        if (!addonStore[parent]) addonStore[parent] = {}
+    function adjustAddon(parentCode, addonName, delta) {
+        if ((qtyStore[parentCode] ? qtyStore[parentCode] : 0) <= 0) return
+        if (!addonStore[parentCode]) addonStore[parentCode] = {}
 
-        var oldQty = addonStore[parent][addonName] ? addonStore[parent][addonName] : 0
+        var oldQty = addonStore[parentCode][addonName] ? addonStore[parentCode][addonName] : 0
         var newQty = oldQty + delta
         if (newQty < 0) newQty = 0
         if (newQty === oldQty) return
 
-        addonStore[parent][addonName] = newQty
+        addonStore[parentCode][addonName] = newQty
 
-        refreshRowAddonCount(parent)
+        refreshRowAddonCount(parentCode)
         recomputeTotals()
         rebuildSelectedModel()
     }
@@ -356,12 +394,15 @@ Page {
     // cantitate). Adaosurile nu sunt încă populate în menuData (vezi comentariul
     // de la `menuData` mai sus), deci nu apar aici - de adăugat submit-ul în doi
     // timpi (parentNrord din răspunsul liniilor-părinte) când vin și adaosurile.
+    // Cheia din qtyStore E codul trimis (p_product), deci nu mai există niciun
+    // pas nume→cod care să poată alege alt produs cu același nume.
     function buildOrderLines() {
         var lines = []
-        for (var name in root.qtyStore) {
-            var qty = root.qtyStore[name]
-            if (qty > 0 && root.codeOf[name] !== undefined)
-                lines.push({ product: root.codeOf[name], qty: qty })
+        for (var code in root.qtyStore) {
+            var qty = root.qtyStore[code]
+            var c = parseInt(code)
+            if (qty > 0 && !isNaN(c) && c > 0)
+                lines.push({ product: c, qty: qty })
         }
         return lines
     }
@@ -373,12 +414,13 @@ Page {
     // cantitatea totală.
     function buildDeltaLines() {
         var lines = []
-        for (var name in root.qtyStore) {
-            var qty = root.qtyStore[name]
-            var floor = root.sentQtyStore[name] ? root.sentQtyStore[name] : 0
+        for (var code in root.qtyStore) {
+            var qty = root.qtyStore[code]
+            var floor = root.sentQtyStore[code] ? root.sentQtyStore[code] : 0
             var delta = qty - floor
-            if (delta > 0 && root.codeOf[name] !== undefined)
-                lines.push({ product: root.codeOf[name], qty: delta })
+            var c = parseInt(code)
+            if (delta > 0 && !isNaN(c) && c > 0)
+                lines.push({ product: c, qty: delta })
         }
         return lines
     }
@@ -535,22 +577,27 @@ Page {
 
     function buildMenuData(cats, items) {
         var byGrp = ({})
-        var codeMap = ({})
+        var byCode = ({})
+        var nameMap = ({})
 
         for (var i = 0; i < items.length; ++i) {
             var it = items[i]
             var grp = parseInt(it.GRP)
-            var nm = it.DENUMIREA
+            var cod = parseInt(it.COD)
+            if (isNaN(cod))
+                continue
+            var nm = it.DENUMIREA ? String(it.DENUMIREA) : ""
             var prod = {
                 name: nm,
                 unit: it.UM ? it.UM : "",
                 price: parseFloat(it.PRET),
-                cod: parseInt(it.COD)
+                cod: cod
             }
             if (!byGrp[grp])
                 byGrp[grp] = []
             byGrp[grp].push(prod)
-            codeMap[nm] = prod.cod
+            byCode[cod] = prod
+            nameMap[nm] = cod
         }
 
         var built = []
@@ -563,7 +610,8 @@ Page {
         }
 
         root.menuData = built
-        root.codeOf = codeMap
+        root.productByCode = byCode
+        root.codeOfName = nameMap
     }
 
     // Reîncearcă încărcarea meniului după o eroare (butonul din overlay) - fără
@@ -617,14 +665,8 @@ Page {
             root.guestCount = OrdersStore.guestsFor(root.zone, root.tableNumber)
             root.sentGuestCount = root.guestCount
 
-            var savedAddons = OrdersStore.addonsFor(root.zone, root.tableNumber)
-            var loadedAddons = {}
-            for (var pn in savedAddons) {
-                loadedAddons[pn] = {}
-                for (var an in savedAddons[pn])
-                    loadedAddons[pn][an] = savedAddons[pn][an]
-            }
-            root.addonStore = loadedAddons
+            root.addonStore = root.migrateLegacyAddons(
+                OrdersStore.addonsFor(root.zone, root.tableNumber))
 
             var nrComand = OrdersStore.nrComandFor(root.zone, root.tableNumber)
             if (nrComand > 0) {
@@ -634,10 +676,7 @@ Page {
             } else {
                 // Comandă locală veche, fără nr_comand reținut - păstrăm
                 // comportamentul dinainte (doar cache local, fără sincronizare).
-                var loadedQty = {}
-                for (var name2 in existing)
-                    loadedQty[name2] = existing[name2]
-                root.qtyStore = loadedQty
+                root.qtyStore = root.migrateLegacyQty(existing)
                 recomputeTotals()
             }
         }
@@ -648,17 +687,77 @@ Page {
         rebuildSelectedModel()
     }
 
+    // Comenzile locale salvate ÎNAINTE de trecerea pe cod aveau numele
+    // produsului drept cheie. Le convertim o singură dată, la deschidere. Ce nu
+    // se mai regăsește în meniu se pierde - best-effort intenționat: un cod
+    // ghicit ar însemna alt produs trimis la bucătărie. Contează doar pentru
+    // comenzile locale fără nr_comand; cele reale sunt oricum rescrise din
+    // Oracle de applyServerLines de mai jos.
+    function migrateLegacyQty(map) {
+        var out = ({})
+        for (var key in map) {
+            var code = root.codeForStoredKey(key)
+            if (code !== undefined)
+                out[code] = map[key]
+        }
+        return out
+    }
+
+    function migrateLegacyAddons(map) {
+        var out = ({})
+        for (var key in map) {
+            var code = root.codeForStoredKey(key)
+            if (code === undefined)
+                continue
+            out[code] = ({})
+            for (var an in map[key])
+                out[code][an] = map[key][an]
+        }
+        return out
+    }
+
+    // O cheie salvată e fie deja un cod (format nou), fie un nume de produs
+    // (format vechi). Numele de produse nu sunt numere întregi, deci testul
+    // e lipsit de ambiguitate în practică.
+    function codeForStoredKey(key) {
+        var asCode = parseInt(key)
+        if (!isNaN(asCode) && String(asCode) === String(key))
+            return asCode
+        return root.codeOfName[key]
+    }
+
     // Rulează când sosesc liniile reale ale comenzii (get_order_lines) -
     // devin noul prag (sentQtyStore) și punctul de plecare pentru editare,
     // înlocuind orice presupunere locală anterioară.
+    //
+    // Cheia e BLIUDA (codul), nu CLCBLIUDAT (numele): numele din linie e un
+    // instantaneu de la momentul comenzii și poate să nu mai corespundă
+    // meniului de azi - pe test, codul 2132 e "Calmar uscat" în linii vechi și
+    // "Calmari uscati" în meniu. Pe nume, o astfel de linie nu se regăsea în
+    // meniu, deci dispărea din rezumat și din total.
     function applyServerLines(rows) {
         var qty = {}
         for (var i = 0; i < rows.length; ++i) {
             var r = rows[i]
-            var nm = r.CLCBLIUDAT ? String(r.CLCBLIUDAT).trim() : ""
-            if (nm === "") continue
+            var code = parseInt(r.BLIUDA)
+            if (isNaN(code) || code <= 0) continue
             var q = parseFloat(r.CANT)
-            qty[nm] = (qty[nm] ? qty[nm] : 0) + q
+            if (isNaN(q)) continue
+            qty[code] = (qty[code] ? qty[code] : 0) + q
+
+            // Produs care chiar nu mai e în meniul curent: îl înregistrăm din
+            // însuși răspunsul Oracle, ca linia să rămână vizibilă și numărată.
+            // clcbliudat/clcprett sunt numele și prețul de pe bon.
+            if (!root.productByCode[code]) {
+                var pr = parseFloat(r.CLCPRETT)
+                root.productByCode[code] = {
+                    name: r.CLCBLIUDAT ? String(r.CLCBLIUDAT).trim()
+                                       : qsTr("Product %1").arg(code),
+                    unit: r.CLCUMT ? String(r.CLCUMT).trim() : "",
+                    price: isNaN(pr) ? 0 : pr,
+                    cod: code
+                }
+            }
         }
         root.sentQtyStore = qty
         root.qtyStore = JSON.parse(JSON.stringify(qty))
@@ -1135,7 +1234,7 @@ Page {
 
                             MouseArea {
                                 anchors.fill: parent
-                                onClicked: addonSheet.openWith(name, root.addonListFor(name))
+                                onClicked: addonSheet.openWith(code, name, root.addonListFor(code))
                             }
                         }
                     }
@@ -1160,15 +1259,15 @@ Page {
                         Layout.alignment: Qt.AlignVCenter
                         width: 34; height: 34; radius: 17
                         color: Theme.keyBackground
-                        opacity: qty > root.floorFor(name) ? 1 : 0.35
+                        opacity: qty > root.floorFor(code) ? 1 : 0.35
                         Icons.IconMinus {
                             anchors.centerIn: parent
                             color: Theme.textPrimary
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: qty > root.floorFor(name)
-                            onClicked: root.adjustQty(name, -1)
+                            enabled: qty > root.floorFor(code)
+                            onClicked: root.adjustQty(code, -1)
                         }
                     }
 
@@ -1189,7 +1288,7 @@ Page {
                                 // și deschidem rezumatul "Comandă curentă", ca
                                 // chelnerul să vadă pe loc ce a adăugat.
                                 root.dismissSearchKeyboard()
-                                root.adjustQty(name, 1)
+                                root.adjustQty(code, 1)
                                 root.summaryExpanded = true
                             }
                         }
@@ -1360,12 +1459,12 @@ Page {
                             Rectangle {
                                 width: 26; height: 26; radius: 13
                                 color: Theme.keyBackground
-                                opacity: (isAddon || qty > root.floorFor(name)) ? 1 : 0.35
+                                opacity: (isAddon || qty > root.floorFor(code)) ? 1 : 0.35
                                 Icons.IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
                                 MouseArea {
                                     anchors.fill: parent
-                                    enabled: isAddon || qty > root.floorFor(name)
-                                    onClicked: isAddon ? root.adjustAddon(parentName, name, -1) : root.adjustQty(name, -1)
+                                    enabled: isAddon || qty > root.floorFor(code)
+                                    onClicked: isAddon ? root.adjustAddon(parentCode, name, -1) : root.adjustQty(code, -1)
                                 }
                             }
 
@@ -1383,7 +1482,7 @@ Page {
                                 Icons.IconPlus { anchors.centerIn: parent; color: "white" }
                                 MouseArea {
                                     anchors.fill: parent
-                                    onClicked: isAddon ? root.adjustAddon(parentName, name, 1) : root.adjustQty(name, 1)
+                                    onClicked: isAddon ? root.adjustAddon(parentCode, name, 1) : root.adjustQty(code, 1)
                                 }
                             }
 
@@ -1547,7 +1646,7 @@ Page {
     // Sheet de jos pentru alegerea adaosurilor unui produs (vezi components/AddonSheet.qml).
     Components.AddonSheet {
         id: addonSheet
-        onAddonAdjusted: root.adjustAddon(addonSheet.productName, addonName, delta)
+        onAddonAdjusted: root.adjustAddon(addonSheet.productCode, addonName, delta)
     }
 
     // Sheet de jos pentru mutarea comenzii pe altă masă/zonă (vezi
