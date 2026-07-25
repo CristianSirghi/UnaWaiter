@@ -34,11 +34,18 @@ ApplicationWindow {
     // naviga înapoi la LoginPage - tehnic corect, dar arată ca o deconectare
     // bruscă, fără nicio întrebare. Acolo arătăm aceeași confirmare "Sign
     // out?" ca din meniul hamburger, în loc să navigăm silențios.
+    // O pagină care are ceva de pierdut la ieșire (ex. OrderPage, cu o comandă
+    // în lucru netrimisă) expune `requestBack()` și decide singură dacă cere
+    // confirmare sau iese direct. Fără cârligul ăsta, butonul de sistem ocolea
+    // confirmarea pe care butonul din antet o afișa deja.
     onClosing: function(close) {
         if (!appWindow.isDesktopPlatform && stackView.depth > 1) {
             close.accepted = false
             if (stackView.currentItem === appWindow.tablesPage)
                 appWindow.tablesPage.confirmSignOut()
+            else if (stackView.currentItem
+                     && typeof stackView.currentItem.requestBack === "function")
+                stackView.currentItem.requestBack()
             else
                 stackView.pop()
         }
@@ -69,8 +76,15 @@ ApplicationWindow {
         target: dataService
 
         function onUpdateInfoUrlChanged() {
-            if (appWindow.startupCheckPending)
-                appUpdateManager.checkForUpdate(dataService.updateInfoUrl)
+            if (!appWindow.startupCheckPending)
+                return
+            // Dacă verificarea n-a pornit deloc (altă verificare în curs, URL
+            // gol), nu va veni niciun semnal care să stingă steagul - îl
+            // stingem aici. Fără asta rămânea blocat pe true, iar următoarea
+            // verificare manuală din UpdatePage deschidea și dialogul
+            // obligatoriu de pornire peste ea.
+            if (!appUpdateManager.checkForUpdate(dataService.updateInfoUrl))
+                appWindow.startupCheckPending = false
         }
 
         function onRequestFailed(command, error) {

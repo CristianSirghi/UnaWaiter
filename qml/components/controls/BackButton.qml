@@ -12,22 +12,32 @@ Item {
     implicitWidth: 24
     implicitHeight: 24
 
-    Rectangle {
-        x: 6; y: root.height / 2 - height / 2
-        width: 12; height: 2.4; radius: 1.2
-        color: root.color
-        transformOrigin: Item.Left
-        rotation: -35
-    }
-    Rectangle {
-        x: 6; y: root.height / 2 - height / 2
-        width: 12; height: 2.4; radius: 1.2
-        color: root.color
-        transformOrigin: Item.Left
-        rotation: 35
+    // Feedback la atingere pe DESEN, nu un voal peste zona de atingere: aceasta
+    // e extinsă cu 10px în afara săgeții, deci un voal ar apărea ca un pătrat
+    // vizibil mai mare decât iconița.
+    Item {
+        anchors.fill: parent
+        opacity: touchArea.pressed ? 0.45 : 1
+        Behavior on opacity { NumberAnimation { duration: touchArea.pressed ? 0 : 140 } }
+
+        Rectangle {
+            x: 6; y: root.height / 2 - height / 2
+            width: 12; height: 2.4; radius: 1.2
+            color: root.color
+            transformOrigin: Item.Left
+            rotation: -35
+        }
+        Rectangle {
+            x: 6; y: root.height / 2 - height / 2
+            width: 12; height: 2.4; radius: 1.2
+            color: root.color
+            transformOrigin: Item.Left
+            rotation: 35
+        }
     }
 
     MouseArea {
+        id: touchArea
         anchors.fill: parent
         anchors.margins: -10
         onClicked: root.clicked()

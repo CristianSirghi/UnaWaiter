@@ -15,6 +15,23 @@
 // keyField = numele câmpului care identifică unic un rând (ex. "tableKey").
 
 function sync(model, items, keyField) {
+    // Sincronizarea pe loc are sens DOAR dacă fiecare rând are o cheie proprie
+    // și unică. Fără garanția asta, "rândul ăsta mai există?" nu se poate
+    // răspunde: cu chei `undefined` peste tot, orice rând se potrivește cu
+    // oricare, nimic nu se mai șterge, iar rândurile în plus rămân în coadă
+    // (bug real: după ștergerea unei mese, lista arăta ultima masă de două-trei
+    // ori - `buildOrders` construia rândurile fără câmpul cerut drept cheie).
+    // Când cheia nu e utilizabilă, ne întoarcem la reconstrucția completă: se
+    // pierde poziția de derulare, dar lista rămâne CORECTĂ.
+    if (!_keysUsable(items, keyField)) {
+        console.warn("ListSync: cheia '" + keyField
+                     + "' lipsește sau se repetă - reconstruiesc lista")
+        model.clear()
+        for (var f = 0; f < items.length; ++f)
+            model.append(items[f])
+        return
+    }
+
     // 1. Scoate rândurile care nu mai există în noua listă (de la coadă spre
     //    început, ca indicii rămași să nu se deplaseze sub noi).
     var wanted = ({})
@@ -47,6 +64,21 @@ function sync(model, items, keyField) {
             model.insert(j, items[j])
         }
     }
+}
+
+// Fiecare rând trebuie să aibă cheia, ea trebuie să fie ceva (nu undefined/
+// null/""), și trebuie să fie unică în lot.
+function _keysUsable(items, keyField) {
+    var seen = ({})
+    for (var i = 0; i < items.length; ++i) {
+        var k = items[i][keyField]
+        if (k === undefined || k === null || k === "")
+            return false
+        if (seen[k])
+            return false
+        seen[k] = true
+    }
+    return true
 }
 
 function _indexOf(model, keyField, key, from) {

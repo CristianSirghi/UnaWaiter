@@ -56,6 +56,15 @@ orice altă cerere, URL-ul de verificare vine prin `dataService`. Așa, linkul c
 `version.json` e configurabil per-client din Configurator, fără să rebuilduim
 aplicația.
 
+**Există DOI declanșatori pentru acest flux** — verificarea automată de la pornire
+(`main.qml`, `startupCheckPending`) și butonul manual din `UpdatePage`. Amândoi
+ascultă aceleași semnale globale, deci fiecare își ține un steag propriu ca să nu
+reacționeze la verificarea celuilalt. Din acest motiv `checkForUpdate()` întoarce
+**`bool`**: `false` = verificarea n-a pornit deloc (URL gol, sau altă verificare
+deja în curs), caz în care nu va veni niciun semnal care să stingă acel steag —
+apelantul trebuie să și-l cureţe singur. Orice apelant nou trebuie să trateze
+valoarea întoarsă, altfel rămâne blocat în starea „se verifică".
+
 ---
 
 ## Piesele și unde trăiește fiecare

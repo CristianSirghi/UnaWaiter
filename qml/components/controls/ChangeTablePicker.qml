@@ -126,9 +126,10 @@ Popup {
 
             IconClose {
                 color: Theme.textSecondary
-                MouseArea {
+                TouchArea {
                     anchors.fill: parent
                     anchors.margins: -10
+                    circular: true
                     onClicked: root.close()
                 }
             }
@@ -221,7 +222,7 @@ Popup {
                                 color: Theme.textSecondary
                             }
 
-                            MouseArea {
+                            TouchArea {
                                 anchors.fill: parent
                                 enabled: !taken
                                 onClicked: {
@@ -291,7 +292,7 @@ Popup {
                                 color: Theme.textSecondary
                             }
 
-                            MouseArea {
+                            TouchArea {
                                 anchors.fill: parent
                                 enabled: !taken
                                 onClicked: {

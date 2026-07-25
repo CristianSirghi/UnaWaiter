@@ -410,7 +410,7 @@ Page {
                     }
                 }
 
-                MouseArea {
+                Components.TouchArea {
                     anchors.fill: parent
                     onClicked: root.chooseWaiter(parseInt(modelData.COD),
                                                  String(modelData.DENUMIREA),
@@ -562,7 +562,7 @@ Page {
                                 color: keyDelegate.isConfirmEnabled ? "white" : Theme.textSecondary
                             }
 
-                            MouseArea {
+                            Components.TouchArea {
                                 anchors.fill: parent
                                 enabled: !root.busy && !(keyDelegate.isConfirm && !keyDelegate.isConfirmEnabled)
                                 onClicked: {
@@ -586,9 +586,10 @@ Page {
                     font.underline: true
                     color: Theme.textSecondary
 
-                    MouseArea {
+                    Components.TouchArea {
                         anchors.fill: parent
                         anchors.margins: -8
+                        veilRadius: 8
                         enabled: !root.busy
                         onClicked: root.backToPicker()
                     }

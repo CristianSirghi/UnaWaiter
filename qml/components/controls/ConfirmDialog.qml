@@ -120,14 +120,21 @@ Popup {
                 Layout.preferredHeight: 52
                 visible: !root.infoOnly
 
+                // Feedback la atingere prin estomparea textului, NU printr-un
+                // voal de fundal: butoanele sunt lipite de marginea de jos a
+                // dialogului, care are colțuri rotunjite (radius 16) - un voal
+                // dreptunghiular ar ieși vizibil peste rotunjire.
                 Label {
                     anchors.centerIn: parent
                     text: root.cancelText
                     font.pixelSize: 15 * Theme.fontScale
                     color: Theme.textSecondary
+                    opacity: cancelArea.pressed ? 0.45 : 1
+                    Behavior on opacity { NumberAnimation { duration: cancelArea.pressed ? 0 : 140 } }
                 }
 
                 MouseArea {
+                    id: cancelArea
                     anchors.fill: parent
                     onClicked: root.close()
                 }
@@ -151,9 +158,12 @@ Popup {
                     font.pixelSize: 15 * Theme.fontScale
                     font.bold: true
                     color: root.destructive ? Theme.danger : Theme.primary
+                    opacity: confirmArea.pressed ? 0.45 : 1
+                    Behavior on opacity { NumberAnimation { duration: confirmArea.pressed ? 0 : 140 } }
                 }
 
                 MouseArea {
+                    id: confirmArea
                     anchors.fill: parent
                     onClicked: {
                         root.close()

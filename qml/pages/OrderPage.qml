@@ -130,6 +130,52 @@ Page {
     // la lista de mese, indiferent câte pagini sunt pe stivă.
     signal done()
 
+    // Există modificări făcute aici și netrimise încă în Oracle?
+    //
+    // Comparăm cu ce e deja confirmat (sentQtyStore / sentGuestCount / masa
+    // originală), nu cu zero: la editarea unei comenzi existente, produsele
+    // deja trimise la bucătărie NU sunt modificări nesalvate.
+    //
+    // Funcție, nu proprietate legată: qtyStore e un `var` mutat pe loc, deci un
+    // binding pe el nu s-ar reevalua niciodată. O evaluăm la momentul apăsării.
+    function hasUnsavedChanges() {
+        // O trimitere/anulare în curs se termină singură (finishSubmit/done) -
+        // nu mai e nimic de salvat sau de pierdut.
+        if (root.sending || root.deleting)
+            return false
+
+        if (!root.isEditing)
+            return root.orderCount > 0
+
+        if (root.guestCount !== root.sentGuestCount)
+            return true
+        if (root.zone !== root.originalZone || root.tableNumber !== root.originalTableNumber)
+            return true
+
+        for (var code in root.qtyStore) {
+            var sent = root.sentQtyStore[code] ? root.sentQtyStore[code] : 0
+            if (root.qtyStore[code] !== sent)
+                return true
+        }
+        return false
+    }
+
+    // Punct unic de ieșire din pagină: îl folosesc ȘI butonul de back din
+    // antet, ȘI butonul fizic Android (main.qml caută funcția asta pe pagina
+    // curentă). Fără el, back-ul de sistem ocolea confirmarea și comanda în
+    // lucru se pierdea tăcut - chelnerul adăuga 10 produse, atingea back din
+    // reflex și rămânea cu ecranul gol, fără nicio întrebare.
+    function requestBack() {
+        // `visible`, nu `opened`: `opened` e încă fals cât rulează animația de
+        // deschidere, deci un back rapid de două ori ar redeschide dialogul.
+        if (discardDialog.visible)
+            return
+        if (root.hasUnsavedChanges())
+            discardDialog.open()
+        else
+            root.StackView.view.pop()
+    }
+
     function buildPickerDeskZone(rows) {
         var map = {}
         var hall = []
@@ -677,6 +723,11 @@ Page {
                 // Comandă locală veche, fără nr_comand reținut - păstrăm
                 // comportamentul dinainte (doar cache local, fără sincronizare).
                 root.qtyStore = root.migrateLegacyQty(existing)
+                // Ce era deja salvat local e punctul de plecare, nu o
+                // modificare - altfel hasUnsavedChanges() ar da true imediat
+                // la deschidere și back-ul ar cere confirmare degeaba.
+                // (floorFor rămâne 0 aici: e păzit de sentNrComand > 0.)
+                root.sentQtyStore = JSON.parse(JSON.stringify(root.qtyStore))
                 recomputeTotals()
             }
         }
@@ -911,7 +962,7 @@ Page {
 
             Components.BackButton {
                 color: Theme.textPrimary
-                onClicked: root.StackView.view.pop()
+                onClicked: root.requestBack()
             }
 
             Item { Layout.preferredWidth: 8 }
@@ -935,9 +986,10 @@ Page {
                         color: Theme.textPrimary
                     }
 
-                    MouseArea {
+                    Components.TouchArea {
                         anchors.fill: parent
                         anchors.margins: -6
+                        veilRadius: 8
                         // Qt.callLater, nu apel direct: deschiderea acestui
                         // Popup imediat după ce alt Popup modal (ex.
                         // sendErrorDialog) tocmai s-a închis poate lăsa
@@ -1010,7 +1062,7 @@ Page {
                         color: index === root.currentCategory ? "white" : Theme.textPrimary
                     }
 
-                    MouseArea {
+                    Components.TouchArea {
                         anchors.fill: parent
                         onClicked: {
                             root.currentCategory = index
@@ -1036,7 +1088,7 @@ Page {
                     color: Theme.textSecondary
                 }
 
-                MouseArea {
+                Components.TouchArea {
                     anchors.fill: parent
                     onClicked: {
                         root.searchActive = true
@@ -1113,8 +1165,9 @@ Page {
                             color: Theme.textSecondary
                         }
 
-                        MouseArea {
+                        Components.TouchArea {
                             anchors.fill: parent
+                            circular: true
                             onClicked: {
                                 searchDebounce.stop()
                                 searchField.text = ""
@@ -1232,7 +1285,7 @@ Page {
                                 color: addonCount > 0 ? "white" : Theme.primary
                             }
 
-                            MouseArea {
+                            Components.TouchArea {
                                 anchors.fill: parent
                                 onClicked: addonSheet.openWith(code, name, root.addonListFor(code))
                             }
@@ -1264,7 +1317,7 @@ Page {
                             anchors.centerIn: parent
                             color: Theme.textPrimary
                         }
-                        MouseArea {
+                        Components.TouchArea {
                             anchors.fill: parent
                             enabled: qty > root.floorFor(code)
                             onClicked: root.adjustQty(code, -1)
@@ -1280,7 +1333,7 @@ Page {
                             anchors.centerIn: parent
                             color: "white"
                         }
-                        MouseArea {
+                        Components.TouchArea {
                             anchors.fill: parent
                             onClicked: {
                                 // Am găsit produsul și l-am adăugat - ascundem
@@ -1353,7 +1406,7 @@ Page {
                                 color: Theme.keyBackground
                                 opacity: root.guestCount > 1 ? 1 : 0.4
                                 Icons.IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
-                                MouseArea {
+                                Components.TouchArea {
                                     anchors.fill: parent
                                     onClicked: if (root.guestCount > 1) root.guestCount -= 1
                                 }
@@ -1372,7 +1425,7 @@ Page {
                                 width: 26; height: 26; radius: 13
                                 color: Theme.primary
                                 Icons.IconPlus { anchors.centerIn: parent; color: "white" }
-                                MouseArea {
+                                Components.TouchArea {
                                     anchors.fill: parent
                                     onClicked: root.guestCount += 1
                                 }
@@ -1408,7 +1461,7 @@ Page {
                                 }
                             }
 
-                            MouseArea {
+                            Components.TouchArea {
                                 anchors.fill: parent
                                 enabled: root.orderCount > 0
                                 onClicked: root.summaryExpanded = !root.summaryExpanded
@@ -1461,7 +1514,7 @@ Page {
                                 color: Theme.keyBackground
                                 opacity: (isAddon || qty > root.floorFor(code)) ? 1 : 0.35
                                 Icons.IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
-                                MouseArea {
+                                Components.TouchArea {
                                     anchors.fill: parent
                                     enabled: isAddon || qty > root.floorFor(code)
                                     onClicked: isAddon ? root.adjustAddon(parentCode, name, -1) : root.adjustQty(code, -1)
@@ -1480,7 +1533,7 @@ Page {
                                 width: 26; height: 26; radius: 13
                                 color: Theme.primary
                                 Icons.IconPlus { anchors.centerIn: parent; color: "white" }
-                                MouseArea {
+                                Components.TouchArea {
                                     anchors.fill: parent
                                     onClicked: isAddon ? root.adjustAddon(parentCode, name, 1) : root.adjustQty(code, 1)
                                 }
@@ -1538,7 +1591,7 @@ Page {
                         color: Theme.danger
                     }
 
-                    MouseArea {
+                    Components.TouchArea {
                         anchors.fill: parent
                         enabled: !root.deleting
                         onClicked: deleteDialog.open()
@@ -1574,7 +1627,7 @@ Page {
                         elide: Text.ElideRight
                     }
 
-                    MouseArea {
+                    Components.TouchArea {
                         anchors.fill: parent
                         enabled: root.orderCount > 0 && !root.sending
                         onClicked: root.submitOrder()
@@ -1627,6 +1680,21 @@ Page {
     // Eroare la trimiterea reală a comenzii (create_order/add_order_lines/
     // update_order_desk) - dialog, nu banner inline, ca să nu fie ratată
     // (schimbă complet ce trebuie să facă chelnerul, ex. alege altă masă).
+    // Confirmare la părăsirea unei comenzi cu modificări netrimise (vezi
+    // requestBack). Ștergerea unei comenzi cerea confirmare, dar abandonarea
+    // uneia în lucru nu - deși pierde exact aceleași produse.
+    Components.ConfirmDialog {
+        id: discardDialog
+        title: root.isEditing ? qsTr("Discard the changes?") : qsTr("Discard the order?")
+        message: root.isEditing
+            ? qsTr("The changes made here haven't been sent. If you leave now, they are lost.")
+            : qsTr("The products added here haven't been sent. If you leave now, they are lost.")
+        confirmText: qsTr("Leave")
+        cancelText: qsTr("Stay")
+        destructive: true
+        onConfirmed: root.StackView.view.pop()
+    }
+
     Components.ConfirmDialog {
         id: sendErrorDialog
         title: qsTr("Couldn't send the order")

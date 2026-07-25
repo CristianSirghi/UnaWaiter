@@ -64,9 +64,10 @@ Drawer {
             IconClose {
                 color: Theme.textSecondary
 
-                MouseArea {
+                TouchArea {
                     anchors.fill: parent
                     anchors.margins: -10
+                    circular: true
                     onClicked: root.close()
                 }
             }
@@ -103,7 +104,7 @@ Drawer {
                 }
             }
 
-            MouseArea {
+            TouchArea {
                 anchors.fill: parent
                 onClicked: {
                     root.close()
@@ -141,7 +142,7 @@ Drawer {
                 }
             }
 
-            MouseArea {
+            TouchArea {
                 anchors.fill: parent
                 onClicked: {
                     root.close()
@@ -174,7 +175,7 @@ Drawer {
                 }
             }
 
-            MouseArea {
+            TouchArea {
                 anchors.fill: parent
                 onClicked: {
                     root.close()
@@ -216,7 +217,7 @@ Drawer {
                 }
             }
 
-            MouseArea {
+            TouchArea {
                 anchors.fill: parent
                 onClicked: {
                     root.close()

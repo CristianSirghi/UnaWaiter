@@ -101,6 +101,24 @@ Page {
         dataService.loadTableOccupancy()
     }
 
+    // Ocuparea meselor se schimbă sub noi: alt chelner deschide o masă cât timp
+    // stăm pe grilă, sau ne întoarcem aici cu back din OrderPage după ce chiar
+    // noi am ocupat una. Înainte se cerea o singură dată, la deschiderea
+    // paginii, deci grila putea arăta liberă o masă deja luată - exact
+    // scenariul pe care blocarea meselor trebuie să-l prevină.
+    StackView.onStatusChanged: {
+        if (StackView.status === StackView.Active)
+            dataService.loadTableOccupancy()
+    }
+
+    // Poll ușor cât timp pagina e activă, ca la TablesPage/AchitatePage.
+    Timer {
+        interval: 25000
+        repeat: true
+        running: root.StackView.status === StackView.Active
+        onTriggered: dataService.loadTableOccupancy()
+    }
+
     background: Rectangle {
         color: Theme.background
     }
@@ -194,7 +212,7 @@ Page {
                             color: Theme.textSecondary
                         }
 
-                        MouseArea {
+                        Components.TouchArea {
                             anchors.fill: parent
                             onClicked: {
                                 if (occupied)
@@ -261,7 +279,7 @@ Page {
                             color: Theme.textSecondary
                         }
 
-                        MouseArea {
+                        Components.TouchArea {
                             anchors.fill: parent
                             onClicked: {
                                 if (occupied)

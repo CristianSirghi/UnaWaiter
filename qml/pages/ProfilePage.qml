@@ -164,7 +164,7 @@ Page {
                 font.bold: true
             }
 
-            MouseArea {
+            Components.TouchArea {
                 anchors.fill: parent
                 onClicked: signOutDialog.open()
             }
@@ -270,9 +270,10 @@ Page {
                         font.underline: true
                         color: Theme.primary
 
-                        MouseArea {
+                        Components.TouchArea {
                             anchors.fill: parent
                             anchors.margins: -8
+                            veilRadius: 8
                             onClicked: root.reloadStats()
                         }
                     }

@@ -80,14 +80,14 @@ bool UpdateManager::isRemoteNewer(const QString &remote, const QString &local) c
     return false; // egale
 }
 
-void UpdateManager::checkForUpdate(const QString &versionJsonUrl)
+bool UpdateManager::checkForUpdate(const QString &versionJsonUrl)
 {
     if (m_checking)
-        return;
+        return false;
 
     if (versionJsonUrl.trimmed().isEmpty()) {
         emit checkFailed(tr("Update check is not configured."));
-        return;
+        return false;
     }
 
     setChecking(true);
@@ -135,6 +135,8 @@ void UpdateManager::checkForUpdate(const QString &versionJsonUrl)
         else
             emit upToDate();
     });
+
+    return true;
 }
 
 void UpdateManager::downloadAndInstall()

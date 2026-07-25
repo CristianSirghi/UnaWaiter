@@ -202,7 +202,7 @@ Page {
                     }
                 }
 
-                MouseArea {
+                Components.TouchArea {
                     anchors.fill: parent
                     onClicked: root.adminRequested()
                 }
@@ -254,7 +254,7 @@ Page {
                     }
                 }
 
-                MouseArea {
+                Components.TouchArea {
                     anchors.fill: parent
                     onClicked: root.updateRequested()
                 }

@@ -574,8 +574,15 @@ Page {
         function onUpdateInfoUrlChanged() {
             // Doar noi apelăm loadUpdateInfo(), dar păstrăm garda: reacționăm
             // numai la verificarea pornită din pagina asta.
-            if (root.updateState === "checking")
-                appUpdateManager.checkForUpdate(dataService.updateInfoUrl)
+            if (root.updateState !== "checking")
+                return
+            // Verificarea automată de la pornire poate fi încă în zbor - atunci
+            // a noastră nu pornește și n-ar veni niciun semnal care să scoată
+            // pagina din starea "se verifică" (rămânea cu punctele animate la
+            // nesfârșit). Rezultatul celeilalte verificări ajunge oricum aici,
+            // prin aceleași semnale, deci doar revenim în repaus.
+            if (!appUpdateManager.checkForUpdate(dataService.updateInfoUrl))
+                root.updateState = "idle"
         }
 
         function onRequestFailed(command, error) {

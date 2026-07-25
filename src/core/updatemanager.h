@@ -37,7 +37,15 @@ public:
     int downloadProgress() const { return m_downloadProgress; }
 
     // Descarca versionJsonUrl si compara "version" din el cu currentVersion().
-    Q_INVOKABLE void checkForUpdate(const QString &versionJsonUrl);
+    //
+    // Intoarce false daca verificarea NU a pornit (URL gol, sau alta verificare
+    // deja in curs). Apelantul trebuie sa-si curete singur starea de "se
+    // verifica" in acel caz: la o iesire silentioasa, `startupCheckPending` din
+    // main.qml ramanea blocat pe true la nesfarsit, iar o verificare manuala de
+    // mai tarziu declansa si dialogul obligatoriu de pornire peste ea.
+    // Nu emitem checkFailed pe ramura "deja in curs" - nu e o eroare pe care
+    // chelnerul s-o poata rezolva, iar un banner rosu peste UpdatePage ar minti.
+    Q_INVOKABLE bool checkForUpdate(const QString &versionJsonUrl);
 
     // Porneste descarcarea + instalarea ultimei versiuni gasite (necesita checkForUpdate inainte).
     Q_INVOKABLE void downloadAndInstall();

@@ -104,14 +104,24 @@ Page {
             if (deskNo > 0)
                 openKeys.push(OrdersStore.keyFor(zone, deskNo))
 
+            var nrComandStr = (r.NR_COMAND !== undefined && r.NR_COMAND !== null)
+                ? String(r.NR_COMAND).trim() : ""
+
             items.push({
+                // Identitatea rândului pentru ListSync. E numărul real de
+                // comandă, nu masa: o comandă mutată pe altă masă rămâne
+                // ACELAȘI rând (se actualizează pe loc), în loc să dispară și
+                // să reapară. Rezerva pe indice acoperă cazul (teoretic) al
+                // unei comenzi fără NR_COMAND - două astfel de rânduri ar avea
+                // altfel aceeași cheie și s-ar contopi.
+                rowKey: nrComandStr !== "" ? ("nr" + nrComandStr) : ("row" + i),
                 zone: zone,
                 tableNumber: deskNo,
                 tableName: deskNo > 0 ? qsTr("Table %1").arg(deskNo) : qsTr("Unknown table"),
                 active: true,
                 orderTime: r.ORDER_TIME ? String(r.ORDER_TIME).trim() : "",
                 waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
-                orderNo: "#" + (r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : ""),
+                orderNo: "#" + nrComandStr,
                 preview: r.PREVIEW ? String(r.PREVIEW).trim() : "",
                 guestCount: hasGuestCount ? parseInt(r.BARMEN) : 1,
                 total: root.fmtTotal(r.CLCCOSTT),
@@ -138,7 +148,7 @@ Page {
         // Actualizare pe loc, nu clear() + append: poll-ul de 25s (și fiecare
         // revenire pe pagină) resetau altfel derularea listei, aruncând
         // chelnerul înapoi la prima masă în mijlocul căutării.
-        ListSync.sync(tableOrdersModel, items, "tableKey")
+        ListSync.sync(tableOrdersModel, items, "rowKey")
         root.ordersReady = true
     }
 
@@ -229,7 +239,7 @@ Page {
                     font.bold: true
                 }
 
-                MouseArea {
+                Components.TouchArea {
                     anchors.fill: parent
                     onClicked: root.profileRequested()
                 }
@@ -327,9 +337,10 @@ Page {
                 radius: 7
                 color: dataService.online ? Theme.success : Theme.danger
 
-                MouseArea {
+                Components.TouchArea {
                     anchors.fill: parent
                     anchors.margins: -10   // zonă de atingere mai generoasă
+                    circular: true
                     onClicked: {
                         dataService.checkConnection()
                         connectionDialog.open()
@@ -501,7 +512,7 @@ Page {
                 color: Theme.surface
                 border.color: Theme.border
 
-                MouseArea {
+                Components.TouchArea {
                     anchors.fill: parent
                     onClicked: {
                         if (editable)
@@ -705,7 +716,7 @@ Page {
             font.pixelSize: 28 * Theme.fontScale
         }
 
-        MouseArea {
+        Components.TouchArea {
             anchors.fill: parent
             onClicked: root.newTableRequested()
         }

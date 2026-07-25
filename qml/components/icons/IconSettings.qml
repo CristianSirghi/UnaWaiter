@@ -13,11 +13,16 @@ Item {
     implicitWidth: 24
     implicitHeight: 24
 
+    // Ca la BackButton/IconHamburger: estompăm desenul la apăsare, fiindcă zona
+    // de atingere e extinsă cu 8px dincolo de iconiță. (Rotirea de la click
+    // rămâne - aia confirmă acțiunea, asta confirmă atingerea.)
     Image {
         id: gearImage
         anchors.centerIn: parent
         width: parent.width
         height: parent.height
+        opacity: touchArea.pressed ? 0.45 : 1
+        Behavior on opacity { NumberAnimation { duration: touchArea.pressed ? 0 : 140 } }
         source: root.dark ? "qrc:/icons/settings_white.png" : "qrc:/icons/settings.png"
         fillMode: Image.PreserveAspectFit
         smooth: true
@@ -35,6 +40,7 @@ Item {
     }
 
     MouseArea {
+        id: touchArea
         anchors.fill: parent
         anchors.margins: -8
         onClicked: {

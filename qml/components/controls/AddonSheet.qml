@@ -104,9 +104,10 @@ Popup {
 
             IconClose {
                 color: Theme.textSecondary
-                MouseArea {
+                TouchArea {
                     anchors.fill: parent
                     anchors.margins: -10
+                    circular: true
                     onClicked: root.close()
                 }
             }
@@ -152,7 +153,7 @@ Popup {
                         width: 30; height: 30; radius: 15
                         color: Theme.keyBackground
                         IconMinus { anchors.centerIn: parent; color: Theme.textPrimary }
-                        MouseArea {
+                        TouchArea {
                             anchors.fill: parent
                             onClicked: {
                                 root.addonAdjusted(name, -1)
@@ -175,7 +176,7 @@ Popup {
                         width: 30; height: 30; radius: 15
                         color: Theme.primary
                         IconPlus { anchors.centerIn: parent; color: "white" }
-                        MouseArea {
+                        TouchArea {
                             anchors.fill: parent
                             onClicked: {
                                 root.addonAdjusted(name, 1)
@@ -211,7 +212,7 @@ Popup {
                 color: "white"
             }
 
-            MouseArea {
+            TouchArea {
                 anchors.fill: parent
                 onClicked: root.close()
             }

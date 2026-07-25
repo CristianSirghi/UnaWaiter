@@ -2,6 +2,7 @@ import QtQuick 2.15
 import "../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import "../components/controls" as Components
 import "../components/icons" as Icons
 
 Page {
@@ -78,7 +79,7 @@ Page {
                 font.bold: true
             }
 
-            MouseArea {
+            Components.TouchArea {
                 anchors.fill: parent
                 onClicked: root.authenticateRequested()
             }

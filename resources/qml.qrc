@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 78 -->
+    <!-- build rev 79 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="theme/qmldir">../qml/theme/qmldir</file>
@@ -35,6 +35,7 @@
         <file alias="components/controls/TextInputField.qml">../qml/components/controls/TextInputField.qml</file>
         <file alias="components/controls/ChangeTablePicker.qml">../qml/components/controls/ChangeTablePicker.qml</file>
         <file alias="components/controls/LoadingOverlay.qml">../qml/components/controls/LoadingOverlay.qml</file>
+        <file alias="components/controls/TouchArea.qml">../qml/components/controls/TouchArea.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>
