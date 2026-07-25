@@ -27,29 +27,44 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(QStringLiteral("una.md"));
     QCoreApplication::setApplicationName(QStringLiteral("UnaWaiter"));
 
-    QQmlApplicationEngine engine;
-    engine.addImportPath(QStringLiteral("qrc:/"));
-
-    TranslationManager translationManager(&engine);
-    engine.rootContext()->setContextProperty(QStringLiteral("translationManager"), &translationManager);
-
+    // ORDINEA DE DECLARARE CONTEAZĂ. Variabilele locale se distrug în ordine
+    // INVERSĂ, iar motorul QML își demontează tot arborele de obiecte abia la
+    // distrugerea lui. Dacă motorul ar fi declarat primul, s-ar distruge ULTIMUL
+    // - adică QML-ul ar fi demontat după ce dataService/updateManager/
+    // translationManager au dispărut deja, iar orice binding sau handler care
+    // le atinge în acel moment ar citi memorie eliberată.
+    //
+    // Așa: serviciile trăiesc pe tot parcursul, motorul stă într-un bloc propriu
+    // și moare la ieșirea din el, cât timp ele sunt încă vii.
+    TranslationManager translationManager;
     DataService dataService;
-    engine.rootContext()->setContextProperty(QStringLiteral("dataService"), &dataService);
-
     UpdateManager updateManager;
-    engine.rootContext()->setContextProperty(QStringLiteral("appUpdateManager"), &updateManager);
 
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
-    QObject::connect(
-        &engine,
-        &QQmlApplicationEngine::objectCreated,
-        &app,
-        [url](QObject *obj, const QUrl &objUrl) {
-            if (!obj && url == objUrl)
-                QCoreApplication::exit(-1);
-        },
-        Qt::QueuedConnection);
-    engine.load(url);
+    int exitCode = 0;
+    {
+        QQmlApplicationEngine engine;
+        engine.addImportPath(QStringLiteral("qrc:/"));
+        translationManager.setEngine(&engine);
 
-    return app.exec();
+        QQmlContext *ctx = engine.rootContext();
+        ctx->setContextProperty(QStringLiteral("translationManager"), &translationManager);
+        ctx->setContextProperty(QStringLiteral("dataService"), &dataService);
+        ctx->setContextProperty(QStringLiteral("appUpdateManager"), &updateManager);
+
+        const QUrl url(QStringLiteral("qrc:/main.qml"));
+        QObject::connect(
+            &engine,
+            &QQmlApplicationEngine::objectCreated,
+            &app,
+            [url](QObject *obj, const QUrl &objUrl) {
+                if (!obj && url == objUrl)
+                    QCoreApplication::exit(-1);
+            },
+            Qt::QueuedConnection);
+        engine.load(url);
+
+        exitCode = app.exec();
+    }
+
+    return exitCode;
 }

@@ -35,6 +35,58 @@ Page {
     property bool busy: false
     property string errorText: ""
 
+    // Throttling la PIN. Un PIN de 4 cifre are 10.000 de combinații, iar
+    // înainte se puteau încerca la nesfârșit, fără nicio pauză - un telefon
+    // uitat pe masă putea fi deschis prin simplă răbdare.
+    //
+    // Starea NU stă aici, ci în AppSettings (persistată): pagina asta e
+    // distrusă la fiecare back spre Welcome, deci un contor local reînvia la
+    // zero la reintrare - vezi comentariul de-acolo.
+    //
+    // Limite cunoscute: blocarea e pe dispozitiv, deci nu oprește pe cineva
+    // care vorbește direct cu backend-ul (ar cere limitare pe server, în
+    // uw_waiters), și nici pe cineva care dă ceasul telefonului înainte. Ce
+    // oprește e scenariul realist - un telefon uitat pe masă.
+    readonly property int maxAttempts: 5
+    readonly property int lockDurationSec: 30
+
+    // Secundele rămase, recalculate din momentul de expirare persistat.
+    property int lockRemaining: 0
+    readonly property bool locked: root.lockRemaining > 0
+
+    function refreshLock() {
+        var msLeft = AppSettings.pinLockUntilMs - Date.now()
+        // Ceas dat înapoi (manual sau prin sincronizare): fără plafon, expirarea
+        // ar rămâne în viitor ore întregi și chelnerul ar fi blocat afară din
+        // aplicație în plină tură. Mai mult decât durata blocării nu se poate.
+        var maxMs = root.lockDurationSec * 1000
+        if (msLeft > maxMs)
+            msLeft = maxMs
+        root.lockRemaining = msLeft > 0 ? Math.ceil(msLeft / 1000) : 0
+    }
+
+    function registerFailedAttempt() {
+        AppSettings.pinFailedAttempts += 1
+        if (AppSettings.pinFailedAttempts >= root.maxAttempts) {
+            AppSettings.pinFailedAttempts = 0
+            AppSettings.pinLockUntilMs = Date.now() + root.lockDurationSec * 1000
+            root.refreshLock()
+        }
+    }
+
+    function clearLock() {
+        AppSettings.pinFailedAttempts = 0
+        AppSettings.pinLockUntilMs = 0
+        root.lockRemaining = 0
+    }
+
+    Timer {
+        interval: 1000
+        repeat: true
+        running: root.locked
+        onTriggered: root.refreshLock()
+    }
+
     // Starea listei de chelneri (get_waiters). Fără ele, o cădere a
     // serverului lăsa chelnerul în fața unei liste goale sub textul
     // "Alege-ți numele din listă", fără nicio eroare și fără vreo cale de
@@ -58,6 +110,11 @@ Page {
     }
 
     Component.onCompleted: {
+        // O blocare pornită înainte poate fi încă în vigoare: pagina e nouă,
+        // dar expirarea e persistată. Fără asta, ieșirea spre Welcome și
+        // reintrarea ștergeau blocarea.
+        root.refreshLock()
+
         if (AppSettings.waiterOficiant !== 0) {
             // Chelner reținut pe acest telefon → direct la PIN.
             root.currentOficiant = AppSettings.waiterOficiant
@@ -111,7 +168,7 @@ Page {
     }
 
     function submitPin() {
-        if (root.busy || root.enteredPin.length !== root.pinLength)
+        if (root.busy || root.locked || root.enteredPin.length !== root.pinLength)
             return
 
         if (root.pinMode === "enter") {
@@ -142,7 +199,7 @@ Page {
     }
 
     function pushDigit(d) {
-        if (root.busy || root.enteredPin.length >= root.pinLength)
+        if (root.busy || root.locked || root.enteredPin.length >= root.pinLength)
             return
         root.errorText = ""
         root.enteredPin += d
@@ -155,8 +212,12 @@ Page {
         root.enteredPin = root.enteredPin.slice(0, -1)
     }
 
-    // Subtitlul de pe ecranul de PIN, în funcție de mod/pas.
+    // Subtitlul de pe ecranul de PIN, în funcție de mod/pas. Cât timp e blocat,
+    // spune de ce nu răspunde tastatura și cât mai are de așteptat - altfel ar
+    // părea pur și simplu stricată.
     function pinPrompt() {
+        if (root.locked)
+            return qsTr("Too many attempts. Try again in %1 s.").arg(root.lockRemaining)
         if (root.pinMode === "enter")
             return qsTr("Enter PIN")
         return root.setStage === 0 ? qsTr("Set your PIN") : qsTr("Confirm your PIN")
@@ -174,6 +235,9 @@ Page {
             if (!root.busy)
                 return
             root.busy = false
+            // Logare reușită: contorul de încercări o ia de la zero, ca o
+            // greșeală de tastare de acum două ture să nu-l blocheze mai târziu.
+            root.clearLock()
             AppSettings.waiterOficiant = oficiant
             AppSettings.waiterName = name
             root.enteredPin = ""
@@ -201,6 +265,11 @@ Page {
                     return
                 root.busy = false
                 root.enteredPin = ""
+                // Numărăm doar PIN-urile greșite, NU și căderile de rețea:
+                // altfel un server picat ar bloca chelnerul afară din propria
+                // aplicație, deși n-a greșit nimic.
+                if (error === "invalid_credentials")
+                    root.registerFailedAttempt()
                 root.errorText = (error === "invalid_credentials")
                     ? qsTr("Wrong PIN")
                     : error
@@ -535,12 +604,17 @@ Page {
                             readonly property bool isDigit: keyValue.length === 1 && keyValue >= "0" && keyValue <= "9"
                             readonly property bool isDelete: keyValue === "DEL"
                             readonly property bool isConfirm: keyValue === "OK"
-                            readonly property bool isConfirmEnabled: isConfirm && root.enteredPin.length === root.pinLength && !root.busy
+                            readonly property bool isConfirmEnabled: isConfirm && root.enteredPin.length === root.pinLength
+                                                                     && !root.busy && !root.locked
 
                             radius: 12
                             color: isConfirm
                                 ? (isConfirmEnabled ? Theme.primary : Theme.keyBackground)
                                 : Theme.keyBackground
+                            // Tastatura se estompează cât timp e blocată, ca să
+                            // se vadă că nu răspunde intenționat (motivul e
+                            // scris în subtitlu, vezi pinPrompt).
+                            opacity: root.locked ? 0.4 : 1
 
                             Label {
                                 visible: keyDelegate.isDigit
@@ -564,7 +638,8 @@ Page {
 
                             Components.TouchArea {
                                 anchors.fill: parent
-                                enabled: !root.busy && !(keyDelegate.isConfirm && !keyDelegate.isConfirmEnabled)
+                                enabled: !root.busy && !root.locked
+                                         && !(keyDelegate.isConfirm && !keyDelegate.isConfirmEnabled)
                                 onClicked: {
                                     if (keyDelegate.isDigit)
                                         root.pushDigit(keyDelegate.keyValue)

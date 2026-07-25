@@ -16,6 +16,20 @@ QtObject {
     // Folosit și când creăm comenzi (dataService.createOrder).
     property int waiterOficiant: 0
 
+    // --- Throttling la introducerea PIN-ului (vezi LoginPage) ---
+    // Persistate, NU ținute în pagină: LoginPage e distrusă la fiecare back
+    // spre Welcome, deci orice contor local reînvie la zero când reintri -
+    // atât blocarea, cât și numărul de încercări. Bypass-ul era banal: 4
+    // greșeli, back, încă 4, la nesfârșit, fără să se declanșeze vreodată
+    // blocarea. Din același motiv reținem un MOMENT DE EXPIRARE absolut, nu o
+    // numărătoare inversă: așa supraviețuiește și unei reporniri a aplicației.
+    //
+    // Blocarea e pe dispozitiv, nu pe chelner: altfel "Schimbă utilizatorul"
+    // ar fi fost următorul bypass. 30 de secunde sunt destul de scurte cât să
+    // nu încurce un al doilea chelner real.
+    property int pinFailedAttempts: 0
+    property real pinLockUntilMs: 0
+
     // --- Server (backend PHP) ---
     // URL-ul către oracle_waiter.php. Valoare implicită vizibilă (ca la
     // Una_Prod's httpAddress) - apare ca text real, editabil, în câmpul
@@ -43,5 +57,7 @@ QtObject {
         property alias waiterName: root.waiterName
         property alias waiterOficiant: root.waiterOficiant
         property alias serverUrl: root.serverUrl
+        property alias pinFailedAttempts: root.pinFailedAttempts
+        property alias pinLockUntilMs: root.pinLockUntilMs
     }
 }

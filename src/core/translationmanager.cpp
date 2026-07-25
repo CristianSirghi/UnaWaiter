@@ -3,10 +3,14 @@
 #include <QCoreApplication>
 #include <QQmlApplicationEngine>
 
-TranslationManager::TranslationManager(QQmlApplicationEngine *engine, QObject *parent)
+TranslationManager::TranslationManager(QObject *parent)
     : QObject(parent)
-    , m_engine(engine)
 {
+}
+
+void TranslationManager::setEngine(QQmlApplicationEngine *engine)
+{
+    m_engine = engine;
 }
 
 void TranslationManager::setLanguage(const QString &languageCode)

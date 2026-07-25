@@ -66,6 +66,10 @@ Page {
     property real orderTotal: 0
     // Numărul de oaspeți la masă (minim 1), ales de chelner și salvat cu comanda.
     property int guestCount: 1
+    // Plafon: butonul "+" nu avea nicio limită, deci un deget ținut apăsat pe
+    // el scria sute de clienți la masă în Oracle (PERSON pe comandă). 99 e
+    // peste orice masă reală, dar oprește nonsensul.
+    readonly property int maxGuests: 99
 
     // Stare trimitere reală către Oracle (create_order + add_order_line).
     property bool sending: false
@@ -1416,9 +1420,13 @@ Page {
                             Rectangle {
                                 width: 26; height: 26; radius: 13
                                 color: Theme.primary
+                                // Estompat la plafon, exact ca "−" la minim -
+                                // altfel butonul pare stricat, nu limitat.
+                                opacity: root.guestCount < root.maxGuests ? 1 : 0.4
                                 Icons.IconPlus { anchors.centerIn: parent; color: "white" }
                                 Components.TouchArea {
                                     anchors.fill: parent
+                                    enabled: root.guestCount < root.maxGuests
                                     onClicked: root.guestCount += 1
                                 }
                             }

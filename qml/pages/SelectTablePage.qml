@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import "../theme"
+import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
@@ -73,10 +74,31 @@ Page {
         return root.occupiedByDesk[zone + "_" + tableNumber]
     }
 
-    function openOccupiedDialog(tableNumber, info) {
-        occupiedDialog.message = info.waiter
-            ? qsTr("Table %1 is already open by %2 (order #%3).").arg(tableNumber).arg(info.waiter).arg(info.orderNo)
-            : qsTr("Table %1 is already open (order #%2).").arg(tableNumber).arg(info.orderNo)
+    // Masa are o comandă deschisă. Dacă e chiar comanda chelnerului logat, de
+    // pe ACEST telefon, îi oferim s-o deschidă direct de aici - înainte dialogul
+    // avea doar "OK", deci trebuia să ieși din ecran și s-o cauți în lista de
+    // mese, deși erai deja cu degetul pe masa ei.
+    //
+    // "tableSelected" e exact acțiunea potrivită: OrderPage recunoaște singur o
+    // comandă existentă (OrdersStore.itemsFor) și o reîncarcă din Oracle, în loc
+    // să pornească una nouă. Nu e nevoie de nicio cale separată.
+    function openOccupiedDialog(zone, tableNumber, info) {
+        var mine = OrdersStore.isEditableBy(zone, tableNumber, AppSettings.waiterOficiant)
+
+        occupiedDialog.zone = zone
+        occupiedDialog.tableNumber = tableNumber
+        occupiedDialog.infoOnly = !mine
+        occupiedDialog.title = mine ? qsTr("Your open order") : qsTr("Table occupied")
+        occupiedDialog.confirmText = mine ? qsTr("Open the order") : qsTr("OK")
+
+        if (mine) {
+            occupiedDialog.message = qsTr("Table %1 already has your open order (#%2). Open it?")
+                .arg(tableNumber).arg(info.orderNo)
+        } else {
+            occupiedDialog.message = info.waiter
+                ? qsTr("Table %1 is already open by %2 (order #%3).").arg(tableNumber).arg(info.waiter).arg(info.orderNo)
+                : qsTr("Table %1 is already open (order #%2).").arg(tableNumber).arg(info.orderNo)
+        }
         occupiedDialog.open()
     }
 
@@ -198,7 +220,7 @@ Page {
                             anchors.fill: parent
                             onClicked: {
                                 if (occupied)
-                                    root.openOccupiedDialog(modelData, occupied)
+                                    root.openOccupiedDialog("hall", modelData, occupied)
                                 else
                                     root.tableSelected("hall", modelData)
                             }
@@ -265,7 +287,7 @@ Page {
                             anchors.fill: parent
                             onClicked: {
                                 if (occupied)
-                                    root.openOccupiedDialog(modelData, occupied)
+                                    root.openOccupiedDialog("terrace", modelData, occupied)
                                 else
                                     root.tableSelected("terrace", modelData)
                             }
@@ -294,8 +316,18 @@ Page {
     // oricine (alt chelner sau alt telefon) - vezi occupiedByDesk mai sus.
     Components.ConfirmDialog {
         id: occupiedDialog
-        title: qsTr("Table occupied")
-        infoOnly: true
-        confirmText: qsTr("OK")
+
+        // Masa la care se referă dialogul, ca butonul de confirmare să știe ce
+        // să deschidă. Titlul/mesajul/infoOnly sunt puse din openOccupiedDialog,
+        // fiindcă depind de cine deține comanda.
+        property string zone: ""
+        property int tableNumber: 0
+
+        // Doar când NU e infoOnly (adică e comanda ta) confirmarea chiar are ce
+        // face; în modul informativ butonul e un simplu "OK" care doar închide.
+        onConfirmed: {
+            if (!occupiedDialog.infoOnly)
+                root.tableSelected(occupiedDialog.zone, occupiedDialog.tableNumber)
+        }
     }
 }
