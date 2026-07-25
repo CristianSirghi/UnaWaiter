@@ -10,7 +10,6 @@ class QNetworkReply;
 // Verifica daca exista o versiune mai noua a aplicatiei (un fisier
 // version.json, la un URL primit din backend - vezi DataService::updateInfoUrl)
 // si, la cerere, porneste descarcarea + instalarea APK-ului prin Android
-// DownloadManager (cod nativ in UpdateHelper.java). Portat din D:\MMOffline
 // (Networking/UpdateManager.*), adaptat: aici URL-ul e dat explicit la
 // checkForUpdate() in loc de citit dintr-o tabela Settings locala - UnaWaiter
 // nu are inca un cache local de settings, doar cere backend-ul direct.
