@@ -4,7 +4,7 @@
 <context>
     <name>AchitatePage</name>
     <message>
-        <location filename="../qml/pages/AchitatePage.qml" line="+33"/>
+        <location filename="../qml/pages/AchitatePage.qml" line="+39"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
@@ -108,17 +108,22 @@
 <context>
     <name>ChangeTablePicker</name>
     <message>
-        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+111"/>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+121"/>
         <source>Move to table</source>
         <translation>Move to table</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+44"/>
+        <source>Tables are not available right now.</source>
+        <translation>Tables are not available right now.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Hall</source>
         <translation>Hall</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+70"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -165,9 +170,17 @@
     </message>
 </context>
 <context>
+    <name>LoadingOverlay</name>
+    <message>
+        <location filename="../qml/components/controls/LoadingOverlay.qml" line="+35"/>
+        <source>Loading…</source>
+        <translation>Loading…</translation>
+    </message>
+</context>
+<context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+118"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+131"/>
         <source>The PINs don&apos;t match. Try again.</source>
         <translation>The PINs don&apos;t match. Try again.</translation>
     </message>
@@ -187,7 +200,7 @@
         <translation>Confirm your PIN</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+43"/>
         <source>Wrong PIN</source>
         <translation>Wrong PIN</translation>
     </message>
@@ -232,7 +245,34 @@
         <translation>Search name</translation>
     </message>
     <message>
-        <location line="+235"/>
+        <location line="+21"/>
+        <source>Couldn&apos;t load the waiter list:
+%1</source>
+        <translation>Couldn't load the waiter list:
+%1</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Loading waiters…</source>
+        <translation>Loading waiters…</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No waiter found for “%1”.</source>
+        <translation>No waiter found for “%1”.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No waiters available.</source>
+        <translation>No waiters available.</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Retry</source>
+        <translation>Retry</translation>
+    </message>
+    <message>
+        <location line="+248"/>
         <source>Switch user</source>
         <translation>Switch user</translation>
     </message>
@@ -240,7 +280,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+132"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+163"/>
         <source>Terrace</source>
         <translation>Terrace</translation>
     </message>
@@ -251,27 +291,27 @@
     </message>
     <message>
         <location line="+235"/>
-        <location line="+80"/>
-        <location line="+224"/>
-        <location line="+106"/>
-        <location line="+691"/>
+        <location line="+81"/>
+        <location line="+244"/>
+        <location line="+110"/>
+        <location line="+689"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-1100"/>
+        <location line="-1123"/>
         <source>Waiter</source>
         <translation>Waiter</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+434"/>
+        <location line="+459"/>
         <location line="+529"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-863"/>
+        <location line="-887"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
@@ -297,7 +337,7 @@
         <translation>Couldn&apos;t move the order right now - please try again.</translation>
     </message>
     <message>
-        <location line="+516"/>
+        <location line="+540"/>
         <source>Search products…</source>
         <translation>Search products…</translation>
     </message>
@@ -342,26 +382,32 @@
         <translation>Update order · %1 · %2 MDL</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+27"/>
         <source>Couldn&apos;t load the menu:
 %1</source>
         <translation>Couldn&apos;t load the menu:
 %1</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Loading menu…</source>
         <translation>Loading menu…</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+1"/>
+        <location line="+15"/>
+        <source>Retry</source>
+        <translation>Retry</translation>
+    </message>
+    <message>
+        <location line="-3"/>
         <source>Couldn&apos;t load the existing order:
 %1</source>
         <translation>Couldn&apos;t load the existing order:
 %1</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Loading order…</source>
         <translation>Loading order…</translation>
     </message>
@@ -397,7 +443,7 @@
         <translation>Couldn&apos;t delete the order</translation>
     </message>
     <message>
-        <location line="-76"/>
+        <location line="-74"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -410,22 +456,33 @@
 <context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+84"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+111"/>
         <source>Profile</source>
         <translation>Profile</translation>
     </message>
     <message>
-        <location line="+53"/>
+        <location line="-25"/>
+        <location line="+78"/>
         <source>Sign out</source>
         <translation>Sign out</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="-80"/>
+        <source>Sign out?</source>
+        <translation>Sign out?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You will be logged out of your profile.</source>
+        <translation>You will be logged out of your profile.</translation>
+    </message>
+    <message>
+        <location line="+108"/>
         <source>Tables served</source>
         <translation>Tables served</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+45"/>
         <source>Day</source>
         <translation>Day</translation>
     </message>
@@ -440,9 +497,19 @@
         <translation>Month</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Includes completed orders assigned to you.</source>
         <translation>Includes completed orders assigned to you.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Couldn&apos;t load the statistics.</source>
+        <translation>Couldn't load the statistics.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Retry</source>
+        <translation>Retry</translation>
     </message>
 </context>
 <context>
@@ -571,7 +638,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+314"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+323"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -581,7 +648,7 @@
         <translation>All</translation>
     </message>
     <message>
-        <location line="-258"/>
+        <location line="-267"/>
         <source>Hall</source>
         <translation>Hall</translation>
     </message>
@@ -601,7 +668,7 @@
         <translation>Unknown table</translation>
     </message>
     <message>
-        <location line="+129"/>
+        <location line="+135"/>
         <source>Sign out?</source>
         <translation>Sign out?</translation>
     </message>
@@ -616,14 +683,18 @@
         <translation>Sign out</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+21"/>
         <source>Not editable here yet</source>
         <translation>Not editable here yet</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>This order was started on another device and can&apos;t be opened here yet.</source>
-        <translation>This order was started on another device and can&apos;t be opened here yet.</translation>
+        <translation type="vanished">This order was started on another device and can&apos;t be opened here yet.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
+        <translation>This order was started by another waiter or on another device, so it can't be opened here.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -677,12 +748,12 @@
 <context>
     <name>UpdateManager</name>
     <message>
-        <location filename="../src/core/updatemanager.cpp" line="+80"/>
+        <location filename="../src/core/updatemanager.cpp" line="+89"/>
         <source>Update check is not configured.</source>
         <translation>Update check is not configured.</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Invalid response from server.</source>
         <translation>Invalid response from server.</translation>
     </message>

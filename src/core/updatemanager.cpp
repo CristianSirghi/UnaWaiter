@@ -14,6 +14,15 @@
 #include <QAndroidJniEnvironment>
 #endif
 
+namespace {
+// Plasă de siguranță pentru o cerere agățată, la fel ca în DataService. Fără
+// ea, o conexiune care nu se închide niciodată lasă m_checking blocat pe true,
+// iar guard-ul de la începutul lui checkForUpdate() respinge apoi ORICE
+// verificare ulterioară - actualizările mor definitiv până la repornirea
+// aplicației.
+constexpr int kCheckTimeoutMs = 15000;
+}
+
 UpdateManager::UpdateManager(QObject *parent)
     : QObject(parent)
 {
@@ -86,6 +95,7 @@ void UpdateManager::checkForUpdate(const QString &versionJsonUrl)
     QNetworkRequest request{QUrl(versionJsonUrl)};
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                          QNetworkRequest::NoLessSafeRedirectPolicy);
+    request.setTransferTimeout(kCheckTimeoutMs);
 
     QNetworkReply *reply = m_net.get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {

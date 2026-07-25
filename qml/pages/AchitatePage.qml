@@ -23,6 +23,12 @@ Page {
     }
 
     function buildRows(rows) {
+        // Un răspuns reușit înseamnă că suntem iar online - ștergem orice
+        // eroare rămasă de la un blip anterior, altfel mesajul roșu
+        // "Couldn't load paid orders" rămânea înfipt pe ecran până la
+        // repornirea aplicației, chiar dacă poll-ul de 25s își revenise
+        // demult (același fix ca în TablesPage.onOpenOrdersChanged).
+        root.loadError = ""
         ordersModel.clear()
         for (var i = 0; i < rows.length; ++i) {
             var r = rows[i]

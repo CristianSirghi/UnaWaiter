@@ -15,6 +15,9 @@ Page {
     // get_waiter_stats, un singur rând cu toate 3 cifrele.
     property var statsByPeriod: ({ day: 0, week: 0, month: 0 })
     property bool statsReady: false
+    // Fără asta, o cerere eșuată lăsa cifra pe "…" la nesfârșit, fără nicio
+    // explicație și fără vreo cale de reîncercare.
+    property string statsError: ""
 
     function applyStats(rows) {
         if (!rows || rows.length === 0) {
@@ -27,14 +30,24 @@ Page {
                 month: parseInt(r.MONTH_COUNT) || 0
             }
         }
+        root.statsError = ""
         root.statsReady = true
     }
 
-    Component.onCompleted: dataService.loadWaiterStats(String(AppSettings.waiterOficiant))
+    function reloadStats() {
+        root.statsError = ""
+        dataService.loadWaiterStats(String(AppSettings.waiterOficiant))
+    }
+
+    Component.onCompleted: root.reloadStats()
 
     Connections {
         target: dataService
         function onWaiterStatsChanged() { root.applyStats(dataService.waiterStats) }
+        function onRequestFailed(command, error) {
+            if (command === "get_waiter_stats")
+                root.statsError = error
+        }
     }
 
     function pad2(n) { return (n < 10 ? "0" : "") + n }
@@ -62,6 +75,17 @@ Page {
         if (start.toDateString() === today.toDateString())
             return root.fmtShortDate(today)
         return root.fmtShortDate(start) + " – " + root.fmtShortDate(today)
+    }
+
+    // Aceeași confirmare ca la deconectarea din meniul hamburger (TablesPage) -
+    // aici un singur tap te scotea direct afară, fără nicio întrebare.
+    Components.ConfirmDialog {
+        id: signOutDialog
+        title: qsTr("Sign out?")
+        message: qsTr("You will be logged out of your profile.")
+        confirmText: qsTr("Sign out")
+        destructive: true
+        onConfirmed: root.StackView.view.pop(null)
     }
 
     background: Rectangle {
@@ -142,7 +166,7 @@ Page {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: root.StackView.view.pop(null)
+                onClicked: signOutDialog.open()
             }
         }
 
@@ -173,10 +197,12 @@ Page {
                     spacing: 10
 
                     Label {
-                        text: root.statsReady ? root.statsByPeriod[root.statsPeriod] : "…"
+                        text: root.statsError !== ""
+                            ? "—"
+                            : (root.statsReady ? root.statsByPeriod[root.statsPeriod] : "…")
                         font.pixelSize: 34 * Theme.fontScale
                         font.bold: true
-                        color: Theme.textPrimary
+                        color: root.statsError !== "" ? Theme.textSecondary : Theme.textPrimary
                     }
 
                     // Intervalul de date numărat - doar la Săpt./Lună, la Zi e
@@ -215,10 +241,41 @@ Page {
 
                 Label {
                     Layout.fillWidth: true
+                    visible: root.statsError === ""
                     text: qsTr("Includes completed orders assigned to you.")
                     font.pixelSize: 11 * Theme.fontScale
                     color: Theme.textSecondary
                     wrapMode: Text.WordWrap
+                }
+
+                // Eroare de încărcare a statisticilor + reîncercare, în locul
+                // notei explicative de mai sus.
+                RowLayout {
+                    Layout.fillWidth: true
+                    visible: root.statsError !== ""
+                    spacing: 10
+
+                    Label {
+                        Layout.fillWidth: true
+                        text: qsTr("Couldn't load the statistics.")
+                        font.pixelSize: 11 * Theme.fontScale
+                        color: Theme.danger
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Label {
+                        text: qsTr("Retry")
+                        font.pixelSize: 12 * Theme.fontScale
+                        font.bold: true
+                        font.underline: true
+                        color: Theme.primary
+
+                        MouseArea {
+                            anchors.fill: parent
+                            anchors.margins: -8
+                            onClicked: root.reloadStats()
+                        }
+                    }
                 }
             }
         }

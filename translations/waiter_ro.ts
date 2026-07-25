@@ -4,7 +4,7 @@
 <context>
     <name>AchitatePage</name>
     <message>
-        <location filename="../qml/pages/AchitatePage.qml" line="+33"/>
+        <location filename="../qml/pages/AchitatePage.qml" line="+39"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
@@ -108,17 +108,22 @@
 <context>
     <name>ChangeTablePicker</name>
     <message>
-        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+111"/>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+121"/>
         <source>Move to table</source>
         <translation>Mută pe altă masă</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+44"/>
+        <source>Tables are not available right now.</source>
+        <translation>Mesele nu sunt disponibile momentan.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Hall</source>
         <translation>Sala</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+70"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -165,9 +170,17 @@
     </message>
 </context>
 <context>
+    <name>LoadingOverlay</name>
+    <message>
+        <location filename="../qml/components/controls/LoadingOverlay.qml" line="+35"/>
+        <source>Loading…</source>
+        <translation>Se încarcă…</translation>
+    </message>
+</context>
+<context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+118"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+131"/>
         <source>The PINs don&apos;t match. Try again.</source>
         <translation>PIN-urile nu coincid. Încercați din nou.</translation>
     </message>
@@ -187,7 +200,7 @@
         <translation>Confirmați PIN-ul</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+43"/>
         <source>Wrong PIN</source>
         <translation>PIN greșit</translation>
     </message>
@@ -232,7 +245,34 @@
         <translation>Caută nume</translation>
     </message>
     <message>
-        <location line="+235"/>
+        <location line="+21"/>
+        <source>Couldn&apos;t load the waiter list:
+%1</source>
+        <translation>Nu s-a putut încărca lista de chelneri:
+%1</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Loading waiters…</source>
+        <translation>Se încarcă chelnerii…</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No waiter found for “%1”.</source>
+        <translation>Niciun chelner găsit pentru „%1”.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No waiters available.</source>
+        <translation>Niciun chelner disponibil.</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Retry</source>
+        <translation>Reîncearcă</translation>
+    </message>
+    <message>
+        <location line="+248"/>
         <source>Switch user</source>
         <translation>Schimbă utilizatorul</translation>
     </message>
@@ -240,7 +280,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+132"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+163"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -251,27 +291,27 @@
     </message>
     <message>
         <location line="+235"/>
-        <location line="+80"/>
-        <location line="+224"/>
-        <location line="+106"/>
-        <location line="+691"/>
+        <location line="+81"/>
+        <location line="+244"/>
+        <location line="+110"/>
+        <location line="+689"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
     <message>
-        <location line="-1100"/>
+        <location line="-1123"/>
         <source>Waiter</source>
         <translation>Chelner</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+434"/>
+        <location line="+459"/>
         <location line="+529"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-863"/>
+        <location line="-887"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Masa %1 tocmai a fost luată de %2 - alege altă masă.</translation>
     </message>
@@ -297,7 +337,7 @@
         <translation>Comanda nu a putut fi mutată acum - încearcă din nou.</translation>
     </message>
     <message>
-        <location line="+516"/>
+        <location line="+540"/>
         <source>Search products…</source>
         <translation>Caută produse…</translation>
     </message>
@@ -342,26 +382,32 @@
         <translation>Actualizează comanda · %1 · %2 MDL</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+27"/>
         <source>Couldn&apos;t load the menu:
 %1</source>
         <translation>Nu s-a putut încărca meniul:
 %1</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Loading menu…</source>
         <translation>Se încarcă meniul…</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+1"/>
+        <location line="+15"/>
+        <source>Retry</source>
+        <translation>Reîncearcă</translation>
+    </message>
+    <message>
+        <location line="-3"/>
         <source>Couldn&apos;t load the existing order:
 %1</source>
         <translation>Nu s-a putut încărca comanda existentă:
 %1</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Loading order…</source>
         <translation>Se încarcă comanda…</translation>
     </message>
@@ -397,7 +443,7 @@
         <translation>Comanda nu a putut fi ștearsă</translation>
     </message>
     <message>
-        <location line="-76"/>
+        <location line="-74"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Trimite comanda · %1 · %2 MDL</translation>
     </message>
@@ -410,22 +456,33 @@
 <context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+84"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+111"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
     <message>
-        <location line="+53"/>
+        <location line="-25"/>
+        <location line="+78"/>
         <source>Sign out</source>
         <translation>Deconectare</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="-80"/>
+        <source>Sign out?</source>
+        <translation>Vă deconectați?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You will be logged out of your profile.</source>
+        <translation>Veți fi deconectat din profil.</translation>
+    </message>
+    <message>
+        <location line="+108"/>
         <source>Tables served</source>
         <translation>Mese servite</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+45"/>
         <source>Day</source>
         <translation>Zi</translation>
     </message>
@@ -440,9 +497,19 @@
         <translation>Lună</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Includes completed orders assigned to you.</source>
         <translation>Sunt incluse comenzile finalizate alocate dvs.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Couldn&apos;t load the statistics.</source>
+        <translation>Nu s-au putut încărca statisticile.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Retry</source>
+        <translation>Reîncearcă</translation>
     </message>
 </context>
 <context>
@@ -571,7 +638,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+314"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+323"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>
@@ -581,7 +648,7 @@
         <translation>Toate</translation>
     </message>
     <message>
-        <location line="-258"/>
+        <location line="-267"/>
         <source>Hall</source>
         <translation>Sala</translation>
     </message>
@@ -601,7 +668,7 @@
         <translation>Masă necunoscută</translation>
     </message>
     <message>
-        <location line="+129"/>
+        <location line="+135"/>
         <source>Sign out?</source>
         <translation>Vă deconectați?</translation>
     </message>
@@ -616,14 +683,18 @@
         <translation>Deconectare</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+21"/>
         <source>Not editable here yet</source>
         <translation>Încă nu se poate edita aici</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>This order was started on another device and can&apos;t be opened here yet.</source>
-        <translation>Această comandă a fost începută pe alt dispozitiv și încă nu poate fi deschisă aici.</translation>
+        <translation type="vanished">Această comandă a fost începută pe alt dispozitiv și încă nu poate fi deschisă aici.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
+        <translation>Această comandă a fost începută de alt chelner sau pe alt dispozitiv, deci nu poate fi deschisă aici.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -677,12 +748,12 @@
 <context>
     <name>UpdateManager</name>
     <message>
-        <location filename="../src/core/updatemanager.cpp" line="+80"/>
+        <location filename="../src/core/updatemanager.cpp" line="+89"/>
         <source>Update check is not configured.</source>
         <translation>Verificarea actualizărilor nu este configurată.</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Invalid response from server.</source>
         <translation>Răspuns invalid de la server.</translation>
     </message>

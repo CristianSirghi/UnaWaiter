@@ -4,7 +4,7 @@
 <context>
     <name>AchitatePage</name>
     <message>
-        <location filename="../qml/pages/AchitatePage.qml" line="+33"/>
+        <location filename="../qml/pages/AchitatePage.qml" line="+39"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
@@ -108,17 +108,22 @@
 <context>
     <name>ChangeTablePicker</name>
     <message>
-        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+111"/>
+        <location filename="../qml/components/controls/ChangeTablePicker.qml" line="+121"/>
         <source>Move to table</source>
         <translation>Перенести на другой стол</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+44"/>
+        <source>Tables are not available right now.</source>
+        <translation>Столы сейчас недоступны.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Hall</source>
         <translation>Зал</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+70"/>
         <source>Terrace</source>
         <translation>Терраса</translation>
     </message>
@@ -165,9 +170,17 @@
     </message>
 </context>
 <context>
+    <name>LoadingOverlay</name>
+    <message>
+        <location filename="../qml/components/controls/LoadingOverlay.qml" line="+35"/>
+        <source>Loading…</source>
+        <translation>Загрузка…</translation>
+    </message>
+</context>
+<context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="+118"/>
+        <location filename="../qml/pages/LoginPage.qml" line="+131"/>
         <source>The PINs don&apos;t match. Try again.</source>
         <translation>PIN-коды не совпадают. Попробуйте снова.</translation>
     </message>
@@ -187,7 +200,7 @@
         <translation>Подтвердите PIN-код</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+43"/>
         <source>Wrong PIN</source>
         <translation>Неверный PIN-код</translation>
     </message>
@@ -232,7 +245,34 @@
         <translation>Поиск имени</translation>
     </message>
     <message>
-        <location line="+235"/>
+        <location line="+21"/>
+        <source>Couldn&apos;t load the waiter list:
+%1</source>
+        <translation>Не удалось загрузить список официантов:
+%1</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Loading waiters…</source>
+        <translation>Загрузка официантов…</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No waiter found for “%1”.</source>
+        <translation>Официант по запросу «%1» не найден.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No waiters available.</source>
+        <translation>Нет доступных официантов.</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Retry</source>
+        <translation>Повторить</translation>
+    </message>
+    <message>
+        <location line="+248"/>
         <source>Switch user</source>
         <translation>Сменить пользователя</translation>
     </message>
@@ -240,7 +280,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+132"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+163"/>
         <source>Terrace</source>
         <translation>Терраса</translation>
     </message>
@@ -251,27 +291,27 @@
     </message>
     <message>
         <location line="+235"/>
-        <location line="+80"/>
-        <location line="+224"/>
-        <location line="+106"/>
-        <location line="+691"/>
+        <location line="+81"/>
+        <location line="+244"/>
+        <location line="+110"/>
+        <location line="+689"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
     <message>
-        <location line="-1100"/>
+        <location line="-1123"/>
         <source>Waiter</source>
         <translation>Официант</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+434"/>
+        <location line="+459"/>
         <location line="+529"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-863"/>
+        <location line="-887"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Стол %1 только что заняла(-л) %2 - выберите другой стол.</translation>
     </message>
@@ -297,7 +337,7 @@
         <translation>Не удалось перенести заказ - попробуйте ещё раз.</translation>
     </message>
     <message>
-        <location line="+516"/>
+        <location line="+540"/>
         <source>Search products…</source>
         <translation>Поиск блюд…</translation>
     </message>
@@ -342,26 +382,32 @@
         <translation>Обновить заказ · %1 · %2 MDL</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+27"/>
         <source>Couldn&apos;t load the menu:
 %1</source>
         <translation>Не удалось загрузить меню:
 %1</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Loading menu…</source>
         <translation>Загрузка меню…</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+1"/>
+        <location line="+15"/>
+        <source>Retry</source>
+        <translation>Повторить</translation>
+    </message>
+    <message>
+        <location line="-3"/>
         <source>Couldn&apos;t load the existing order:
 %1</source>
         <translation>Не удалось загрузить существующий заказ:
 %1</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Loading order…</source>
         <translation>Загрузка заказа…</translation>
     </message>
@@ -397,7 +443,7 @@
         <translation>Не удалось удалить заказ</translation>
     </message>
     <message>
-        <location line="-76"/>
+        <location line="-74"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Отправить заказ · %1 · %2 MDL</translation>
     </message>
@@ -410,22 +456,33 @@
 <context>
     <name>ProfilePage</name>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="+84"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="+111"/>
         <source>Profile</source>
         <translation>Профиль</translation>
     </message>
     <message>
-        <location line="+53"/>
+        <location line="-25"/>
+        <location line="+78"/>
         <source>Sign out</source>
         <translation>Выйти</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="-80"/>
+        <source>Sign out?</source>
+        <translation>Выйти?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You will be logged out of your profile.</source>
+        <translation>Вы выйдете из своего профиля.</translation>
+    </message>
+    <message>
+        <location line="+108"/>
         <source>Tables served</source>
         <translation>Обслуженные столы</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+45"/>
         <source>Day</source>
         <translation>День</translation>
     </message>
@@ -440,9 +497,19 @@
         <translation>Месяц</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Includes completed orders assigned to you.</source>
         <translation>Включены завершённые заказы, закреплённые за вами.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Couldn&apos;t load the statistics.</source>
+        <translation>Не удалось загрузить статистику.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Retry</source>
+        <translation>Повторить</translation>
     </message>
 </context>
 <context>
@@ -571,7 +638,7 @@
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+314"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+323"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -581,7 +648,7 @@
         <translation>Все</translation>
     </message>
     <message>
-        <location line="-258"/>
+        <location line="-267"/>
         <source>Hall</source>
         <translation>Зал</translation>
     </message>
@@ -601,7 +668,7 @@
         <translation>Неизвестный стол</translation>
     </message>
     <message>
-        <location line="+129"/>
+        <location line="+135"/>
         <source>Sign out?</source>
         <translation>Выйти?</translation>
     </message>
@@ -616,14 +683,18 @@
         <translation>Выйти</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+21"/>
         <source>Not editable here yet</source>
         <translation>Пока нельзя редактировать здесь</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>This order was started on another device and can&apos;t be opened here yet.</source>
-        <translation>Этот заказ был начат на другом устройстве и пока не может быть открыт здесь.</translation>
+        <translation type="vanished">Этот заказ был начат на другом устройстве и пока не может быть открыт здесь.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
+        <translation>Этот заказ был начат другим официантом или на другом устройстве, поэтому его нельзя открыть здесь.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -677,12 +748,12 @@
 <context>
     <name>UpdateManager</name>
     <message>
-        <location filename="../src/core/updatemanager.cpp" line="+80"/>
+        <location filename="../src/core/updatemanager.cpp" line="+89"/>
         <source>Update check is not configured.</source>
         <translation>Проверка обновлений не настроена.</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Invalid response from server.</source>
         <translation>Неверный ответ сервера.</translation>
     </message>

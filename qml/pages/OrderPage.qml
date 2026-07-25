@@ -55,14 +55,29 @@ Page {
     // Stare trimitere reală către Oracle (create_order + add_order_line).
     property bool sending: false
     property string sendError: ""
-    // Dialog, nu banner - vezi sendErrorDialog mai jos în fișier.
-    onSendErrorChanged: if (root.sendError !== "") sendErrorDialog.open()
 
     // Stare anulare comandă (cancel_order) - separată de `sending`, ca
     // trimiterea și ștergerea să nu se poată amesteca.
     property bool deleting: false
     property string deleteError: ""
-    onDeleteErrorChanged: if (root.deleteError !== "") deleteErrorDialog.open()
+
+    // Dialog, nu banner (vezi sendErrorDialog mai jos în fișier), deschis
+    // EXPLICIT de-aici - nu dintr-un onSendErrorChanged.
+    //
+    // Cu handler-ul pe semnalul de schimbare, a doua oară când apărea exact
+    // aceeași eroare (ex. apeși "Trimite", masa e luată de Ion, OK, apeși din
+    // nou) proprietatea primea aceeași valoare, deci nu se emitea niciun
+    // semnal și dialogul nu se mai deschidea - butonul părea pur și simplu
+    // mort. Un apel direct se re-declanșează de fiecare dată.
+    function showSendError(message) {
+        root.sendError = message
+        sendErrorDialog.open()
+    }
+
+    function showDeleteError(message) {
+        root.deleteError = message
+        deleteErrorDialog.open()
+    }
 
     // Numărul real de comandă (nr_comand) din Oracle pentru masa curentă, când
     // se editează o comandă deja trimisă - 0 dacă e o comandă nouă sau dacă
@@ -91,15 +106,31 @@ Page {
     property var occupiedByDesk: ({})
     property var lastOccupancyRows: null
 
+    // Numerele reale de masă per zonă, date mai departe la ChangeTablePicker -
+    // aceeași sursă (uw_tables) ca SelectTablePage, ca picker-ul să nu mai
+    // presupună 1..10 (mese peste 10 inaccesibile, mese inexistente oferite).
+    property var pickerHallTables: []
+    property var pickerTerraceTables: []
+
     // Semnalăm către main.qml că am terminat (trimis sau șters) — el ne readuce
     // la lista de mese, indiferent câte pagini sunt pe stivă.
     signal done()
 
     function buildPickerDeskZone(rows) {
         var map = {}
-        for (var i = 0; i < rows.length; ++i)
-            map[parseInt(rows[i].TABLE_NO)] = rows[i].ZONE
+        var hall = []
+        var terrace = []
+        for (var i = 0; i < rows.length; ++i) {
+            var no = parseInt(rows[i].TABLE_NO)
+            map[no] = rows[i].ZONE
+            if (rows[i].ZONE === "hall")
+                hall.push(no)
+            else if (rows[i].ZONE === "terrace")
+                terrace.push(no)
+        }
         root.pickerDeskZone = map
+        root.pickerHallTables = hall
+        root.pickerTerraceTables = terrace
         if (root.lastOccupancyRows !== null)
             root.buildOccupiedTables(root.lastOccupancyRows)
     }
@@ -370,7 +401,8 @@ Page {
             root.addonStore,
             root.guestCount,
             qsTr("%1 MDL").arg(root.fmt(root.orderTotal)),
-            root.sentNrComand
+            root.sentNrComand,
+            AppSettings.waiterOficiant
         )
         root.done()
     }
@@ -468,9 +500,9 @@ Page {
             if (!hasDesk || parseInt(orow.DESK) !== root.tableNumber)
                 continue
             var owner = orow.CLCOFICIANTT ? String(orow.CLCOFICIANTT).trim() : ""
-            root.sendError = owner
+            root.showSendError(owner
                 ? qsTr("Table %1 was just taken by %2 - pick another table.").arg(root.tableNumber).arg(owner)
-                : qsTr("Table %1 was just taken by someone else - pick another table.").arg(root.tableNumber)
+                : qsTr("Table %1 was just taken by someone else - pick another table.").arg(root.tableNumber))
             return
         }
 
@@ -532,6 +564,26 @@ Page {
 
         root.menuData = built
         root.codeOf = codeMap
+    }
+
+    // Reîncearcă încărcarea meniului după o eroare (butonul din overlay) - fără
+    // asta, un blip de rețea la deschiderea mesei lăsa ecranul blocat pe
+    // "Couldn't load the menu" până ieșeai și intrai din nou.
+    function reloadMenu() {
+        root.loadError = ""
+        dataService.loadCategories()
+        dataService.loadMenu(0)
+    }
+
+    // Idem pentru liniile comenzii existente. Fără nr_comand n-avem ce cere -
+    // nu forțăm awaitingOrderLines, altfel overlay-ul ar rămâne blocat la
+    // nesfârșit, fără niciun răspuns care să-l închidă.
+    function reloadOrderLines() {
+        if (root.sentNrComand <= 0)
+            return
+        root.linesLoadError = ""
+        root.awaitingOrderLines = true
+        dataService.loadOrderLines(String(root.sentNrComand))
     }
 
     // Construim meniul o singură dată, când AMBELE surse au sosit
@@ -711,22 +763,26 @@ Page {
             if (root.sending && (command === "create_order" || command === "add_order_lines" || command === "update_order_desk" || command === "update_guest_count")) {
                 root.sending = false
                 if (command === "create_order") {
-                    root.sendError = root.friendlyCreateOrderError(error)
+                    root.showSendError(root.friendlyCreateOrderError(error))
                 } else if (command === "update_order_desk") {
-                    root.sendError = root.friendlyUpdateOrderDeskError(error)
-                    // Mutarea a fost respinsă de Oracle - masa afișată trebuie
-                    // să rămână cea reală (originală), nu ținta neconfirmată
-                    // aleasă din ChangeTablePicker.
+                    // Mesajul se compune ÎNAINTE de reset: el numește masa
+                    // ȚINTĂ ("Masa %1 are deja altă comandă"), deci are nevoie
+                    // de root.tableNumber așa cum l-a ales chelnerul.
+                    var deskError = root.friendlyUpdateOrderDeskError(error)
+                    // Abia apoi revenim la masa reală - mutarea a fost respinsă
+                    // de Oracle, deci afișarea trebuie să rămână pe cea
+                    // originală, nu pe ținta neconfirmată din ChangeTablePicker.
                     root.zone = root.originalZone
                     root.tableNumber = root.originalTableNumber
+                    root.showSendError(deskError)
                 } else {
-                    root.sendError = error
+                    root.showSendError(error)
                 }
                 return
             }
             if (root.deleting && command === "cancel_order") {
                 root.deleting = false
-                root.deleteError = error
+                root.showDeleteError(error)
             }
         }
     }
@@ -1430,32 +1486,30 @@ Page {
     }
 
     // Stare de încărcare / eroare peste zona de conținut, până sosește meniul.
-    Label {
-        anchors.centerIn: parent
-        visible: !root.menuReady
-        horizontalAlignment: Text.AlignHCenter
-        width: parent.width - 48
-        wrapMode: Text.WordWrap
-        text: root.loadError !== ""
+    Components.LoadingOverlay {
+        anchors.fill: parent
+        loading: !root.menuReady && root.loadError === ""
+        errorText: (!root.menuReady && root.loadError !== "")
             ? qsTr("Couldn't load the menu:\n%1").arg(root.loadError)
-            : qsTr("Loading menu…")
-        font.pixelSize: 15 * Theme.fontScale
-        color: root.loadError !== "" ? Theme.danger : Theme.textSecondary
+            : ""
+        loadingText: qsTr("Loading menu…")
+        retryText: qsTr("Retry")
+        onRetryRequested: root.reloadMenu()
     }
 
     // Stare de încărcare / eroare pentru liniile reale ale comenzii editate
-    // (get_order_lines) - separată de starea meniului de mai sus.
-    Label {
-        anchors.centerIn: parent
-        visible: root.menuReady && (root.awaitingOrderLines || root.linesLoadError !== "")
-        horizontalAlignment: Text.AlignHCenter
-        width: parent.width - 48
-        wrapMode: Text.WordWrap
-        text: root.linesLoadError !== ""
+    // (get_order_lines) - separată de starea meniului de mai sus. Blocant:
+    // vezi comentariul din LoadingOverlay despre produsele adăugate care se
+    // pierdeau când răspunsul sosea peste ele.
+    Components.LoadingOverlay {
+        anchors.fill: parent
+        loading: root.menuReady && root.awaitingOrderLines
+        errorText: (root.menuReady && root.linesLoadError !== "")
             ? qsTr("Couldn't load the existing order:\n%1").arg(root.linesLoadError)
-            : qsTr("Loading order…")
-        font.pixelSize: 15 * Theme.fontScale
-        color: root.linesLoadError !== "" ? Theme.danger : Theme.textSecondary
+            : ""
+        loadingText: qsTr("Loading order…")
+        retryText: qsTr("Retry")
+        onRetryRequested: root.reloadOrderLines()
     }
 
     Components.ConfirmDialog {
@@ -1502,6 +1556,8 @@ Page {
     Components.ChangeTablePicker {
         id: tablePicker
         occupiedByDesk: root.occupiedByDesk
+        hallTables: root.pickerHallTables
+        terraceTables: root.pickerTerraceTables
         onTableSelected: function(zone, tableNumber) {
             root.zone = zone
             root.tableNumber = tableNumber

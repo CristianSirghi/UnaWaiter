@@ -49,7 +49,8 @@ QtObject {
             entries.push({
                 tableKey: e.tableKey, zone: e.zone, tableNumber: e.tableNumber,
                 tableName: e.tableName, active: e.active, orderTime: e.orderTime,
-                waiterName: e.waiterName, orderNo: e.orderNo, preview: e.preview,
+                waiterName: e.waiterName, waiterOficiant: e.waiterOficiant,
+                orderNo: e.orderNo, preview: e.preview,
                 guestCount: e.guestCount, total: e.total
             })
         }
@@ -87,8 +88,15 @@ QtObject {
         root.nextOrderNo = state.nextOrderNo || root.nextOrderNo
         ordersModel.clear()
         var entries = state.entries || []
-        for (var i = 0; i < entries.length; ++i)
-            ordersModel.append(entries[i])
+        for (var i = 0; i < entries.length; ++i) {
+            var e = entries[i]
+            // Intrări salvate înainte ca proprietarul să fie reținut: le dăm
+            // 0 = "necunoscut", tratat mai jos ca editabil de oricine, ca o
+            // actualizare a aplicației să nu blocheze comenzile deja deschise.
+            if (e.waiterOficiant === undefined)
+                e.waiterOficiant = 0
+            ordersModel.append(e)
+        }
     }
 
     function keyFor(zone, tableNumber) {
@@ -146,7 +154,9 @@ QtObject {
     // (păstrat neschimbat dacă se editează o comandă deja trimisă).
     // nrComand = numărul real din Oracle, dacă e cunoscut la acest punct (0 = necunoscut,
     // caz în care păstrăm ce era deja reținut, ca să nu-l pierdem).
-    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, addonMap, guestCount, total, nrComand) {
+    // waiterOficiant = codul chelnerului care deține comanda pe acest telefon
+    // (vezi isEditableBy).
+    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, addonMap, guestCount, total, nrComand, waiterOficiant) {
         var key = keyFor(zone, tableNumber)
         var idx = indexForKey(key)
         var orderNo = idx >= 0 ? ordersModel.get(idx).orderNo : ("#" + nextOrderNo)
@@ -166,6 +176,7 @@ QtObject {
             active: true,
             orderTime: Qt.formatTime(new Date(), "hh:mm"),
             waiterName: waiterName,
+            waiterOficiant: waiterOficiant ? waiterOficiant : 0,
             orderNo: orderNo,
             preview: buildPreview(itemsMap),
             guestCount: guestCount,
@@ -227,9 +238,31 @@ QtObject {
 
     // True dacă masa dată are deja o comandă activă — folosit la schimbarea
     // mesei unei comenzi (ChangeTablePicker), ca să nu suprascriem din
-    // greșeală o altă comandă deschisă.
+    // greșeală o altă comandă deschisă. Intenționat indiferent de proprietar:
+    // o masă ocupată de altcineva e la fel de ocupată.
     function hasOrder(zone, tableNumber) {
         return indexForKey(keyFor(zone, tableNumber)) >= 0
+    }
+
+    // True dacă masa are o comandă locală pe care chelnerul dat o poate edita
+    // pe ACEST telefon.
+    //
+    // Deconectarea nu golește acest cache (și nici n-ar trebui: dacă același
+    // chelner se reloghează, trebuie să-și regăsească mesele editabile - exact
+    // motivul pentru care starea e persistată). Dar fără verificarea de
+    // proprietar, un al doilea chelner care se loga pe același telefon găsea
+    // comenzile primului marcate "editable" și le putea deschide și modifica.
+    //
+    // oficiant 0 reținut = intrare veche, dinainte de acest tracking: rămâne
+    // editabilă ca înainte (vezi restoreState).
+    function isEditableBy(zone, tableNumber, oficiant) {
+        var idx = indexForKey(keyFor(zone, tableNumber))
+        if (idx < 0)
+            return false
+        var owner = ordersModel.get(idx).waiterOficiant
+        if (!owner)
+            return true
+        return owner === oficiant
     }
 
     // Mută o comandă deschisă pe altă masă/zonă (chelnerul a trimis din
@@ -258,6 +291,7 @@ QtObject {
             active: src.active,
             orderTime: src.orderTime,
             waiterName: src.waiterName,
+            waiterOficiant: src.waiterOficiant,
             orderNo: src.orderNo,
             preview: src.preview,
             guestCount: src.guestCount,

@@ -35,7 +35,27 @@ Page {
     property bool busy: false
     property string errorText: ""
 
+    // Starea listei de chelneri (get_waiters). Fără ele, o cădere a
+    // serverului lăsa chelnerul în fața unei liste goale sub textul
+    // "Alege-ți numele din listă", fără nicio eroare și fără vreo cale de
+    // reîncercare - pe primul ecran al aplicației.
+    property bool waitersLoaded: false
+    property string waitersError: ""
+
+    // Singura sursă de adevăr pentru "arătăm lista" vs "arătăm o stare".
+    // dataService.waiters păstrează ultimul răspuns reușit, deci o reîncărcare
+    // eșuată lasă lista veche pe loc - fără condiția asta comună, eroarea și
+    // lista s-ar afișa una peste alta.
+    readonly property bool waiterListReady: root.waitersError === ""
+        && root.waitersLoaded && root.filteredWaiters.length > 0
+
     signal loginConfirmed()
+
+    function reloadWaiters() {
+        root.waitersError = ""
+        root.waitersLoaded = false
+        dataService.loadWaiters()
+    }
 
     Component.onCompleted: {
         if (AppSettings.waiterOficiant !== 0) {
@@ -48,7 +68,7 @@ Page {
             root.cameFromPicker = false
         } else {
             root.askWaiter = true
-            dataService.loadWaiters()
+            root.reloadWaiters()
         }
     }
 
@@ -87,7 +107,7 @@ Page {
         root.setStage = 0
         root.errorText = ""
         root.askWaiter = true
-        dataService.loadWaiters()
+        root.reloadWaiters()
     }
 
     function submitPin() {
@@ -145,6 +165,11 @@ Page {
     Connections {
         target: dataService
 
+        function onWaitersChanged() {
+            root.waitersError = ""
+            root.waitersLoaded = true
+        }
+
         function onLoggedIn(oficiant, name) {
             if (!root.busy)
                 return
@@ -164,6 +189,13 @@ Page {
         }
 
         function onRequestFailed(command, error) {
+            if (command === "get_waiters") {
+                // Fără dialog: eroarea se afișează inline, în locul listei,
+                // împreună cu butonul de reîncercare - un popup peste un ecran
+                // gol n-ar spune nimic în plus și ar trebui închis mai întâi.
+                root.waitersError = error
+                return
+            }
             if (command === "log_in") {
                 if (!root.busy)
                     return
@@ -261,11 +293,68 @@ Page {
             inputMethodHints: Qt.ImhNoPredictiveText
         }
 
+        // Stările listei: eroare de rețea (cu reîncercare), încărcare, listă
+        // reală goală, sau căutare fără rezultat. Ocupă exact locul listei.
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            visible: !root.waiterListReady
+            spacing: 16
+
+            Item { Layout.fillHeight: true }
+
+            Label {
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                text: {
+                    if (root.waitersError !== "")
+                        return qsTr("Couldn't load the waiter list:\n%1").arg(root.waitersError)
+                    if (!root.waitersLoaded)
+                        return qsTr("Loading waiters…")
+                    if (searchField.text.trim() !== "")
+                        return qsTr("No waiter found for “%1”.").arg(searchField.text.trim())
+                    return qsTr("No waiters available.")
+                }
+                font.pixelSize: 15 * Theme.fontScale
+                color: root.waitersError !== "" ? Theme.danger : Theme.textSecondary
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignHCenter
+                // Reîncercarea are sens doar pentru o eroare de rețea; la o
+                // căutare fără rezultat n-ar face decât să reîncarce inutil.
+                visible: root.waitersError !== ""
+                implicitWidth: waitersRetryLabel.implicitWidth + 44
+                implicitHeight: 44
+                radius: 22
+                color: waitersRetryArea.pressed ? Qt.darker(Theme.primary, 1.2) : Theme.primary
+
+                Label {
+                    id: waitersRetryLabel
+                    anchors.centerIn: parent
+                    text: qsTr("Retry")
+                    font.pixelSize: 15 * Theme.fontScale
+                    font.bold: true
+                    color: "white"
+                }
+
+                MouseArea {
+                    id: waitersRetryArea
+                    anchors.fill: parent
+                    onClicked: root.reloadWaiters()
+                }
+            }
+
+            Item { Layout.fillHeight: true }
+        }
+
         ListView {
             id: waiterList
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
+            visible: root.waiterListReady
             model: root.filteredWaiters
             spacing: 4
             boundsBehavior: Flickable.StopAtBounds

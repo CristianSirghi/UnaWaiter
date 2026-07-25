@@ -114,7 +114,15 @@ Page {
                 preview: r.PREVIEW ? String(r.PREVIEW).trim() : "",
                 guestCount: hasGuestCount ? parseInt(r.BARMEN) : 1,
                 total: root.fmtTotal(r.CLCCOSTT),
-                editable: deskNo > 0 && OrdersStore.hasOrder(zone, deskNo)
+                // Nu doar "există local", ci "există local ȘI e a chelnerului
+                // logat acum" - altfel, când altcineva preia telefonul
+                // (deconectare, sau "Schimbă utilizatorul" din ecranul de PIN),
+                // al doilea chelner găsea comenzile primului deschise spre
+                // editare. Cache-ul supraviețuiește intenționat schimbării de
+                // utilizator, ca primul să nu-și piardă mesele la re-logare -
+                // de-aici nevoia verificării de proprietar, în loc de golire.
+                editable: deskNo > 0
+                    && OrdersStore.isEditableBy(zone, deskNo, AppSettings.waiterOficiant)
             })
         }
 
@@ -256,7 +264,7 @@ Page {
     Components.ConfirmDialog {
         id: notEditableDialog
         title: qsTr("Not editable here yet")
-        message: qsTr("This order was started on another device and can't be opened here yet.")
+        message: qsTr("This order was started by another waiter or on another device, so it can't be opened here.")
         confirmText: qsTr("OK")
         infoOnly: true
     }

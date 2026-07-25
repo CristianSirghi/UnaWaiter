@@ -23,6 +23,16 @@ Popup {
     property string currentZone: ""
     property int currentTableNumber: 0
 
+    // Numerele reale de masă per zonă (din uw_tables, via dataService.tables) -
+    // completate de OrderPage, exact ca occupiedByDesk mai jos. NU mai sunt
+    // hardcodate 1..10: grilele de-aici au rămas în urmă când SelectTablePage a
+    // trecut pe mese din DB, iar asta însemna că mesele peste 10 nu se puteau
+    // alege deloc, iar la un restaurant cu mai puține mese chelnerul putea muta
+    // comanda pe o masă inexistentă în uw_tables (TablesPage o punea apoi tăcut
+    // în "hall", fiindcă deskZone n-o cunoștea).
+    property var hallTables: []
+    property var terraceTables: []
+
     // "zonă_masă" → { waiter, orderNo } - completat de OrderPage din
     // dataService.tableOccupancy (Oracle, toți chelnerii/toate telefoanele).
     // Sursa de adevăr pentru cine ocupă efectiv o masă - vezi și OrdersStore
@@ -142,8 +152,24 @@ Popup {
 
                 readonly property real cardSize: (width - 32 - 24) / 3
 
+                // Mesele vin din uw_tables prin OrderPage; dacă get_tables n-a
+                // răspuns încă (sau a eșuat), ambele grile sunt goale - fără
+                // asta sheet-ul s-ar deschide complet gol, fără nicio explicație.
                 Label {
                     x: 16
+                    width: contentCol.width - 32
+                    visible: root.hallTables.length === 0 && root.terraceTables.length === 0
+                    topPadding: 24
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    text: qsTr("Tables are not available right now.")
+                    font.pixelSize: 14 * Theme.fontScale
+                    color: Theme.textSecondary
+                }
+
+                Label {
+                    x: 16
+                    visible: root.hallTables.length > 0
                     text: qsTr("Hall")
                     font.pixelSize: 15 * Theme.fontScale
                     font.bold: true
@@ -152,17 +178,18 @@ Popup {
 
                 Grid {
                     x: 16
+                    visible: root.hallTables.length > 0
                     columns: 3
                     rowSpacing: 12
                     columnSpacing: 12
 
                     Repeater {
-                        model: 10
+                        model: root.hallTables
 
                         Rectangle {
-                            readonly property bool isCurrent: root.currentZone === "hall" && root.currentTableNumber === index + 1
-                            readonly property var occupant: root.occupantFor("hall", index + 1)
-                            readonly property bool taken: root.isTaken("hall", index + 1)
+                            readonly property bool isCurrent: root.currentZone === "hall" && root.currentTableNumber === modelData
+                            readonly property var occupant: root.occupantFor("hall", modelData)
+                            readonly property bool taken: root.isTaken("hall", modelData)
 
                             width: contentCol.cardSize
                             height: contentCol.cardSize
@@ -175,7 +202,7 @@ Popup {
                             Label {
                                 anchors.centerIn: parent
                                 anchors.verticalCenterOffset: (taken && occupant) ? -6 : 0
-                                text: index + 1
+                                text: modelData
                                 font.pixelSize: 20 * Theme.fontScale
                                 font.bold: true
                                 color: isCurrent ? "white" : Theme.textPrimary
@@ -198,7 +225,7 @@ Popup {
                                 anchors.fill: parent
                                 enabled: !taken
                                 onClicked: {
-                                    root.tableSelected("hall", index + 1)
+                                    root.tableSelected("hall", modelData)
                                     root.close()
                                 }
                             }
@@ -206,10 +233,13 @@ Popup {
                     }
                 }
 
-                Item { width: 1; height: 8 }
+                Item { width: 1; height: 8; visible: root.terraceTables.length > 0 }
 
+                // Terasă ascunsă dacă nu există mese active (ex. sezon închis),
+                // exact ca în SelectTablePage.
                 Label {
                     x: 16
+                    visible: root.terraceTables.length > 0
                     text: qsTr("Terrace")
                     font.pixelSize: 15 * Theme.fontScale
                     font.bold: true
@@ -218,17 +248,18 @@ Popup {
 
                 Grid {
                     x: 16
+                    visible: root.terraceTables.length > 0
                     columns: 3
                     rowSpacing: 12
                     columnSpacing: 12
 
                     Repeater {
-                        model: 10
+                        model: root.terraceTables
 
                         Rectangle {
-                            readonly property bool isCurrent: root.currentZone === "terrace" && root.currentTableNumber === index + 1
-                            readonly property var occupant: root.occupantFor("terrace", index + 1)
-                            readonly property bool taken: root.isTaken("terrace", index + 1)
+                            readonly property bool isCurrent: root.currentZone === "terrace" && root.currentTableNumber === modelData
+                            readonly property var occupant: root.occupantFor("terrace", modelData)
+                            readonly property bool taken: root.isTaken("terrace", modelData)
 
                             width: contentCol.cardSize
                             height: contentCol.cardSize
@@ -241,7 +272,7 @@ Popup {
                             Label {
                                 anchors.centerIn: parent
                                 anchors.verticalCenterOffset: (taken && occupant) ? -6 : 0
-                                text: index + 1
+                                text: modelData
                                 font.pixelSize: 20 * Theme.fontScale
                                 font.bold: true
                                 color: isCurrent ? "white" : Theme.textPrimary
@@ -264,7 +295,7 @@ Popup {
                                 anchors.fill: parent
                                 enabled: !taken
                                 onClicked: {
-                                    root.tableSelected("terrace", index + 1)
+                                    root.tableSelected("terrace", modelData)
                                     root.close()
                                 }
                             }
