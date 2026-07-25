@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtQml 2.15
 import "theme"
 import "app"
 import "pages" as Pages
@@ -140,6 +141,11 @@ ApplicationWindow {
         property: "baseUrl"
         value: AppSettings.serverUrl
         when: AppSettings.serverUrl !== ""
+        // Explicit, ca la SegmentedControl.qml/ChangeTablePicker.qml - fara
+        // el Qt 5.15 avertizeaza in logcat la fiecare pornire (comportamentul
+        // implicit ramane oricum RestoreBinding pe Qt 5, dar devine altceva
+        // pe Qt 6, deci il fixam explicit acum).
+        restoreMode: Binding.RestoreBinding
     }
 
     background: Rectangle {
