@@ -4,6 +4,7 @@ import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
+import "../app/ListSync.js" as ListSync
 
 // Comenzile achitate azi (STATE=3 pe get_paid_orders), doar ale chelnerului
 // logat - vezi discuția din sesiune despre statusul de plată. Ecran separat de
@@ -29,12 +30,12 @@ Page {
         // repornirea aplicației, chiar dacă poll-ul de 25s își revenise
         // demult (același fix ca în TablesPage.onOpenOrdersChanged).
         root.loadError = ""
-        ordersModel.clear()
+        var items = []
         for (var i = 0; i < rows.length; ++i) {
             var r = rows[i]
             var hasDesk = r.DESK !== undefined && r.DESK !== null && String(r.DESK).trim() !== ""
             var desk = hasDesk ? parseInt(r.DESK) : 0
-            ordersModel.append({
+            items.push({
                 nrComand: r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : "",
                 tableLabel: desk > 0 ? qsTr("Table %1").arg(desk) : qsTr("Unknown table"),
                 waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
@@ -42,6 +43,10 @@ Page {
                 total: root.fmtTotal(r.CLCCOSTT)
             })
         }
+
+        // Actualizare pe loc, nu clear() + append - altfel poll-ul de 25s
+        // resetează derularea listei (același fix ca în TablesPage).
+        ListSync.sync(ordersModel, items, "nrComand")
         root.loaded = true
     }
 

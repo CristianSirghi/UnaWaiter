@@ -5,6 +5,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
 import "../components/icons" as Icons
+import "../app/ListSync.js" as ListSync
 
 Page {
     id: root
@@ -126,13 +127,18 @@ Page {
             })
         }
 
-        OrdersStore.pruneMissing(openKeys)
+        // Al doilea argument = chelnerul pe care e filtrată lista de mai sus.
+        // Fără el, un refresh pe "Ale mele" curăța și comenzile altui chelner
+        // care a folosit acest telefon - vezi comentariul din pruneMissing.
+        OrdersStore.pruneMissing(openKeys,
+                                 root.showMineOnly ? AppSettings.waiterOficiant : 0)
 
         items.sort(function(a, b) { return root.zoneRank(a.zone) - root.zoneRank(b.zone) })
 
-        tableOrdersModel.clear()
-        for (var j = 0; j < items.length; ++j)
-            tableOrdersModel.append(items[j])
+        // Actualizare pe loc, nu clear() + append: poll-ul de 25s (și fiecare
+        // revenire pe pagină) resetau altfel derularea listei, aruncând
+        // chelnerul înapoi la prima masă în mijlocul căutării.
+        ListSync.sync(tableOrdersModel, items, "tableKey")
         root.ordersReady = true
     }
 

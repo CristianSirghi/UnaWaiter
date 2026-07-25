@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 77 -->
+    <!-- build rev 78 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="theme/qmldir">../qml/theme/qmldir</file>
@@ -7,6 +7,7 @@
         <file alias="app/qmldir">../qml/app/qmldir</file>
         <file alias="app/AppSettings.qml">../qml/app/AppSettings.qml</file>
         <file alias="app/OrdersStore.qml">../qml/app/OrdersStore.qml</file>
+        <file alias="app/ListSync.js">../qml/app/ListSync.js</file>
         <file alias="icons/settings.png">icons/settings.png</file>
         <file alias="icons/settings_white.png">icons/settings_white.png</file>
         <file alias="icons/logout.png">icons/logout.png</file>

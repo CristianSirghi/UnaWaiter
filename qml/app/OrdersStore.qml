@@ -219,18 +219,37 @@ QtObject {
     // comanda veche (dispărută deja) și ar reîncărca produsele ei stale.
     // openKeys = lista de tableKey-uri active acum, construită de TablesPage
     // din rândurile primite la fiecare refresh.
-    function pruneMissing(openKeys) {
+    //
+    // ownerOficiant = chelnerul pe care e FILTRATĂ acea listă (0 = listă
+    // nefiltrată, toți chelnerii). Fără el, un refresh pe "Ale mele" ștergea
+    // și comenzile altui chelner care a folosit acest telefon: ele nu apar
+    // niciodată în răspunsul filtrat pe altcineva, deci păreau dispărute din
+    // Oracle. Rezultatul era exact bug-ul pentru care a fost persistat
+    // store-ul - Ion dă telefonul lui Vasile, Vasile se loghează, iar la
+    // re-logarea lui Ion propriile lui mese apar "începute pe alt dispozitiv".
+    function pruneMissing(openKeys, ownerOficiant) {
         var changed = false
         for (var key in itemsByKey) {
-            if (openKeys.indexOf(key) === -1) {
-                var idx = indexForKey(key)
-                if (idx >= 0)
-                    ordersModel.remove(idx)
-                delete itemsByKey[key]
-                delete addonsByKey[key]
-                delete nrComandByKey[key]
-                changed = true
+            if (openKeys.indexOf(key) !== -1)
+                continue
+
+            var idx = indexForKey(key)
+
+            // Lista filtrată nu spune nimic despre comenzile altcuiva - le
+            // lăsăm intacte. owner 0 = intrare veche, fără proprietar reținut:
+            // tratată ca "a oricui", la fel ca în isEditableBy.
+            if (ownerOficiant) {
+                var owner = idx >= 0 ? ordersModel.get(idx).waiterOficiant : 0
+                if (owner && owner !== ownerOficiant)
+                    continue
             }
+
+            if (idx >= 0)
+                ordersModel.remove(idx)
+            delete itemsByKey[key]
+            delete addonsByKey[key]
+            delete nrComandByKey[key]
+            changed = true
         }
         if (changed)
             root.persist()
