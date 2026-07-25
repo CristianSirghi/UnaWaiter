@@ -16,8 +16,10 @@ import Qt.labs.settings 1.0
 QtObject {
     id: root
 
+    // Doar un index căutat după cheie (indexForKey) - nu alimentează nicio
+    // listă afișată. Ține strictul necesar per masă deschisă pe acest telefon:
+    // cheia, zona, numărul mesei, proprietarul și numărul de oaspeți.
     property ListModel ordersModel: ListModel {}
-    property int nextOrderNo: 441
 
     // Produsele comandate per masă: { tableKey: { codProdus: cantitate } },
     // separat de ordersModel ca să putem reîncărca o comandă existentă în
@@ -46,24 +48,30 @@ QtObject {
     Component.onCompleted: root.restoreState()
 
     // Adună starea curentă într-un singur string JSON, salvat prin Settings.
+    //
+    // Se salvează DOAR câmpurile chiar citite de cineva: cheia mesei, zona,
+    // numărul mesei, proprietarul și numărul de oaspeți. Tot ce ținea aici
+    // înainte despre aspectul cardului (tableName, orderTime, waiterName,
+    // orderNo, preview, total, active) era mort: TablesPage își construiește
+    // fiecare card exclusiv din răspunsul Oracle (get_open_orders), nu de-aici.
+    // Erau date duplicate care se învecheau tăcut față de server.
     function serializeState() {
         var entries = []
         for (var i = 0; i < ordersModel.count; ++i) {
             var e = ordersModel.get(i)
             entries.push({
-                tableKey: e.tableKey, zone: e.zone, tableNumber: e.tableNumber,
-                tableName: e.tableName, active: e.active, orderTime: e.orderTime,
-                waiterName: e.waiterName, waiterOficiant: e.waiterOficiant,
-                orderNo: e.orderNo, preview: e.preview,
-                guestCount: e.guestCount, total: e.total
+                tableKey: e.tableKey,
+                zone: e.zone,
+                tableNumber: e.tableNumber,
+                waiterOficiant: e.waiterOficiant,
+                guestCount: e.guestCount
             })
         }
         return JSON.stringify({
             entries: entries,
             itemsByKey: itemsByKey,
             addonsByKey: addonsByKey,
-            nrComandByKey: nrComandByKey,
-            nextOrderNo: nextOrderNo
+            nrComandByKey: nrComandByKey
         })
     }
 
@@ -89,28 +97,30 @@ QtObject {
         root.itemsByKey = state.itemsByKey || ({})
         root.addonsByKey = state.addonsByKey || ({})
         root.nrComandByKey = state.nrComandByKey || ({})
-        root.nextOrderNo = state.nextOrderNo || root.nextOrderNo
         ordersModel.clear()
         var entries = state.entries || []
         for (var i = 0; i < entries.length; ++i) {
             var e = entries[i]
-            // Intrări salvate înainte ca proprietarul să fie reținut: le dăm
-            // 0 = "necunoscut", tratat mai jos ca editabil de oricine, ca o
-            // actualizare a aplicației să nu blocheze comenzile deja deschise.
-            if (e.waiterOficiant === undefined)
-                e.waiterOficiant = 0
-            ordersModel.append(e)
+            // Citim câmp cu câmp, nu `append(e)` direct: o stare salvată de o
+            // versiune mai veche a aplicației mai are și câmpurile scoase între
+            // timp, iar un append cu ele ar readuce roluri moarte în model.
+            // Așa, formatul vechi se citește fără nicio migrare explicită.
+            ordersModel.append({
+                tableKey: e.tableKey,
+                zone: e.zone,
+                tableNumber: e.tableNumber,
+                // Intrări salvate înainte ca proprietarul să fie reținut: le dăm
+                // 0 = "necunoscut", tratat în isEditableBy ca editabil de
+                // oricine, ca o actualizare a aplicației să nu blocheze
+                // comenzile deja deschise.
+                waiterOficiant: e.waiterOficiant !== undefined ? e.waiterOficiant : 0,
+                guestCount: e.guestCount !== undefined ? e.guestCount : 1
+            })
         }
     }
 
     function keyFor(zone, tableNumber) {
         return zone + "-" + tableNumber
-    }
-
-    // Ordinea zonelor în listă: sala înaintea terasei. Ține comenzile grupate
-    // pe zonă, ca antetele de secțiune din TablesPage să nu se repete.
-    function zoneRank(zone) {
-        return zone === "terrace" ? 1 : 0
     }
 
     function indexForKey(key) {
@@ -119,19 +129,6 @@ QtObject {
                 return i
         }
         return -1
-    }
-
-    // ATENȚIE: `itemsMap` e cheiat pe COD de produs, deci textul rezultat e
-    // "2132 x2", nu "Calmari uscati x2". Câmpul `preview` din ordersModel nu e
-    // citit nicăieri (TablesPage își ia PREVIEW direct din Oracle), altfel ar
-    // trebui rezolvate codurile prin meniu înainte de afișare.
-    function buildPreview(itemsMap) {
-        var parts = []
-        for (var name in itemsMap) {
-            if (itemsMap[name] > 0)
-                parts.push(name + " x" + itemsMap[name])
-        }
-        return parts.join(", ")
     }
 
     // Produsele salvate pentru o masă (obiect gol dacă nu există comandă deschisă).
@@ -158,18 +155,21 @@ QtObject {
         return nrComandByKey[key] ? nrComandByKey[key] : 0
     }
 
-    // Trimite (sau înlocuiește) comanda deschisă pentru o masă. Întoarce numărul comenzii
-    // (păstrat neschimbat dacă se editează o comandă deja trimisă).
-    // nrComand = numărul real din Oracle, dacă e cunoscut la acest punct (0 = necunoscut,
-    // caz în care păstrăm ce era deja reținut, ca să nu-l pierdem).
-    // waiterOficiant = codul chelnerului care deține comanda pe acest telefon
-    // (vezi isEditableBy).
-    function submitOrder(zone, tableNumber, tableName, waiterName, itemsMap, addonMap, guestCount, total, nrComand, waiterOficiant) {
+    // Reține (sau înlocuiește) comanda deschisă pentru o masă.
+    //
+    // nrComand = numărul real din Oracle, dacă e cunoscut la acest punct
+    // (0 = necunoscut, caz în care păstrăm ce era deja reținut, ca să nu-l
+    // pierdem). waiterOficiant = codul chelnerului care deține comanda pe acest
+    // telefon (vezi isEditableBy).
+    //
+    // Ordinea intrărilor nu contează: nimic nu afișează `ordersModel`, e doar
+    // un index căutat după cheie (indexForKey). Înainte exista o inserție
+    // ordonată pe zonă, ca antetele de secțiune din TablesPage să iasă bine -
+    // dar TablesPage își sortează singur propria listă, construită din
+    // răspunsul Oracle, deci sortarea de-aici nu ajungea niciodată pe ecran.
+    function submitOrder(zone, tableNumber, itemsMap, addonMap, guestCount, nrComand, waiterOficiant) {
         var key = keyFor(zone, tableNumber)
         var idx = indexForKey(key)
-        var orderNo = idx >= 0 ? ordersModel.get(idx).orderNo : ("#" + nextOrderNo)
-        if (idx < 0)
-            nextOrderNo += 1
 
         itemsByKey[key] = itemsMap
         addonsByKey[key] = addonMap
@@ -180,33 +180,16 @@ QtObject {
             tableKey: key,
             zone: zone,
             tableNumber: tableNumber,
-            tableName: tableName,
-            active: true,
-            orderTime: Qt.formatTime(new Date(), "hh:mm"),
-            waiterName: waiterName,
             waiterOficiant: waiterOficiant ? waiterOficiant : 0,
-            orderNo: orderNo,
-            preview: buildPreview(itemsMap),
-            guestCount: guestCount,
-            total: total
+            guestCount: guestCount
         }
 
-        if (idx >= 0) {
+        if (idx >= 0)
             ordersModel.set(idx, entry)
-        } else {
-            // Inserăm după celelalte comenzi din aceeași zonă, înaintea zonei următoare.
-            var pos = ordersModel.count
-            for (var j = 0; j < ordersModel.count; ++j) {
-                if (zoneRank(ordersModel.get(j).zone) > zoneRank(zone)) {
-                    pos = j
-                    break
-                }
-            }
-            ordersModel.insert(pos, entry)
-        }
+        else
+            ordersModel.append(entry)
 
         root.persist()
-        return orderNo
     }
 
     function removeOrder(zone, tableNumber) {
@@ -296,7 +279,7 @@ QtObject {
     // greșeală pe masa greșită), păstrând numărul comenzii, produsele și
     // adaosurile. Întoarce false (fără nicio schimbare) dacă masa țintă are
     // deja o comandă activă.
-    function moveOrder(fromZone, fromTableNumber, toZone, toTableNumber, toTableName) {
+    function moveOrder(fromZone, fromTableNumber, toZone, toTableNumber) {
         var fromKey = keyFor(fromZone, fromTableNumber)
         var toKey = keyFor(toZone, toTableNumber)
         if (fromKey === toKey)
@@ -314,15 +297,8 @@ QtObject {
             tableKey: toKey,
             zone: toZone,
             tableNumber: toTableNumber,
-            tableName: toTableName,
-            active: src.active,
-            orderTime: src.orderTime,
-            waiterName: src.waiterName,
             waiterOficiant: src.waiterOficiant,
-            orderNo: src.orderNo,
-            preview: src.preview,
-            guestCount: src.guestCount,
-            total: src.total
+            guestCount: src.guestCount
         }
 
         itemsByKey[toKey] = itemsByKey[fromKey]
@@ -334,15 +310,7 @@ QtObject {
         delete nrComandByKey[fromKey]
 
         ordersModel.remove(fromIdx)
-
-        var pos = ordersModel.count
-        for (var j = 0; j < ordersModel.count; ++j) {
-            if (zoneRank(ordersModel.get(j).zone) > zoneRank(toZone)) {
-                pos = j
-                break
-            }
-        }
-        ordersModel.insert(pos, entry)
+        ordersModel.append(entry)
         root.persist()
         return true
     }

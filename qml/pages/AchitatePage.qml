@@ -5,6 +5,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
 import "../app/ListSync.js" as ListSync
+import "../app/Format.js" as Format
 
 // Comenzile achitate azi (STATE=3 pe get_paid_orders), doar ale chelnerului
 // logat - vezi discuția din sesiune despre statusul de plată. Ecran separat de
@@ -15,13 +16,6 @@ Page {
 
     property string loadError: ""
     property bool loaded: false
-
-    function fmtTotal(v) {
-        var n = parseFloat(v)
-        if (isNaN(n))
-            return "—"
-        return n.toFixed(2).replace(".", ",") + " MDL"
-    }
 
     function buildRows(rows) {
         // Un răspuns reușit înseamnă că suntem iar online - ștergem orice
@@ -40,7 +34,7 @@ Page {
                 tableLabel: desk > 0 ? qsTr("Table %1").arg(desk) : qsTr("Unknown table"),
                 waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
                 orderTime: r.DATA_COMAND ? String(r.DATA_COMAND).trim() : "",
-                total: root.fmtTotal(r.CLCCOSTT)
+                total: Format.money(r.CLCCOSTT)
             })
         }
 
@@ -81,27 +75,9 @@ Page {
         color: Theme.background
     }
 
-    header: RowLayout {
-        height: 56
-
-        Item { Layout.preferredWidth: 12 }
-
-        Components.BackButton {
-            color: Theme.textPrimary
-            onClicked: root.StackView.view.pop()
-        }
-
-        Item { Layout.preferredWidth: 8 }
-
-        Label {
-            text: qsTr("Paid orders")
-            font.pixelSize: 20 * Theme.fontScale
-            font.bold: true
-            color: Theme.textPrimary
-        }
-
-        Item { Layout.fillWidth: true }
-        Item { Layout.preferredWidth: 12 }
+    header: Components.PageHeader {
+        title: qsTr("Paid orders")
+        onBackRequested: root.StackView.view.pop()
     }
 
     ColumnLayout {

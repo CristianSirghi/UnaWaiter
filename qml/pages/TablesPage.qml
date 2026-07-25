@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.15
 import "../components/controls" as Components
 import "../components/icons" as Icons
 import "../app/ListSync.js" as ListSync
+import "../app/Format.js" as Format
 
 Page {
     id: root
@@ -64,13 +65,6 @@ Page {
         return zone === "terrace" ? 1 : 0
     }
 
-    function fmtTotal(v) {
-        var n = parseFloat(v)
-        if (isNaN(n))
-            return "—"
-        return n.toFixed(2).replace(".", ",") + " MDL"
-    }
-
     function buildDeskZone(rows) {
         var map = ({})
         for (var i = 0; i < rows.length; ++i) {
@@ -124,7 +118,7 @@ Page {
                 orderNo: "#" + nrComandStr,
                 preview: r.PREVIEW ? String(r.PREVIEW).trim() : "",
                 guestCount: hasGuestCount ? parseInt(r.BARMEN) : 1,
-                total: root.fmtTotal(r.CLCCOSTT),
+                total: Format.money(r.CLCCOSTT),
                 // Nu doar "există local", ci "există local ȘI e a chelnerului
                 // logat acum" - altfel, când altcineva preia telefonul
                 // (deconectare, sau "Schimbă utilizatorul" din ecranul de PIN),

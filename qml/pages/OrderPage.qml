@@ -5,6 +5,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
 import "../components/icons" as Icons
+import "../app/Format.js" as Format
 
 Page {
     id: root
@@ -211,10 +212,6 @@ Page {
             }
         }
         root.occupiedByDesk = map
-    }
-
-    function fmt(v) {
-        return v.toFixed(2).replace(".", ",")
     }
 
     // "zone" e un cod intern ("hall"/"terrace"), nu textul afișat — așa
@@ -483,12 +480,9 @@ Page {
         OrdersStore.submitOrder(
             root.zone,
             root.tableNumber,
-            qsTr("Table %1").arg(root.tableNumber),
-            AppSettings.waiterName.length > 0 ? AppSettings.waiterName : qsTr("Waiter"),
             root.qtyStore,
             root.addonStore,
             root.guestCount,
-            qsTr("%1 MDL").arg(root.fmt(root.orderTotal)),
             root.sentNrComand,
             AppSettings.waiterOficiant
         )
@@ -563,8 +557,7 @@ Page {
             // de acest tracking) - rămâne doar local, ca înainte.
             if (tableChanged) {
                 var moved = OrdersStore.moveOrder(root.originalZone, root.originalTableNumber,
-                                                   root.zone, root.tableNumber,
-                                                   qsTr("Table %1").arg(root.tableNumber))
+                                                   root.zone, root.tableNumber)
                 if (!moved)
                     return
                 root.originalZone = root.zone
@@ -869,8 +862,7 @@ Page {
                 return
             OrdersStore.removeOrder(root.zone, root.tableNumber)
             OrdersStore.moveOrder(root.originalZone, root.originalTableNumber,
-                                   root.zone, root.tableNumber,
-                                   qsTr("Table %1").arg(root.tableNumber))
+                                   root.zone, root.tableNumber)
             root.originalZone = root.zone
             root.originalTableNumber = root.tableNumber
             root.sendDeltaOrFinish()
@@ -1010,7 +1002,7 @@ Page {
             Item { Layout.fillWidth: true }
 
             Label {
-                text: qsTr("%1 MDL").arg(root.fmt(root.orderTotal))
+                text: qsTr("%1 MDL").arg(Format.amount(root.orderTotal))
                 font.pixelSize: 18 * Theme.fontScale
                 font.bold: true
                 color: Theme.primary
@@ -1255,7 +1247,7 @@ Page {
                             color: Theme.textPrimary
                         }
                         Label {
-                            text: qsTr("%1  ·  %2 MDL").arg(unit).arg(root.fmt(price))
+                            text: qsTr("%1  ·  %2 MDL").arg(unit).arg(Format.amount(price))
                             Layout.fillWidth: true
                             elide: Text.ElideRight
                             font.pixelSize: 12 * Theme.fontScale
@@ -1540,7 +1532,7 @@ Page {
                             }
 
                             Label {
-                                text: qsTr("%1 MDL").arg(root.fmt(lineTotal))
+                                text: qsTr("%1 MDL").arg(Format.amount(lineTotal))
                                 horizontalAlignment: Text.AlignRight
                                 font.pixelSize: 14 * Theme.fontScale
                                 font.bold: !isAddon
@@ -1615,8 +1607,8 @@ Page {
                             ? qsTr("Sending…")
                             : (root.orderCount > 0
                                 ? (root.isEditing
-                                    ? qsTr("Update order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal))
-                                    : qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(root.fmt(root.orderTotal)))
+                                    ? qsTr("Update order · %1 · %2 MDL").arg(root.orderCount).arg(Format.amount(root.orderTotal))
+                                    : qsTr("Send order · %1 · %2 MDL").arg(root.orderCount).arg(Format.amount(root.orderTotal)))
                                 : qsTr("Add products"))
                         font.pixelSize: 15 * Theme.fontScale
                         font.bold: true

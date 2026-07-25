@@ -18,11 +18,15 @@ class DataService : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString baseUrl READ baseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
-    Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     // Conexiunea la backend (rezultatul fiecărei cereri + un ping periodic):
     // true = serverul răspunde, false = pierdută. Vezi beculețul din TablesPage.
     Q_PROPERTY(bool online READ online NOTIFY onlineChanged)
-    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
+    //
+    // (Nu există `busy` și `lastError`: au fost expuse, dar niciun ecran nu
+    // le-a folosit vreodată. Fiecare pagină își ține propria stare de
+    // încărcare, iar mesajul de eroare vine oricum prin requestFailed, care
+    // spune ȘI la ce comandă se referă - un `lastError` global n-ar fi putut
+    // face asta. Vezi istoricul git dacă e nevoie de ele înapoi.)
     Q_PROPERTY(QVariantList waiters READ waiters NOTIFY waitersChanged)
     Q_PROPERTY(QVariantList categories READ categories NOTIFY categoriesChanged)
     Q_PROPERTY(QVariantList menu READ menu NOTIFY menuChanged)
@@ -51,9 +55,7 @@ public:
 
     QString baseUrl() const;
     void setBaseUrl(const QString &baseUrl);
-    bool busy() const;
     bool online() const;
-    QString lastError() const;
     QVariantList waiters() const;
     QVariantList categories() const;
     QVariantList menu() const;
@@ -134,9 +136,7 @@ public:
 
 signals:
     void baseUrlChanged();
-    void busyChanged();
     void onlineChanged();
-    void lastErrorChanged();
     void waitersChanged();
     void categoriesChanged();
     void menuChanged();
@@ -163,36 +163,43 @@ signals:
 private:
     QString buildUrl(const QString &command, const QVariantMap &queryItems = QVariantMap()) const;
 
-    // Fires a GET for `command`; on success parses a JSON array and hands it to
-    // `onRows`. On any failure sets lastError and emits requestFailed.
+    // Motorul comun al tuturor cererilor. Cele trei helper-e de mai jos erau
+    // înainte trei copii aproape identice ale aceluiași cod (construire URL,
+    // timeout, trimitere, parsare, verificare de formă, raportare de eroare) -
+    // difereau doar prin GET vs POST și prin forma așteptată a răspunsului.
+    //
+    // `params` sunt itemi de query pentru GET și câmpuri de formular pentru
+    // POST. `expected` e forma cerută (QVariant::List sau QVariant::Map): un
+    // răspuns de altă formă e tratat ca eșec, nu interpretat pe ghicite.
+    // `requiredKeys` (doar pentru obiecte) apără împotriva unui răspuns valid
+    // dar incomplet, care altfel ar da tăcut zero pe câmpurile lipsă (ex.
+    // nrComand=0): dacă vreo cheie lipsește sau e null, cererea eșuează.
+    void sendRequest(const QString &command,
+                     bool post,
+                     const QVariantMap &params,
+                     QVariant::Type expected,
+                     const QStringList &requiredKeys,
+                     const std::function<void(const QVariant &)> &onResult);
+
+    // Cele trei forme concrete, păstrate ca nume proprii: la locul apelului
+    // spun dintr-o privire ce se așteaptă înapoi.
     void getArray(const QString &command,
                   const QVariantMap &queryItems,
                   const std::function<void(const QVariantList &)> &onRows);
-
-    // Fires a POST for `command` with form-encoded `formFields`; on success
-    // parses a JSON object and hands it to `onObject`. `requiredKeys` guards
-    // against a malformed-but-non-error response silently defaulting missing
-    // fields to 0/empty (e.g. nrComand=0): if any key is absent or null,
-    // the request is treated as failed instead of calling `onObject`.
+    void getObject(const QString &command,
+                   const QVariantMap &queryItems,
+                   const QStringList &requiredKeys,
+                   const std::function<void(const QVariantMap &)> &onObject);
     void postObject(const QString &command,
                     const QVariantMap &formFields,
                     const QStringList &requiredKeys,
                     const std::function<void(const QVariantMap &)> &onObject);
 
-    // Fires a GET for `command`; on success parses a JSON object (not array)
-    // and hands it to `onObject`, same requiredKeys guard as postObject.
-    void getObject(const QString &command,
-                   const QVariantMap &queryItems,
-                   const QStringList &requiredKeys,
-                   const std::function<void(const QVariantMap &)> &onObject);
-
-    // Returns the parsed JSON on success. On a backend {"error":...} payload or
-    // a parse problem, returns false-ish: sets lastError, emits requestFailed,
-    // and *ok is set to false.
+    // Întoarce JSON-ul parsat la succes. La un payload {"error":...} de la
+    // backend sau la o problemă de parsare, emite requestFailed și pune
+    // *ok pe false.
     QVariant parseReply(QNetworkReply *reply, const QString &command, bool *ok);
 
-    void setBusy(bool busy);
-    void setLastError(const QString &error);
     void setOnline(bool online);
     // Sondă de conexiune: GET la comanda "ping", actualizează DOAR `online`
     // (nu atinge busy, nu emite requestFailed). Rulează periodic (m_pingTimer)
@@ -212,8 +219,6 @@ private:
 
     QNetworkAccessManager *m_network = nullptr;
     QString m_baseUrl;
-    bool m_busy = false;
-    QString m_lastError;
     QVariantList m_waiters;
     QVariantList m_categories;
     QVariantList m_menu;
@@ -225,7 +230,6 @@ private:
     QVariantList m_paidOrders;
     QVariantList m_orderLines;
     QString m_updateInfoUrl;
-    int m_pending = 0; // in-flight request count, drives `busy`
     bool m_online = false;
     bool m_pinging = false; // evită ping-uri suprapuse pe o conexiune moartă
     QTimer *m_pingTimer = nullptr;

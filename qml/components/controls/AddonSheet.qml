@@ -3,6 +3,7 @@ import "../../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../icons"
+import "../../app/Format.js" as Format
 
 // Panou de jos pentru alegerea adaosurilor unui produs.
 // Nu deține starea comenzii: primește lista de adaosuri prin openWith(...) și
@@ -28,10 +29,6 @@ Popup {
 
     // Emis când chelnerul apasă +/- pe un adaos (delta = +1 / -1).
     signal addonAdjusted(string addonName, int delta)
-
-    function fmt(v) {
-        return v.toFixed(2).replace(".", ",")
-    }
 
     // Deschide sheet-ul pentru un produs, cu adaosurile lui și cantitățile curente.
     // `addons` = listă de { name, price, qty }.
@@ -142,7 +139,7 @@ Popup {
                             color: Theme.textPrimary
                         }
                         Label {
-                            text: qsTr("+%1 MDL").arg(root.fmt(price))
+                            text: qsTr("+%1 MDL").arg(Format.amount(price))
                             font.pixelSize: 12 * Theme.fontScale
                             color: Theme.textSecondary
                         }

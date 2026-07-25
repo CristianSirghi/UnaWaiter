@@ -8,6 +8,7 @@
         <file alias="app/AppSettings.qml">../qml/app/AppSettings.qml</file>
         <file alias="app/OrdersStore.qml">../qml/app/OrdersStore.qml</file>
         <file alias="app/ListSync.js">../qml/app/ListSync.js</file>
+        <file alias="app/Format.js">../qml/app/Format.js</file>
         <file alias="icons/settings.png">icons/settings.png</file>
         <file alias="icons/settings_white.png">icons/settings_white.png</file>
         <file alias="icons/logout.png">icons/logout.png</file>
@@ -36,6 +37,7 @@
         <file alias="components/controls/ChangeTablePicker.qml">../qml/components/controls/ChangeTablePicker.qml</file>
         <file alias="components/controls/LoadingOverlay.qml">../qml/components/controls/LoadingOverlay.qml</file>
         <file alias="components/controls/TouchArea.qml">../qml/components/controls/TouchArea.qml</file>
+        <file alias="components/controls/PageHeader.qml">../qml/components/controls/PageHeader.qml</file>
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>

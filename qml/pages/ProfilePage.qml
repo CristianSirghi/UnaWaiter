@@ -92,27 +92,9 @@ Page {
         color: Theme.background
     }
 
-    header: RowLayout {
-        height: 56
-
-        Item { Layout.preferredWidth: 12 }
-
-        Components.BackButton {
-            color: Theme.textPrimary
-            onClicked: root.StackView.view.pop()
-        }
-
-        Item { Layout.preferredWidth: 8 }
-
-        Label {
-            text: qsTr("Profile")
-            font.pixelSize: 20 * Theme.fontScale
-            font.bold: true
-            color: Theme.textPrimary
-        }
-
-        Item { Layout.fillWidth: true }
-        Item { Layout.preferredWidth: 12 }
+    header: Components.PageHeader {
+        title: qsTr("Profile")
+        onBackRequested: root.StackView.view.pop()
     }
 
     ColumnLayout {

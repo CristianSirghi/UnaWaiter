@@ -48,9 +48,7 @@ void DataService::setBaseUrl(const QString &baseUrl)
     sendPing();
 }
 
-bool DataService::busy() const { return m_busy; }
 bool DataService::online() const { return m_online; }
-QString DataService::lastError() const { return m_lastError; }
 
 void DataService::setOnline(bool online)
 {
@@ -129,9 +127,7 @@ QVariant DataService::parseReply(QNetworkReply *reply, const QString &command, b
 
     if (reply->error() != QNetworkReply::NoError) {
         setOnline(false);
-        const QString err = reply->errorString();
-        setLastError(err);
-        emit requestFailed(command, err);
+        emit requestFailed(command, reply->errorString());
         return QVariant();
     }
 
@@ -143,9 +139,8 @@ QVariant DataService::parseReply(QNetworkReply *reply, const QString &command, b
     QJsonParseError parseError;
     const QJsonDocument doc = QJsonDocument::fromJson(body, &parseError);
     if (parseError.error != QJsonParseError::NoError) {
-        const QString err = tr("Invalid response from server: %1").arg(parseError.errorString());
-        setLastError(err);
-        emit requestFailed(command, err);
+        emit requestFailed(command,
+                           tr("Invalid response from server: %1").arg(parseError.errorString()));
         return QVariant();
     }
 
@@ -155,9 +150,7 @@ QVariant DataService::parseReply(QNetworkReply *reply, const QString &command, b
     if (value.type() == QVariant::Map) {
         const QVariantMap map = value.toMap();
         if (map.contains(QStringLiteral("error"))) {
-            const QString err = map.value(QStringLiteral("error")).toString();
-            setLastError(err);
-            emit requestFailed(command, err);
+            emit requestFailed(command, map.value(QStringLiteral("error")).toString());
             return QVariant();
         }
     }
@@ -166,97 +159,71 @@ QVariant DataService::parseReply(QNetworkReply *reply, const QString &command, b
     return value;
 }
 
+void DataService::sendRequest(const QString &command,
+                              bool post,
+                              const QVariantMap &params,
+                              QVariant::Type expected,
+                              const QStringList &requiredKeys,
+                              const std::function<void(const QVariant &)> &onResult)
+{
+    // La POST parametrii merg în corp, deci URL-ul poartă doar comanda.
+    const QString url = post ? buildUrl(command) : buildUrl(command, params);
+    if (url.isEmpty()) {
+        emit requestFailed(command, tr("Missing backend address."));
+        return;
+    }
+
+    QNetworkRequest request((QUrl(url)));
+    request.setTransferTimeout(kRequestTimeoutMs);
+
+    QNetworkReply *reply = nullptr;
+    if (post) {
+        QUrlQuery body;
+        const auto keys = params.keys();
+        for (const QString &key : keys)
+            body.addQueryItem(key, params.value(key).toString());
+
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QStringLiteral("application/x-www-form-urlencoded"));
+        reply = m_network->post(request, body.toString(QUrl::FullyEncoded).toUtf8());
+    } else {
+        reply = m_network->get(request);
+    }
+
+    connect(reply, &QNetworkReply::finished, this,
+            [this, reply, command, expected, requiredKeys, onResult]() {
+        reply->deleteLater();
+
+        bool ok = false;
+        const QVariant value = parseReply(reply, command, &ok);
+        if (!ok)
+            return;
+
+        if (value.type() != expected) {
+            emit requestFailed(command, tr("Unexpected response shape from server."));
+            return;
+        }
+
+        if (!requiredKeys.isEmpty()) {
+            const QVariantMap obj = value.toMap();
+            for (const QString &key : requiredKeys) {
+                if (!obj.contains(key) || obj.value(key).isNull()) {
+                    emit requestFailed(command, tr("Incomplete response from server."));
+                    return;
+                }
+            }
+        }
+
+        onResult(value);
+    });
+}
+
 void DataService::getArray(const QString &command,
                            const QVariantMap &queryItems,
                            const std::function<void(const QVariantList &)> &onRows)
 {
-    const QString url = buildUrl(command, queryItems);
-    if (url.isEmpty()) {
-        const QString err = tr("Missing backend address.");
-        setLastError(err);
-        emit requestFailed(command, err);
-        return;
-    }
-
-    QNetworkRequest request((QUrl(url)));
-    request.setTransferTimeout(kRequestTimeoutMs);
-
-    setBusy(true);
-    QNetworkReply *reply = m_network->get(request);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, command, onRows]() {
-        reply->deleteLater();
-        bool ok = false;
-        const QVariant value = parseReply(reply, command, &ok);
-        if (!ok) {
-            setBusy(false);
-            return;
-        }
-        if (value.type() != QVariant::List) {
-            const QString err = tr("Unexpected response shape from server.");
-            setLastError(err);
-            emit requestFailed(command, err);
-            setBusy(false);
-            return;
-        }
-        onRows(value.toList());
-        setBusy(false);
-    });
-}
-
-void DataService::postObject(const QString &command,
-                             const QVariantMap &formFields,
-                             const QStringList &requiredKeys,
-                             const std::function<void(const QVariantMap &)> &onObject)
-{
-    const QString url = buildUrl(command);
-    if (url.isEmpty()) {
-        const QString err = tr("Missing backend address.");
-        setLastError(err);
-        emit requestFailed(command, err);
-        return;
-    }
-
-    QUrlQuery body;
-    const auto keys = formFields.keys();
-    for (const QString &key : keys)
-        body.addQueryItem(key, formFields.value(key).toString());
-
-    QNetworkRequest request((QUrl(url)));
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      QStringLiteral("application/x-www-form-urlencoded"));
-    request.setTransferTimeout(kRequestTimeoutMs);
-
-    setBusy(true);
-    const QByteArray payload = body.toString(QUrl::FullyEncoded).toUtf8();
-    QNetworkReply *reply = m_network->post(request, payload);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, command, requiredKeys, onObject]() {
-        reply->deleteLater();
-        bool ok = false;
-        const QVariant value = parseReply(reply, command, &ok);
-        if (!ok) {
-            setBusy(false);
-            return;
-        }
-        if (value.type() != QVariant::Map) {
-            const QString err = tr("Unexpected response shape from server.");
-            setLastError(err);
-            emit requestFailed(command, err);
-            setBusy(false);
-            return;
-        }
-        const QVariantMap obj = value.toMap();
-        for (const QString &key : requiredKeys) {
-            if (!obj.contains(key) || obj.value(key).isNull()) {
-                const QString err = tr("Incomplete response from server.");
-                setLastError(err);
-                emit requestFailed(command, err);
-                setBusy(false);
-                return;
-            }
-        }
-        onObject(obj);
-        setBusy(false);
-    });
+    sendRequest(command, false, queryItems, QVariant::List, QStringList(),
+                [onRows](const QVariant &value) { onRows(value.toList()); });
 }
 
 void DataService::getObject(const QString &command,
@@ -264,47 +231,17 @@ void DataService::getObject(const QString &command,
                             const QStringList &requiredKeys,
                             const std::function<void(const QVariantMap &)> &onObject)
 {
-    const QString url = buildUrl(command, queryItems);
-    if (url.isEmpty()) {
-        const QString err = tr("Missing backend address.");
-        setLastError(err);
-        emit requestFailed(command, err);
-        return;
-    }
+    sendRequest(command, false, queryItems, QVariant::Map, requiredKeys,
+                [onObject](const QVariant &value) { onObject(value.toMap()); });
+}
 
-    QNetworkRequest request((QUrl(url)));
-    request.setTransferTimeout(kRequestTimeoutMs);
-
-    setBusy(true);
-    QNetworkReply *reply = m_network->get(request);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, command, requiredKeys, onObject]() {
-        reply->deleteLater();
-        bool ok = false;
-        const QVariant value = parseReply(reply, command, &ok);
-        if (!ok) {
-            setBusy(false);
-            return;
-        }
-        if (value.type() != QVariant::Map) {
-            const QString err = tr("Unexpected response shape from server.");
-            setLastError(err);
-            emit requestFailed(command, err);
-            setBusy(false);
-            return;
-        }
-        const QVariantMap obj = value.toMap();
-        for (const QString &key : requiredKeys) {
-            if (!obj.contains(key) || obj.value(key).isNull()) {
-                const QString err = tr("Incomplete response from server.");
-                setLastError(err);
-                emit requestFailed(command, err);
-                setBusy(false);
-                return;
-            }
-        }
-        onObject(obj);
-        setBusy(false);
-    });
+void DataService::postObject(const QString &command,
+                             const QVariantMap &formFields,
+                             const QStringList &requiredKeys,
+                             const std::function<void(const QVariantMap &)> &onObject)
+{
+    sendRequest(command, true, formFields, QVariant::Map, requiredKeys,
+                [onObject](const QVariant &value) { onObject(value.toMap()); });
 }
 
 void DataService::loadWaiters()
@@ -491,31 +428,6 @@ void DataService::cancelOrder(const QString &nrComand)
                [this](const QVariantMap &obj) {
                    emit orderCancelled(obj.value(QStringLiteral("nrComand")).toInt());
                });
-}
-
-void DataService::setBusy(bool busy)
-{
-    // Reference-count in-flight requests so overlapping calls don't clear
-    // `busy` prematurely.
-    if (busy) {
-        ++m_pending;
-    } else if (m_pending > 0) {
-        --m_pending;
-    }
-
-    const bool newBusy = m_pending > 0;
-    if (m_busy == newBusy)
-        return;
-    m_busy = newBusy;
-    emit busyChanged();
-}
-
-void DataService::setLastError(const QString &error)
-{
-    if (m_lastError == error)
-        return;
-    m_lastError = error;
-    emit lastErrorChanged();
 }
 
 void DataService::setWaiters(const QVariantList &rows)
