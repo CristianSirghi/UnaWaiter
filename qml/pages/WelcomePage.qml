@@ -30,7 +30,7 @@ Page {
 
                 Image {
                     id: unaLogo
-                    property real logoHeight: 48 * Theme.fontScale
+                    property real logoHeight: 38 * Theme.fontScale
                     property real logoWidth: logoHeight * (660 / 249)
 
                     source: "qrc:/icons/una_logo.png"
