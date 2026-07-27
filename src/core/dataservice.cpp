@@ -430,6 +430,32 @@ void DataService::cancelOrder(const QString &nrComand)
                });
 }
 
+void DataService::payOrder(const QString &nrComand,
+                           int payType,
+                           double pay,
+                           const QString &docFiscal,
+                           const QString &oficiant)
+{
+    QVariantMap fields;
+    fields.insert(QStringLiteral("nrComand"), nrComand);
+    fields.insert(QStringLiteral("payType"), QString::number(payType));
+    // La card suma merge în SUMA_TERMINAL pe partea Oracle, nu în PAY, deci
+    // trimitem `pay` doar pentru numerar (unde e suma primită de la client).
+    if (payType == 1)
+        fields.insert(QStringLiteral("pay"), QString::number(pay, 'f', 2));
+    if (!docFiscal.isEmpty())
+        fields.insert(QStringLiteral("docFiscal"), docFiscal);
+    if (!oficiant.isEmpty())
+        fields.insert(QStringLiteral("oficiant"), oficiant);
+
+    postObject(QStringLiteral("pay_order"), fields,
+               {QStringLiteral("nrComand"), QStringLiteral("payType")},
+               [this](const QVariantMap &obj) {
+                   emit orderPaid(obj.value(QStringLiteral("nrComand")).toInt(),
+                                  obj.value(QStringLiteral("payType")).toInt());
+               });
+}
+
 void DataService::setWaiters(const QVariantList &rows)
 {
     m_waiters = rows;

@@ -36,6 +36,12 @@ Popup {
     property bool mandatory: false
 
     signal confirmed()
+    // Emis la apăsarea butonului de anulare (NU la închiderea prin Escape sau
+    // tap în afară). Necesar când ambele răspunsuri cer o acțiune, nu doar
+    // "nu face nimic" - de ex. dialogul de retipărire a bonului, unde vânzarea
+    // e finalizată în orice caz. `onClosed` nu ajută: se emite ÎNAINTE de
+    // confirmed(), deci nu poate distinge cele două ieșiri.
+    signal cancelled()
 
     parent: Overlay.overlay
     anchors.centerIn: parent
@@ -136,7 +142,10 @@ Popup {
                 MouseArea {
                     id: cancelArea
                     anchors.fill: parent
-                    onClicked: root.close()
+                    onClicked: {
+                        root.close()
+                        root.cancelled()
+                    }
                 }
             }
 

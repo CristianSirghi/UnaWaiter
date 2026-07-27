@@ -80,6 +80,20 @@ Page {
     property bool deleting: false
     property string deleteError: ""
 
+    // ---- Achitare (bon fiscal SmartOne + închiderea comenzii în Oracle) ----
+    // `paying` ține ecranul blocat de la apăsarea butonului până când comanda
+    // e chiar închisă; e separată de `sending`/`deleting` din același motiv
+    // pentru care și acelea sunt separate între ele.
+    property bool paying: false
+    // Oracle a confirmat închiderea (pay_order). Tipărirea e un pas distinct,
+    // care poate veni înainte sau după - vezi finishPaymentIfDone().
+    property bool orderClosedByPayment: false
+    // Așteptăm liniile cerute special pentru bon (nu cele de la deschiderea
+    // ecranului) - vezi startPayment().
+    property bool awaitingPayLines: false
+    property string payError: ""
+    property string reprintDoc: ""
+
     // Dialog, nu banner (vezi sendErrorDialog mai jos în fișier), deschis
     // EXPLICIT de-aici - nu dintr-un onSendErrorChanged.
     //
@@ -96,6 +110,73 @@ Page {
     function showDeleteError(message) {
         root.deleteError = message
         deleteErrorDialog.open()
+    }
+
+    function showPayError(message) {
+        root.paying = false
+        root.payError = message
+        payErrorDialog.open()
+    }
+
+    // Totalul REAL al comenzii, calculat din liniile Oracle - nu din starea
+    // locală. Bonul fiscal e document legal: trebuie să corespundă exact cu ce
+    // e în comandă, chiar dacă ecranul ar fi rămas în urmă.
+    function oracleLinesTotal(lines) {
+        var t = 0
+        for (var i = 0; i < lines.length; ++i)
+            t += parseFloat(lines[i].CLCSUMAT)
+        return isNaN(t) ? 0 : t
+    }
+
+    // Reîncarcă liniile din Oracle CHIAR ÎNAINTE de achitare: de când e deschis
+    // ecranul, comanda ar fi putut fi modificată de pe alt terminal, iar un bon
+    // care nu corespunde comenzii e o problemă fiscală, nu una de afișare.
+    function startPayment() {
+        if (root.sentNrComand <= 0 || root.paying)
+            return
+        root.awaitingOrderLines = true
+        root.awaitingPayLines = true
+        dataService.loadOrderLines(String(root.sentNrComand))
+    }
+
+    function openPaymentSheet(lines) {
+        var total = root.oracleLinesTotal(lines)
+        if (total <= 0) {
+            root.showPayError(qsTr("This order has nothing to pay for."))
+            return
+        }
+        paymentSheet.openWith(total)
+    }
+
+    function pay(method, received) {
+        var lines = dataService.orderLines
+        var total = root.oracleLinesTotal(lines)
+        if (total <= 0) {
+            root.showPayError(qsTr("This order has nothing to pay for."))
+            return
+        }
+
+        root.paying = true
+        root.orderClosedByPayment = false
+
+        var oficiant = String(AppSettings.waiterOficiant)
+        if (method === "cardPos")
+            paymentController.payCardPos(root.sentNrComand, lines, total, AppSettings.waiterName, oficiant)
+        else if (method === "cardManual")
+            paymentController.payCardManual(root.sentNrComand, lines, total, AppSettings.waiterName, oficiant)
+        else
+            paymentController.payCash(root.sentNrComand, lines, total, received, AppSettings.waiterName, oficiant)
+    }
+
+    // Ecranul se închide DOAR după ce comanda e chiar închisă în Oracle. Bonul
+    // poate fi deja tipărit, dar cât timp comanda e deschisă masa rămâne
+    // ocupată - a ne întoarce la listă spunând "gata" ar fi o minciună.
+    function finishPaymentIfDone() {
+        if (!root.orderClosedByPayment)
+            return
+        root.paying = false
+        OrdersStore.removeOrder(root.originalZone, root.originalTableNumber)
+        root.done()
     }
 
     // Numărul real de comandă (nr_comand) din Oracle pentru masa curentă, când
@@ -144,9 +225,10 @@ Page {
     // Funcție, nu proprietate legată: qtyStore e un `var` mutat pe loc, deci un
     // binding pe el nu s-ar reevalua niciodată. O evaluăm la momentul apăsării.
     function hasUnsavedChanges() {
-        // O trimitere/anulare în curs se termină singură (finishSubmit/done) -
-        // nu mai e nimic de salvat sau de pierdut.
-        if (root.sending || root.deleting)
+        // O trimitere/anulare/achitare în curs se termină singură
+        // (finishSubmit/done/finishPaymentIfDone) - nu mai e nimic de salvat
+        // sau de pierdut, deci nici de confirmat la ieșire.
+        if (root.sending || root.deleting || root.paying)
             return false
 
         if (!root.isEditing)
@@ -825,10 +907,15 @@ Page {
         // Liniile reale ale comenzii editate (cerute din setupAfterMenu)
         // tocmai au sosit - devin noul prag/punct de plecare.
         function onOrderLinesChanged() {
-            if (!root.awaitingOrderLines)
-                return
-            root.awaitingOrderLines = false
-            root.applyServerLines(dataService.orderLines)
+            if (root.awaitingOrderLines) {
+                root.awaitingOrderLines = false
+                root.applyServerLines(dataService.orderLines)
+            }
+            // Cererea făcută de startPayment(): acum știm exact ce se achită.
+            if (root.awaitingPayLines) {
+                root.awaitingPayLines = false
+                root.openPaymentSheet(dataService.orderLines)
+            }
         }
 
         // create_order a reușit - adăugăm liniile (produsele-părinte). Dacă
@@ -901,8 +988,16 @@ Page {
                 root.loadError = error
                 return
             }
-            if (command === "get_order_lines" && root.awaitingOrderLines) {
+            if (command === "get_order_lines" && (root.awaitingOrderLines || root.awaitingPayLines)) {
                 root.awaitingOrderLines = false
+                // Fără asta, o cerere eșuată chiar înainte de achitare ar lăsa
+                // steagul ridicat: dialogul de plată n-ar mai apărea niciodată,
+                // iar butonul ar părea mort.
+                if (root.awaitingPayLines) {
+                    root.awaitingPayLines = false
+                    root.showPayError(qsTr("Couldn't read the order before paying: %1").arg(error))
+                    return
+                }
                 root.linesLoadError = error
                 return
             }
@@ -930,6 +1025,39 @@ Page {
                 root.deleting = false
                 root.showDeleteError(error)
             }
+            // "pay_order" lipsește intenționat: eșecurile lui sunt tratate de
+            // paymentController (care le reia de câteva ori) și ajung aici prin
+            // paymentFailed. Tratate și pe acest canal, ar apărea două dialoguri
+            // pentru aceeași problemă, dintre care unul cu text brut Oracle.
+        }
+    }
+
+    // Rezultatul achitării. Controller-ul face toată orchestrarea (bon fiscal,
+    // apoi închiderea comenzii); ecranul doar reacționează.
+    Connections {
+        target: paymentController
+
+        function onPaymentSucceeded(nrComand) {
+            if (nrComand !== root.sentNrComand)
+                return
+            root.orderClosedByPayment = true
+            root.finishPaymentIfDone()
+        }
+
+        function onPaymentFailed(reason) {
+            root.showPayError(reason)
+        }
+
+        // Vânzarea E finalizată, doar hârtia a lipsit. Oferim RETIPĂRIREA, nu
+        // reluarea plății: o a doua emitere ar scoate un al doilea bon fiscal.
+        function onPrintNeedsReprint(documentNumber, reason) {
+            root.reprintDoc = documentNumber
+            root.payError = reason
+            reprintDialog.open()
+        }
+
+        function onPrintConfirmed() {
+            root.finishPaymentIfDone()
         }
     }
 
@@ -1575,26 +1703,28 @@ Page {
                 anchors.rightMargin: 16
                 spacing: 12
 
-                // Buton ștergere comandă (contur roșu; deschide dialogul de confirmare).
+                // Meniul comenzii (achitare / ștergere). Înainte era direct un
+                // buton de ștergere; odată cu achitarea sunt două acțiuni, iar
+                // cea distructivă nu mai merită locul cel mai la îndemână.
                 Rectangle {
                     visible: root.isEditing
                     Layout.preferredWidth: 48
                     Layout.preferredHeight: 48
                     radius: 24
                     color: "transparent"
-                    opacity: root.deleting ? 0.5 : 1
+                    opacity: (root.deleting || root.paying) ? 0.5 : 1
                     border.width: 1.5
-                    border.color: Theme.danger
+                    border.color: Theme.border
 
-                    Icons.IconTrash {
+                    Icons.IconHamburger {
                         anchors.centerIn: parent
-                        color: Theme.danger
+                        color: Theme.textPrimary
                     }
 
                     Components.TouchArea {
                         anchors.fill: parent
-                        enabled: !root.deleting
-                        onClicked: deleteDialog.open()
+                        enabled: !root.deleting && !root.paying
+                        onClicked: actionSheet.open()
                     }
                 }
 
@@ -1603,7 +1733,7 @@ Page {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 48
                     radius: 24
-                    color: (root.orderCount > 0 && !root.sending) ? Theme.primary : Theme.border
+                    color: (root.orderCount > 0 && !root.sending && !root.paying) ? Theme.primary : Theme.border
 
                     Label {
                         anchors.fill: parent
@@ -1611,7 +1741,9 @@ Page {
                         anchors.rightMargin: 12
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        text: root.sending
+                        text: root.paying
+                            ? qsTr("Paying…")
+                            : root.sending
                             ? qsTr("Sending…")
                             : (root.orderCount > 0
                                 ? (root.isEditing
@@ -1620,7 +1752,7 @@ Page {
                                 : qsTr("Add products"))
                         font.pixelSize: 15 * Theme.fontScale
                         font.bold: true
-                        color: (root.orderCount > 0 && !root.sending) ? "white" : Theme.textSecondary
+                        color: (root.orderCount > 0 && !root.sending && !root.paying) ? "white" : Theme.textSecondary
                         // Textul lung se micșorează ca să încapă în buton, în loc să iasă pe margini.
                         fontSizeMode: Text.HorizontalFit
                         minimumPixelSize: 10
@@ -1629,7 +1761,7 @@ Page {
 
                     Components.TouchArea {
                         anchors.fill: parent
-                        enabled: root.orderCount > 0 && !root.sending
+                        enabled: root.orderCount > 0 && !root.sending && !root.paying
                         onClicked: root.submitOrder()
                     }
                 }
@@ -1701,6 +1833,44 @@ Page {
         message: root.sendError
         confirmText: qsTr("OK")
         infoOnly: true
+    }
+
+    Components.ConfirmDialog {
+        id: payErrorDialog
+        title: qsTr("Payment failed")
+        message: root.payError
+        confirmText: qsTr("OK")
+        infoOnly: true
+    }
+
+    // Bonul e emis (banii sunt încasați), dar nu a ieșit pe hârtie. Singura
+    // acțiune corectă e retipărirea aceluiași document - de-aceea nu există
+    // aici nicio variantă de "reia plata".
+    Components.ConfirmDialog {
+        id: reprintDialog
+        title: qsTr("Receipt not printed")
+        message: qsTr("The payment went through, but the receipt didn't print: %1").arg(root.payError)
+        confirmText: qsTr("Print again")
+        cancelText: qsTr("Skip")
+        onConfirmed: paymentController.reprint()
+        // Chiar dacă renunță la hârtie, vânzarea rămâne finalizată - nu are
+        // rost să ținem ecranul deschis pe o comandă deja închisă.
+        onCancelled: root.finishPaymentIfDone()
+    }
+
+    Components.OrderActionSheet {
+        id: actionSheet
+        canPay: root.sentNrComand > 0 && !root.hasUnsavedChanges()
+        payBlockedReason: root.sentNrComand <= 0
+            ? qsTr("This order isn't in the system yet.")
+            : qsTr("Send the changes first - the receipt must match the order.")
+        onPayRequested: root.startPayment()
+        onDeleteRequested: deleteDialog.open()
+    }
+
+    Components.PaymentSheet {
+        id: paymentSheet
+        onPayRequested: root.pay(method, received)
     }
 
     Components.ConfirmDialog {

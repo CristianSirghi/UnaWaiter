@@ -10,13 +10,19 @@ HEADERS += \
     src/core/translationmanager.h \
     src/core/dataservice.h \
     src/core/appversion.h \
-    src/core/updatemanager.h
+    src/core/updatemanager.h \
+    src/core/pendingfiscalstore.h \
+    src/core/smartoneclient.h \
+    src/core/paymentcontroller.h
 
 SOURCES += \
     src/main.cpp \
     src/core/translationmanager.cpp \
     src/core/dataservice.cpp \
-    src/core/updatemanager.cpp
+    src/core/updatemanager.cpp \
+    src/core/pendingfiscalstore.cpp \
+    src/core/smartoneclient.cpp \
+    src/core/paymentcontroller.cpp
 
 # Sursa unica a versiunii afisate (src/core/appversion.h) - de-acolo se
 # completeaza automat versionName/versionCode in AndroidManifest.xml

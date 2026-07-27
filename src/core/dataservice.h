@@ -134,6 +134,19 @@ public:
     // dacă bonul e deja achitat (state=3).
     Q_INVOKABLE void cancelOrder(const QString &nrComand);
 
+    // Închide comanda ca achitată în Oracle (STATE=3), prin
+    // pg_mobile_web_waiter.pay_order. Se apelează DOAR după ce bonul fiscal a
+    // fost emis pe terminalul SmartOne - bonul e artefactul legal, închiderea
+    // comenzii e contabilitate internă care se poate relua în siguranță.
+    // payType: 1 = Numerar (`pay` = suma primită), 2 = Card (`pay` ignorat).
+    // Backendul e idempotent: o comandă deja achitată întoarce succes, nu
+    // eroare, ca o reluare după o pică de rețea să nu blocheze chelnerul.
+    Q_INVOKABLE void payOrder(const QString &nrComand,
+                              int payType,
+                              double pay,
+                              const QString &docFiscal,
+                              const QString &oficiant);
+
 signals:
     void baseUrlChanged();
     void onlineChanged();
@@ -157,6 +170,7 @@ signals:
     void orderDeskUpdated(int nrComand, int desk);
     void orderGuestCountUpdated(int nrComand, int guestCount);
     void orderCancelled(int nrComand);
+    void orderPaid(int nrComand, int payType);
     // Fired whenever any command fails (network or backend "error" payload).
     void requestFailed(const QString &command, const QString &error);
 

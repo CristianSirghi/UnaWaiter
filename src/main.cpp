@@ -5,6 +5,7 @@
 #include "translationmanager.h"
 #include "dataservice.h"
 #include "updatemanager.h"
+#include "paymentcontroller.h"
 
 int main(int argc, char *argv[])
 {
@@ -39,6 +40,9 @@ int main(int argc, char *argv[])
     TranslationManager translationManager;
     DataService dataService;
     UpdateManager updateManager;
+    // Declarat DUPĂ dataService: se distruge înaintea lui, deci nu ajunge
+    // niciodată să-l atingă după ce a dispărut.
+    PaymentController paymentController(&dataService);
 
     int exitCode = 0;
     {
@@ -50,6 +54,7 @@ int main(int argc, char *argv[])
         ctx->setContextProperty(QStringLiteral("translationManager"), &translationManager);
         ctx->setContextProperty(QStringLiteral("dataService"), &dataService);
         ctx->setContextProperty(QStringLiteral("appUpdateManager"), &updateManager);
+        ctx->setContextProperty(QStringLiteral("paymentController"), &paymentController);
 
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
