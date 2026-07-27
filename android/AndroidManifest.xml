@@ -14,7 +14,7 @@
 
     <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="UnaWaiter" android:extractNativeLibs="true" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
 
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.UnaWaiter.UnaWaiterActivity" android:label="" android:screenOrientation="unspecified" android:launchMode="singleTop" android:exported="true">
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.UnaWaiter.UnaWaiterActivity" android:label="UnaWaiter" android:screenOrientation="unspecified" android:launchMode="singleTop" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -34,6 +34,7 @@
             <meta-data android:value="@string/ministro_needed_msg" android:name="android.app.ministro_needed_msg"/>
             <meta-data android:value="@string/fatal_error_msg" android:name="android.app.fatal_error_msg"/>
             <meta-data android:value="@string/unsupported_android_version" android:name="android.app.unsupported_android_version"/>
+            <meta-data android:name="android.app.splash_screen_drawable" android:resource="@drawable/splash_background"/>
             <meta-data android:name="android.app.background_running" android:value="false"/>
             <meta-data android:name="android.app.auto_screen_scale_factor" android:value="false"/>
             <meta-data android:name="android.app.extract_android_style" android:value="default"/>

@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 import "../../theme"
 import "../../app"
 import QtQuick.Controls 2.15
@@ -130,8 +131,8 @@ Drawer {
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     mipmap: true
-                    sourceSize.width: width
-                    sourceSize.height: height
+                    sourceSize.width: 22 * Screen.devicePixelRatio
+                    sourceSize.height: 22 * Screen.devicePixelRatio
                 }
 
                 Label {

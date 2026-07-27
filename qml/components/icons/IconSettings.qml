@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 
 // Iconiță "setări" — aceeași imagine folosită în Una_Prod, cu o animație de
 // rotire la apăsare.
@@ -27,8 +28,8 @@ Item {
         fillMode: Image.PreserveAspectFit
         smooth: true
         mipmap: true
-        sourceSize.width: width
-        sourceSize.height: height
+        sourceSize.width: parent.width * Screen.devicePixelRatio
+        sourceSize.height: parent.height * Screen.devicePixelRatio
     }
 
     RotationAnimation {

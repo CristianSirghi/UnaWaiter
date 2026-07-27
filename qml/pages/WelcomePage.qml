@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 import "../theme"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -24,11 +25,29 @@ Page {
         RowLayout {
             Layout.fillWidth: true
 
-            Label {
-                text: qsTr("Welcome")
-                font.pixelSize: 24 * Theme.fontScale
-                font.bold: true
-                color: Theme.textPrimary
+            ColumnLayout {
+                spacing: 2
+
+                Image {
+                    id: unaLogo
+                    property real logoHeight: 48 * Theme.fontScale
+                    property real logoWidth: logoHeight * (660 / 249)
+
+                    source: "qrc:/icons/una_logo.png"
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    mipmap: true
+                    Layout.preferredHeight: logoHeight
+                    Layout.preferredWidth: logoWidth
+                    sourceSize.width: logoWidth * Screen.devicePixelRatio
+                    sourceSize.height: logoHeight * Screen.devicePixelRatio
+                }
+
+                Label {
+                    text: "UNA.md | HoReCa"
+                    font.pixelSize: 11 * Theme.fontScale
+                    color: Theme.textSecondary
+                }
             }
 
             Item { Layout.fillWidth: true }
@@ -40,12 +59,20 @@ Page {
             }
         }
 
-        Item { Layout.fillHeight: true; Layout.preferredHeight: 1 }
+        Item { Layout.preferredHeight: 32 }
 
-        Label {
-            text: "🍴"
-            font.pixelSize: 56 * Theme.fontScale
+        Image {
+            property real iconSize: 128 * Theme.fontScale
+
+            source: "qrc:/icons/hand_waiter.png"
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+            mipmap: true
+            Layout.preferredWidth: iconSize
+            Layout.preferredHeight: iconSize
             Layout.alignment: Qt.AlignHCenter
+            sourceSize.width: iconSize * Screen.devicePixelRatio
+            sourceSize.height: iconSize * Screen.devicePixelRatio
         }
 
         Label {

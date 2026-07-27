@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 
 // Iconiță "deconectare" — aceeași imagine folosită în Una_Prod.
 Item {
@@ -16,7 +17,7 @@ Item {
         fillMode: Image.PreserveAspectFit
         smooth: true
         mipmap: true
-        sourceSize.width: width
-        sourceSize.height: height
+        sourceSize.width: root.width * Screen.devicePixelRatio
+        sourceSize.height: root.height * Screen.devicePixelRatio
     }
 }
