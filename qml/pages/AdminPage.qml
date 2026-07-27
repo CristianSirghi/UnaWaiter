@@ -53,6 +53,42 @@ Page {
                     onEditingFinished: AppSettings.serverUrl = text
                 }
             }
+
+            // ----- Terminal fiscal (SmartOne) -----
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 10
+
+                Label {
+                    text: qsTr("Fiscal terminal")
+                    font.pixelSize: 16 * Theme.fontScale
+                    font.bold: true
+                    color: Theme.textPrimary
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    text: qsTr("Number of the next fiscal document. The terminal rejects numbers outside its own sequence - if paying fails with \"Invalid docNumber\", set this to the value the terminal expects.")
+                    font.pixelSize: 12 * Theme.fontScale
+                    color: Theme.textSecondary
+                    wrapMode: Text.WordWrap
+                }
+
+                Components.TextInputField {
+                    Layout.fillWidth: true
+                    text: String(paymentController.nextPayId)
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onEditingFinished: {
+                        var v = parseInt(text)
+                        if (!isNaN(v) && v > 0)
+                            paymentController.nextPayId = v
+                        // Reafișăm valoarea acceptată: dacă s-a tastat ceva
+                        // invalid, câmpul nu are voie să rămână cu ea pe ecran,
+                        // sugerând o setare care nu s-a aplicat.
+                        text = String(paymentController.nextPayId)
+                    }
+                }
+            }
         }
     }
 }

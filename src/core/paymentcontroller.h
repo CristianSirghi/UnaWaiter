@@ -28,11 +28,21 @@ class PaymentController : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
+    // Numărul de document trimis terminalului la următoarea vânzare. E un
+    // contor INTERN al nostru (SmartOne își dă propriul `document_number`
+    // înapoi), persistat între porniri și avansat după fiecare document comis.
+    //
+    // Expus ca proprietate pentru că terminalul fiscal poate refuza un număr în
+    // afara secvenței lui ("Invalid docNumber") - atunci trebuie potrivit cu ce
+    // așteaptă aparatul, fără reinstalarea aplicației.
+    Q_PROPERTY(int nextPayId READ nextPayId WRITE setNextPayId NOTIFY nextPayIdChanged)
 
 public:
     explicit PaymentController(DataService *dataService, QObject *parent = nullptr);
 
     bool busy() const { return m_state != Idle; }
+    int nextPayId() const;
+    void setNextPayId(int value);
 
     // Numerar: `received` e suma dată de client (restul se calculează).
     Q_INVOKABLE void payCash(int nrComand,
@@ -70,6 +80,7 @@ public:
 
 signals:
     void busyChanged();
+    void nextPayIdChanged();
     // Comanda e închisă în Oracle: plata s-a încheiat cu succes.
     void paymentSucceeded(int nrComand);
     void paymentFailed(const QString &reason);
@@ -92,6 +103,9 @@ private:
                         const QString &employeeName,
                         const QString &oficiant);
     void beginFiscal(bool printOnConflict);
+    // Avansează contorul după ce documentul a fost comis, ca vânzarea următoare
+    // să nu reia același număr (ar primi 409 și ar fi luată drept "deja emisă").
+    void advancePayId(int usedPayId);
     void closeOrderInOracle();
     void finishWithSuccess();
     void failAndKeepPending(const QString &reason);

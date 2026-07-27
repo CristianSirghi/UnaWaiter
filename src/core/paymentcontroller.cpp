@@ -5,6 +5,7 @@
 
 #include <QDateTime>
 #include <QGuiApplication>
+#include <QSettings>
 #include <QTimer>
 
 namespace {
@@ -15,7 +16,32 @@ const int kCardCheckRetryMs = 2000;
 // deci a renunța aici ar lăsa masa ocupată cu banii încasați.
 const int kMaxOracleRetries = 3;
 const int kOracleRetryMs = 3000;
+
+// Contorul de documente fiscale, persistat între porniri.
+const char *kPayIdKey = "fiscal/nextPayId";
 } // namespace
+
+int PaymentController::nextPayId() const
+{
+    QSettings settings;
+    return qMax(1, settings.value(QLatin1String(kPayIdKey), 1).toInt());
+}
+
+void PaymentController::setNextPayId(int value)
+{
+    const int wanted = qMax(1, value);
+    if (wanted == nextPayId())
+        return;
+
+    QSettings settings;
+    settings.setValue(QLatin1String(kPayIdKey), wanted);
+    emit nextPayIdChanged();
+}
+
+void PaymentController::advancePayId(int usedPayId)
+{
+    setNextPayId(qMax(nextPayId(), usedPayId + 1));
+}
 
 PaymentController::PaymentController(DataService *dataService, QObject *parent)
     : QObject(parent)
@@ -91,10 +117,15 @@ bool PaymentController::preparePending(int nrComand,
 
     m_pending = PendingFiscal();
     m_pending.nrComand = nrComand;
-    // payId = numărul comenzii: cheie de idempotență naturală, stabilă peste
-    // reporniri. Ajunge și în docNumber, deci o reluare produce 409 în loc de
-    // un al doilea bon.
-    m_pending.payId = nrComand;
+    // payId e un contor INTERN, mic și crescător - NU numărul comenzii.
+    // Terminalul fiscal validează numărul de document față de propria secvență
+    // și respinge valorile din afara ei ("Invalid docNumber '382766'"), deci
+    // numerele de comandă din Oracle (6 cifre) nu pot fi folosite direct.
+    //
+    // Idempotența la reluare nu se pierde: payId-ul e salvat în fișierul de
+    // recuperare, iar o reluare retrimite exact același număr → 409 de la
+    // SmartOne în loc de un al doilea bon.
+    m_pending.payId = nextPayId();
     m_pending.payType = payType;
     m_pending.total = total;
     m_pending.paid = (payType == QLatin1String("C") && received > 0.0) ? received : total;
@@ -161,6 +192,12 @@ void PaymentController::beginFiscal(bool printOnConflict)
     const PendingFiscal snapshot = m_pending;
     const QString employee = m_employeeName;
 
+    // Vizibil în logcat: dacă terminalul refuză numărul de document, ăsta e
+    // primul lucru de verificat (vezi proprietatea nextPayId).
+    qInfo("[Payment] comanda %d, docNumber %d, total %.2f, tip %s",
+          snapshot.nrComand, snapshot.payId, snapshot.total,
+          qPrintable(snapshot.payType));
+
     m_client->ensureShiftOpen([this, snapshot, employee, printOnConflict]() {
         m_client->fiscalSaleAndPrint(snapshot.payId,
                                      snapshot.lines,
@@ -176,6 +213,9 @@ void PaymentController::onDocumentCommitted(const QString &documentNumber)
 {
     m_pending.documentNumber = documentNumber;
     PendingFiscalStore::save(m_pending);
+    // Numărul e consumat abia acum, când chiar există un document fiscal -
+    // dacă am avansa la trimitere, o vânzare eșuată ar lăsa o gaură în serie.
+    advancePayId(m_pending.payId);
 
     // Documentul e în memoria fiscală: banii sunt luați. Închidem comanda.
     closeOrderInOracle();
@@ -187,6 +227,7 @@ void PaymentController::onDocumentAlreadyExists(const QString &documentNumber)
     // ieși un al doilea bon pe hârtie) și nu deranjăm chelnerul cu dialoguri.
     m_pending.documentNumber = documentNumber;
     PendingFiscalStore::save(m_pending);
+    advancePayId(m_pending.payId);
 
     if (!m_pending.oraclePaid) {
         closeOrderInOracle();

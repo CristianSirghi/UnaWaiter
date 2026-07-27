@@ -48,7 +48,7 @@
 <context>
     <name>AddonSheet</name>
     <message>
-        <location filename="../qml/components/controls/AddonSheet.qml" line="+88" />
+        <location filename="../qml/components/controls/AddonSheet.qml" line="+131" />
         <source>Add-ons</source>
         <translation>Добавки</translation>
     </message>
@@ -74,6 +74,16 @@
         <location line="+24" />
         <source>Server</source>
         <translation>Сервер</translation>
+    </message>
+    <message>
+        <location line="+20" />
+        <source>Fiscal terminal</source>
+        <translation>Фискальный терминал</translation>
+    </message>
+    <message>
+        <location line="+8" />
+        <source>Number of the next fiscal document. The terminal rejects numbers outside its own sequence - if paying fails with "Invalid docNumber", set this to the value the terminal expects.</source>
+        <translation>Номер следующего фискального документа. Терминал отклоняет номера вне своей последовательности — если оплата не проходит с «Invalid docNumber», укажите здесь ожидаемое терминалом значение.</translation>
     </message>
 </context>
 <context>
@@ -279,7 +289,7 @@
 <context>
     <name>OrderActionSheet</name>
     <message>
-        <location filename="../qml/components/controls/OrderActionSheet.qml" line="+70" />
+        <location filename="../qml/components/controls/OrderActionSheet.qml" line="+110" />
         <source>Order actions</source>
         <translation>Действия с заказом</translation>
     </message>
@@ -552,7 +562,7 @@
 <context>
     <name>PaymentController</name>
     <message>
-        <location filename="../src/core/paymentcontroller.cpp" line="+204" />
+        <location filename="../src/core/paymentcontroller.cpp" line="+245" />
         <source>The data service is not available.</source>
         <translation>Сервис данных недоступен.</translation>
     </message>
@@ -582,18 +592,18 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>PaymentSheet</name>
     <message>
-        <location filename="../qml/components/controls/PaymentSheet.qml" line="+97" />
+        <location filename="../qml/components/controls/PaymentSheet.qml" line="+149" />
         <source>To pay</source>
         <translation>К оплате</translation>
     </message>
     <message>
         <location line="+5" />
-        <location line="+169" />
+        <location line="+177" />
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-146" />
+        <location line="-154" />
         <source>Cash</source>
         <translation>Наличные</translation>
     </message>
@@ -633,17 +643,17 @@ It will be retried automatically when the app restarts.</source>
         <translation>Другая сумма</translation>
     </message>
     <message>
-        <location line="+14" />
+        <location line="+22" />
         <source>Change</source>
         <translation>Сдача</translation>
     </message>
     <message>
-        <location line="+15" />
+        <location line="+16" />
         <source>The amount received is less than the total.</source>
         <translation>Полученная сумма меньше итоговой.</translation>
     </message>
     <message>
-        <location line="+22" />
+        <location line="+23" />
         <source>Pay and print receipt · %1 MDL</source>
         <translation>Оплатить и напечатать чек · %1 MDL</translation>
     </message>
