@@ -25,29 +25,19 @@ Page {
         RowLayout {
             Layout.fillWidth: true
 
-            ColumnLayout {
-                spacing: 2
+            Image {
+                id: unaLogo
+                property real logoHeight: 18 * Theme.fontScale
+                property real logoWidth: logoHeight * (660 / 249)
 
-                Image {
-                    id: unaLogo
-                    property real logoHeight: 38 * Theme.fontScale
-                    property real logoWidth: logoHeight * (660 / 249)
-
-                    source: "qrc:/icons/una_logo.png"
-                    fillMode: Image.PreserveAspectFit
-                    smooth: true
-                    mipmap: true
-                    Layout.preferredHeight: logoHeight
-                    Layout.preferredWidth: logoWidth
-                    sourceSize.width: logoWidth * Screen.devicePixelRatio
-                    sourceSize.height: logoHeight * Screen.devicePixelRatio
-                }
-
-                Label {
-                    text: "UNA.md | HoReCa"
-                    font.pixelSize: 11 * Theme.fontScale
-                    color: Theme.textSecondary
-                }
+                source: "qrc:/icons/una_logo.png"
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                mipmap: true
+                Layout.preferredHeight: logoHeight
+                Layout.preferredWidth: logoWidth
+                sourceSize.width: logoWidth * Screen.devicePixelRatio
+                sourceSize.height: logoHeight * Screen.devicePixelRatio
             }
 
             Item { Layout.fillWidth: true }
@@ -60,6 +50,13 @@ Page {
         }
 
         Item { Layout.preferredHeight: 32 }
+
+        Label {
+            text: "UNA.md | HoReCa"
+            font.pixelSize: 12 * Theme.fontScale
+            color: Theme.textSecondary
+            Layout.alignment: Qt.AlignHCenter
+        }
 
         Image {
             property real iconSize: 128 * Theme.fontScale

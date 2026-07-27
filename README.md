@@ -4,7 +4,7 @@ Aplicație Android pentru chelneri — preluarea comenzilor la masă și trimite
 
 ## Despre proiect
 
-Chelnerul introduce comanda pe telefon (produse, cantități), o trimite la bucătărie (imprimantă de rețea) și în front-ul de casă, unde se face achitarea. Integrarea cu baza de date Oracle a UAMenu se face printr-un strat intermediar PHP.
+Chelnerul introduce comanda pe terminal (produse, cantități), o trimite la bucătărie și în front-ul de casă. Poate și **încasa masa direct**: se emite bonul fiscal pe terminalul SmartOne, iar comanda se închide în UAMenu ca achitată. Integrarea cu baza de date Oracle a UAMenu se face printr-un strat intermediar PHP.
 
 ## Tehnologii
 
@@ -25,4 +25,5 @@ Deschide `UnaWaiter.pro` în Qt Creator (Qt 5.15.2) și rulează pe kit-ul Deskt
 
 ## Documentație
 
+- [`docs/smartone-fiscal/`](docs/smartone-fiscal/README.md) — achitarea din aplicație și emiterea bonului fiscal pe terminalul SmartOne: lanțul complet, modelul de bani din UAMenu, recuperarea după cădere și pașii de mutare pe producție.
 - [`docs/auto-update/`](docs/auto-update/README.md) — mecanismul de auto-update (verificare versiune + download/install APK fără Play Store). Conține prezentarea generală, checklist-ul de deploy pe producție și fluxul de publicare a unei versiuni noi.
