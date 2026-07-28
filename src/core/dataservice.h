@@ -112,17 +112,31 @@ public:
 
     // Writes (POST). Results come back through the signals below rather than a
     // property, since they're one-shot actions, not persistent state.
+    // takeaway = comandă LA PACHET, fără masă (DESK NULL în Oracle). Steag
+    // explicit, nu "desk gol": pe partea de PHP, empty() e adevărat și pentru 0,
+    // și pentru "", deci un desk lipsă dintr-un bug ar fi creat tăcut o comandă
+    // la pachet în loc să dea eroare. Când e true, `desk` nici nu se trimite.
+    //
+    // coment se scrie în TMDB_COMENZ.COMENT și se TIPĂREȘTE pe bon (verificat pe
+    // bon real) - acolo punem "La pachet", ca să se distingă în UAMenu de o
+    // vânzare obișnuită de la casă.
     Q_INVOKABLE void createOrder(const QString &waiter,
                                  const QString &desk,
                                  const QString &payType = QString(),
-                                 const QString &guestCount = QString());
+                                 const QString &guestCount = QString(),
+                                 bool takeaway = false,
+                                 const QString &coment = QString());
     Q_INVOKABLE void addOrderLines(const QString &nrComand,
                                    const QVariantList &lines);
     // Mută o comandă deja trimisă pe altă masă (DESK real în Oracle), nu doar
     // în cache-ul local - vezi update_order_desk. Backend-ul respinge mutarea
     // dacă masa țintă are deja altă comandă deschisă, sau dacă bonul comenzii
     // e deja printat la bucătărie (aceleași reguli ca UAMenu însuși).
-    Q_INVOKABLE void updateOrderDesk(const QString &nrComand, const QString &desk);
+    // takeaway = scoate comanda de la masă și o face "la pachet" (DESK NULL).
+    // Oracle rescrie singur marcajul din COMENT în ambele sensuri - vezi
+    // c_takeaway_mark din pachet.
+    Q_INVOKABLE void updateOrderDesk(const QString &nrComand, const QString &desk,
+                                     bool takeaway = false);
     // Actualizează numărul de clienți (barmen/PERSON) al unei comenzi deja
     // trimise - createOrder îl trimite doar o dată, la creare, prin
     // update_guest_count (nou, 2026-07-21).

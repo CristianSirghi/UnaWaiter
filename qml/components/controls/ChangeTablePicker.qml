@@ -40,6 +40,11 @@ Popup {
     property var occupiedByDesk: ({})
 
     signal tableSelected(string zone, int tableNumber)
+    // Scoate comanda de la masă (clientul cere să i se împacheteze). Semnal
+    // separat de tableSelected: nu e o masă, deci n-are număr și n-are zonă.
+    signal takeawaySelected()
+
+    readonly property bool currentlyTakeaway: root.currentZone === "takeaway"
 
     function occupantFor(zone, tableNumber) {
         return root.occupiedByDesk[zone + "_" + tableNumber]
@@ -300,6 +305,61 @@ Popup {
                                     root.close()
                                 }
                             }
+                        }
+                    }
+                }
+
+                // ----- La pachet -----
+                // Aceeași formă ca în SelectTablePage (lat, nu pătrat), ca să nu
+                // arate ca încă o masă. Evidențiat și nefolosibil când comanda e
+                // deja la pachet - exact ca masa curentă în grilele de mai sus.
+                Item { width: 1; height: 8 }
+
+                Rectangle {
+                    x: 16
+                    width: contentCol.width - 32
+                    height: 1
+                    color: Theme.border
+                }
+
+                Item { width: 1; height: 8 }
+
+                Rectangle {
+                    x: 16
+                    width: contentCol.width - 32
+                    height: 60
+                    radius: 14
+                    color: root.currentlyTakeaway ? Theme.primary : Theme.surface
+                    border.width: 1.5
+                    border.color: root.currentlyTakeaway ? Theme.primary : Theme.border
+
+                    Column {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 16
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+
+                        Label {
+                            text: qsTr("Takeaway")
+                            font.pixelSize: 16 * Theme.fontScale
+                            font.bold: true
+                            color: root.currentlyTakeaway ? "white" : Theme.textPrimary
+                        }
+
+                        Label {
+                            text: qsTr("Order without a table")
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: root.currentlyTakeaway ? "white" : Theme.textSecondary
+                            opacity: root.currentlyTakeaway ? 0.85 : 1
+                        }
+                    }
+
+                    TouchArea {
+                        anchors.fill: parent
+                        enabled: !root.currentlyTakeaway
+                        onClicked: {
+                            root.takeawaySelected()
+                            root.close()
                         }
                     }
                 }

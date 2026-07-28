@@ -236,6 +236,11 @@ ApplicationWindow {
             onTableSelected: function(zone, tableNumber) {
                 stackView.push(orderPageComponent, { zone: zone, tableNumber: tableNumber })
             }
+            // La pachet: aceeași pagină de comandă, doar fără masă. tableNumber
+            // rămâne 0 până când Oracle dă numărul comenzii - abia el devine
+            // identitatea locală a comenzii (vezi OrderPage.finishSubmit).
+            onTakeawayRequested: stackView.push(orderPageComponent,
+                                                { zone: "takeaway", tableNumber: 0 })
         }
     }
 

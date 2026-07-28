@@ -13,6 +13,68 @@ Page {
     property string zone: ""
     property int tableNumber: 0
 
+    // Comandă LA PACHET, fără masă. `zone` e "takeaway" (zonă virtuală, nu una
+    // din uw_tables), iar `tableNumber` NU e un număr de masă, ci numărul real
+    // al comenzii din Oracle - singura identitate stabilă pe care o are o
+    // comandă fără masă. E 0 până când create_order îl întoarce.
+    readonly property bool isTakeaway: root.zone === "takeaway"
+
+    // Numele afișat al "locului" comenzii - masa, sau "La pachet".
+    function placeLabel() {
+        return root.isTakeaway ? qsTr("Takeaway") : qsTr("Table %1").arg(root.tableNumber)
+    }
+
+    // Destinația aleasă în ChangeTablePicker, ținută până la confirmare -
+    // schimbarea reală a lui zone/tableNumber are loc abia în applyMove.
+    property string pendingZone: ""
+    property int pendingTableNumber: 0
+
+    // Masa de la care pleacă comanda (pentru textul dialogului): la o comandă
+    // deja trimisă e masa confirmată în Oracle, nu o selecție nesalvată.
+    function currentTableNumber() {
+        return root.isEditing ? root.originalTableNumber : root.tableNumber
+    }
+
+    // O masă a fost aleasă în picker.
+    //
+    // Confirmăm DOAR când se schimbă felul comenzii (pachet → masă). Mutarea
+    // între mese rămâne fără dialog, ca înainte: e aceeași natură de comandă,
+    // doar alt număr, iar butonul "Actualizează comanda" o oricum de confirmat.
+    function requestMoveToTable(zone, tableNumber) {
+        if (!root.isTakeaway) {
+            root.applyMove(zone, tableNumber)
+            return
+        }
+        root.pendingZone = zone
+        root.pendingTableNumber = tableNumber
+        moveConfirmDialog.open()
+    }
+
+    // "La pachet" a fost ales în picker - comanda pleacă de la masă.
+    //
+    // Noua identitate locală e numărul comenzii (vezi isTakeaway). Dacă nu-l
+    // avem încă (comandă nouă, netrimisă), rămâne 0 și îl scrie finishSubmit
+    // după create_order - exact ca la o comandă pornită direct la pachet.
+    function requestMoveToTakeaway() {
+        root.pendingZone = "takeaway"
+        root.pendingTableNumber = root.sentNrComand > 0 ? root.sentNrComand : 0
+        moveConfirmDialog.open()
+    }
+
+    function applyMove(zone, tableNumber) {
+        root.zone = zone
+        root.tableNumber = tableNumber
+    }
+
+    // Trimite noua "locație" a comenzii în Oracle - masă reală sau la pachet.
+    // Marcajul din COMENT îl rescrie pachetul Oracle, în ambele sensuri.
+    function sendDeskUpdate() {
+        if (root.isTakeaway)
+            dataService.updateOrderDesk(String(root.sentNrComand), "", true)
+        else
+            dataService.updateOrderDesk(String(root.sentNrComand), String(root.tableNumber))
+    }
+
     // ---- Meniu real (din backend, via dataService) ----
     // Structura pe categorii: [{ cat, grp, items: [{ name, unit, price, cod }] }].
     // Construită din dataService.categories + dataService.menu (vezi buildMenuData).
@@ -559,6 +621,16 @@ Page {
     // actualizare reală reușită, cât și pentru editarea comenzilor locale vechi
     // fără nr_comand cunoscut (vezi submitOrder).
     function finishSubmit() {
+        // O comandă la pachet n-are masă, deci nu are cheie locală până când
+        // Oracle nu-i dă un număr. Abia aici (după create_order) putem s-o
+        // salvăm în OrdersStore, sub "takeaway-<nr_comand>" - de-aceea
+        // tableNumber e 0 la deschiderea ecranului și primește valoare acum.
+        if (root.isTakeaway && root.tableNumber <= 0 && root.sentNrComand > 0) {
+            root.tableNumber = root.sentNrComand
+            root.originalZone = root.zone
+            root.originalTableNumber = root.tableNumber
+        }
+
         // Ce e în qtyStore chiar acum devine noul prag (sentQtyStore) - corect
         // atât după o creare/trimitere reușită, cât și după o editare
         // local-only (fallback fără nr_comand cunoscut).
@@ -631,7 +703,7 @@ Page {
             if (guestCountChanged) {
                 dataService.updateGuestCount(String(root.sentNrComand), String(root.guestCount))
             } else if (tableChanged) {
-                dataService.updateOrderDesk(String(root.sentNrComand), String(root.tableNumber))
+                root.sendDeskUpdate()
             } else {
                 root.sendDeltaOrFinish()
             }
@@ -660,22 +732,36 @@ Page {
         // de pe Masa 8. Citim tableOccupancy (toți chelnerii), NU openOrders -
         // acela e filtrat de TablesPage pe "Ale mele"/"Toate" și ar rata
         // mesele luate de alți chelneri când "Ale mele" era tab-ul activ.
-        var openRows = dataService.tableOccupancy
-        for (var oi = 0; oi < openRows.length; ++oi) {
-            var orow = openRows[oi]
-            var hasDesk = orow.DESK !== undefined && orow.DESK !== null && String(orow.DESK).trim() !== ""
-            if (!hasDesk || parseInt(orow.DESK) !== root.tableNumber)
-                continue
-            var owner = orow.CLCOFICIANTT ? String(orow.CLCOFICIANTT).trim() : ""
-            root.showSendError(owner
-                ? qsTr("Table %1 was just taken by %2 - pick another table.").arg(root.tableNumber).arg(owner)
-                : qsTr("Table %1 was just taken by someone else - pick another table.").arg(root.tableNumber))
-            return
+        //
+        // La pachet verificarea n-are obiect (nu există masă de ocupat) și ar fi
+        // chiar dăunătoare: rândurile fără DESK au toate `tableNumber` 0, deci
+        // s-ar bloca reciproc. Mai multe comenzi la pachet deodată sunt normale.
+        if (!root.isTakeaway) {
+            var openRows = dataService.tableOccupancy
+            for (var oi = 0; oi < openRows.length; ++oi) {
+                var orow = openRows[oi]
+                var hasDesk = orow.DESK !== undefined && orow.DESK !== null && String(orow.DESK).trim() !== ""
+                if (!hasDesk || parseInt(orow.DESK) !== root.tableNumber)
+                    continue
+                var owner = orow.CLCOFICIANTT ? String(orow.CLCOFICIANTT).trim() : ""
+                root.showSendError(owner
+                    ? qsTr("Table %1 was just taken by %2 - pick another table.").arg(root.tableNumber).arg(owner)
+                    : qsTr("Table %1 was just taken by someone else - pick another table.").arg(root.tableNumber))
+                return
+            }
         }
 
         root.sendError = ""
         root.sending = true
-        dataService.createOrder(AppSettings.waiterOficiant, root.tableNumber, "", root.guestCount)
+        if (root.isTakeaway) {
+            // Fără text de comentariu de-aici: marcajul "La pachet" (cel care
+            // se vede în UAMenu și se tipărește pe bon) îl pune pachetul Oracle,
+            // fiindcă trebuie aplicat identic și la mutarea masă↔pachet. Ținut
+            // într-un singur loc, se schimbă printr-o recompilare, fără APK nou.
+            dataService.createOrder(AppSettings.waiterOficiant, "", "", root.guestCount, true)
+        } else {
+            dataService.createOrder(AppSettings.waiterOficiant, root.tableNumber, "", root.guestCount)
+        }
     }
 
     // Comanda salvată e mereu la masa originală — o mutăm doar la trimitere
@@ -967,7 +1053,7 @@ Page {
                 return
             root.sentGuestCount = guestCount
             if (root.zone !== root.originalZone || root.tableNumber !== root.originalTableNumber)
-                dataService.updateOrderDesk(String(root.sentNrComand), String(root.tableNumber))
+                root.sendDeskUpdate()
             else
                 root.sendDeltaOrFinish()
         }
@@ -1104,12 +1190,14 @@ Page {
 
                     Label {
                         id: tableNameLabel
-                        text: qsTr("Table %1").arg(root.tableNumber)
+                        text: root.placeLabel()
                         font.pixelSize: 18 * Theme.fontScale
                         font.bold: true
                         color: Theme.textPrimary
                     }
 
+                    // Apăsabil în ambele sensuri: o comandă la masă poate deveni
+                    // "la pachet" și invers (vezi requestMove*).
                     Components.TouchArea {
                         anchors.fill: parent
                         anchors.margins: -6
@@ -1125,7 +1213,7 @@ Page {
                 }
 
                 Label {
-                    text: root.zoneLabel()
+                    text: root.isTakeaway ? qsTr("No table") : root.zoneLabel()
                     font.pixelSize: 12 * Theme.fontScale
                     color: Theme.textSecondary
                 }
@@ -1514,8 +1602,10 @@ Page {
                         anchors.rightMargin: 16
                         spacing: 10
 
-                        // Selector oaspeți (butoane proprii, minim 1).
+                        // Selector oaspeți (butoane proprii, minim 1). Ascuns la
+                        // pachet: nu stă nimeni la masă, iar PERSON rămâne 1.
                         RowLayout {
+                            visible: !root.isTakeaway
                             Layout.alignment: Qt.AlignVCenter
                             spacing: 6
 
@@ -1803,7 +1893,9 @@ Page {
         // pe o selecție nesalvată din ChangeTablePicker — mesajul trebuie să
         // reflecte aceeași masă.
         message: qsTr("The order for %1 will be removed.").arg(
-            qsTr("Table %1").arg(root.isEditing ? root.originalTableNumber : root.tableNumber))
+            root.isTakeaway
+                ? qsTr("Takeaway")
+                : qsTr("Table %1").arg(root.isEditing ? root.originalTableNumber : root.tableNumber))
         confirmText: qsTr("Delete")
         destructive: true
         onConfirmed: root.deleteOrder()
@@ -1896,8 +1988,31 @@ Page {
         hallTables: root.pickerHallTables
         terraceTables: root.pickerTerraceTables
         onTableSelected: function(zone, tableNumber) {
-            root.zone = zone
-            root.tableNumber = tableNumber
+            root.requestMoveToTable(zone, tableNumber)
         }
+        onTakeawaySelected: root.requestMoveToTakeaway()
+    }
+
+    // Confirmare la schimbarea FELULUI comenzii (masă ↔ pachet) - nu doar a
+    // mesei. Contează mai mult decât o mutare între mese: se schimbă și ce
+    // scrie pe bonul clientului (marcajul "La pachet" apare sau dispare).
+    //
+    // Ca la orice altă schimbare din acest ecran, aplicarea reală în Oracle are
+    // loc la "Actualizează comanda" - aici doar se alege destinația. Altfel,
+    // scriind masa imediat, o comandă cu produse încă netrimise ar rămâne pe
+    // jumătate aplicată: masa mutată în Oracle, produsele nu.
+    Components.ConfirmDialog {
+        id: moveConfirmDialog
+
+        readonly property bool toTakeaway: root.pendingZone === "takeaway"
+
+        title: toTakeaway ? qsTr("Move to takeaway?") : qsTr("Move to a table?")
+        message: toTakeaway
+            ? qsTr("The order for table %1 becomes a takeaway order. Confirm with \"Update order\".")
+                .arg(root.currentTableNumber())
+            : qsTr("The takeaway order moves to table %1. Confirm with \"Update order\".")
+                .arg(root.pendingTableNumber)
+        confirmText: qsTr("Move")
+        onConfirmed: root.applyMove(root.pendingZone, root.pendingTableNumber)
     }
 }

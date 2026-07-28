@@ -4,6 +4,7 @@ import "../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
+import "../components/icons" as Icons
 
 Page {
     id: root
@@ -30,6 +31,9 @@ Page {
     property var lastOpenOrderRows: null
 
     signal tableSelected(string zone, int tableNumber)
+    // Comandă LA PACHET - fără masă. Semnal separat, nu o "masă specială":
+    // n-are număr, nu poate fi ocupată și pot exista oricâte deodată.
+    signal takeawayRequested()
 
     function buildTables(rows) {
         var hall = []
@@ -293,6 +297,72 @@ Page {
                             }
                         }
                     }
+                }
+            }
+
+            // ----- La pachet -----
+            // Jos, după mese, fiindcă e rar (pe producție ~2 comenzi fără masă
+            // pe zi făcute de chelneri, față de zeci la mese). Lat, nu pătrat ca
+            // mesele: e altfel de alegere, nu "masa 21" - altfel s-ar apăsa din
+            // greșeală când chelnerul țintește ultima masă.
+            Item { width: 1; height: 16; visible: root.tablesReady }
+
+            Rectangle {
+                x: 16
+                width: contentCol.width - 32
+                height: 1
+                color: Theme.border
+                visible: root.tablesReady
+            }
+
+            Item { width: 1; height: 16; visible: root.tablesReady }
+
+            Rectangle {
+                x: 16
+                width: contentCol.width - 32
+                height: 68
+                radius: 14
+                color: Theme.surface
+                border.width: 1.5
+                border.color: Theme.primary
+                visible: root.tablesReady
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 12
+                    spacing: 12
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        Label {
+                            text: qsTr("Takeaway")
+                            font.pixelSize: 17 * Theme.fontScale
+                            font.bold: true
+                            color: Theme.primary
+                        }
+
+                        Label {
+                            text: qsTr("Order without a table")
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: Theme.textSecondary
+                        }
+                    }
+
+                    // Fără `rotation` pus de aici: IconChevron își leagă singur
+                    // rotation de `expanded`, iar o valoare din afară ar rupe
+                    // acea legătură. Implicit arată deja ">".
+                    Icons.IconChevron {
+                        Layout.alignment: Qt.AlignVCenter
+                        color: Theme.textSecondary
+                    }
+                }
+
+                Components.TouchArea {
+                    anchors.fill: parent
+                    onClicked: root.takeawayRequested()
                 }
             }
         }

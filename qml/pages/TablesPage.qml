@@ -56,12 +56,17 @@ Page {
     // "zone" e cod intern ("hall"/"terrace") — îl traducem la afișare, ca
     // antetele de secțiune să rămână corecte în orice limbă.
     function zoneLabel(zone) {
+        if (zone === "takeaway")
+            return qsTr("Takeaway")
         return zone === "terrace" ? qsTr("Terrace") : qsTr("Hall")
     }
 
-    // Ordinea zonelor în listă: sala înaintea terasei (ca la OrdersStore),
-    // ca antetele de secțiune să nu se repete pentru mese amestecate.
+    // Ordinea zonelor în listă: sala, terasa, apoi comenzile la pachet (ca la
+    // SelectTablePage, unde intrarea "La pachet" e tot la urmă), ca antetele de
+    // secțiune să nu se repete pentru mese amestecate.
     function zoneRank(zone) {
+        if (zone === "takeaway")
+            return 2
         return zone === "terrace" ? 1 : 0
     }
 
@@ -92,14 +97,31 @@ Page {
             var r = rows[i]
             var hasDesk = r.DESK !== undefined && r.DESK !== null && String(r.DESK).trim() !== ""
             var deskNo = hasDesk ? parseInt(r.DESK) : 0
-            var zone = (deskNo > 0 && root.deskZone[deskNo]) ? root.deskZone[deskNo] : "hall"
+            // NaN nu e nici > 0, nici <= 0 - fără normalizarea asta, un DESK
+            // nenumeric ar fi scăpat de ambele ramuri de mai jos și ar fi ajuns
+            // pe card ca "Masa NaN". Îl tratăm ca "fără masă utilizabilă".
+            if (isNaN(deskNo))
+                deskNo = 0
             var hasGuestCount = r.BARMEN !== undefined && r.BARMEN !== null && String(r.BARMEN).trim() !== ""
-
-            if (deskNo > 0)
-                openKeys.push(OrdersStore.keyFor(zone, deskNo))
 
             var nrComandStr = (r.NR_COMAND !== undefined && r.NR_COMAND !== null)
                 ? String(r.NR_COMAND).trim() : ""
+            var nrComand = parseInt(nrComandStr)
+            if (isNaN(nrComand))
+                nrComand = 0
+
+            // Comandă fără masă = comandă la pachet. `tableNumber` nu mai e un
+            // număr de masă, ci numărul comenzii - singura identitate stabilă a
+            // unei comenzi fără masă, și cheia sub care o ține OrdersStore
+            // ("takeaway-<nr_comand>"). Vezi OrderPage.finishSubmit.
+            var isTakeaway = !hasDesk || deskNo <= 0
+            var zone = isTakeaway
+                ? "takeaway"
+                : (root.deskZone[deskNo] ? root.deskZone[deskNo] : "hall")
+            var placeNo = isTakeaway ? nrComand : deskNo
+
+            if (placeNo > 0)
+                openKeys.push(OrdersStore.keyFor(zone, placeNo))
 
             items.push({
                 // Identitatea rândului pentru ListSync. E numărul real de
@@ -110,8 +132,11 @@ Page {
                 // altfel aceeași cheie și s-ar contopi.
                 rowKey: nrComandStr !== "" ? ("nr" + nrComandStr) : ("row" + i),
                 zone: zone,
-                tableNumber: deskNo,
-                tableName: deskNo > 0 ? qsTr("Table %1").arg(deskNo) : qsTr("Unknown table"),
+                tableNumber: placeNo,
+                isTakeaway: isTakeaway,
+                tableName: isTakeaway
+                    ? qsTr("Takeaway")
+                    : qsTr("Table %1").arg(deskNo),
                 active: true,
                 orderTime: r.ORDER_TIME ? String(r.ORDER_TIME).trim() : "",
                 waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
@@ -126,8 +151,8 @@ Page {
                 // editare. Cache-ul supraviețuiește intenționat schimbării de
                 // utilizator, ca primul să nu-și piardă mesele la re-logare -
                 // de-aici nevoia verificării de proprietar, în loc de golire.
-                editable: deskNo > 0
-                    && OrdersStore.isEditableBy(zone, deskNo, AppSettings.waiterOficiant)
+                editable: placeNo > 0
+                    && OrdersStore.isEditableBy(zone, placeNo, AppSettings.waiterOficiant)
             })
         }
 
@@ -536,7 +561,9 @@ Page {
                         }
 
                         // Etichetă zonă (Sala / Terasă) — distinge masa 1 din sală de masa 1 de pe terasă.
+                        // La pachet ar repeta exact titlul cardului, deci o ascundem.
                         Rectangle {
+                            visible: !isTakeaway
                             Layout.alignment: Qt.AlignVCenter
                             implicitWidth: zoneTag.implicitWidth + 16
                             implicitHeight: zoneTag.implicitHeight + 6
@@ -599,7 +626,10 @@ Page {
                     RowLayout {
                         Layout.fillWidth: true
 
+                        // Numărul de clienți n-are sens la o comandă la pachet
+                        // (nu stă nimeni la masă) - acolo rămâne mereu 1.
                         Label {
+                            visible: !isTakeaway
                             text: "👤 " + guestCount
                             font.pixelSize: 13 * Theme.fontScale
                             color: Theme.textSecondary

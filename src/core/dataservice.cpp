@@ -355,11 +355,22 @@ void DataService::setPin(int oficiant, const QString &pin)
 void DataService::createOrder(const QString &waiter,
                               const QString &desk,
                               const QString &payType,
-                              const QString &guestCount)
+                              const QString &guestCount,
+                              bool takeaway,
+                              const QString &coment)
 {
     QVariantMap fields;
     fields.insert(QStringLiteral("waiter"), waiter);
-    fields.insert(QStringLiteral("desk"), desk);
+    if (takeaway) {
+        // Fără `desk` deloc: backend-ul îl ignoră oricum când takeaway=1, dar
+        // trimițându-l am lăsa în trafic un număr de masă care nu înseamnă
+        // nimic pentru comanda asta.
+        fields.insert(QStringLiteral("takeaway"), QStringLiteral("1"));
+    } else {
+        fields.insert(QStringLiteral("desk"), desk);
+    }
+    if (!coment.trimmed().isEmpty())
+        fields.insert(QStringLiteral("coment"), coment);
     if (!payType.trimmed().isEmpty())
         fields.insert(QStringLiteral("payType"), payType);
     if (!guestCount.trimmed().isEmpty())
@@ -390,11 +401,14 @@ void DataService::addOrderLines(const QString &nrComand, const QVariantList &lin
                });
 }
 
-void DataService::updateOrderDesk(const QString &nrComand, const QString &desk)
+void DataService::updateOrderDesk(const QString &nrComand, const QString &desk, bool takeaway)
 {
     QVariantMap fields;
     fields.insert(QStringLiteral("nrComand"), nrComand);
-    fields.insert(QStringLiteral("desk"), desk);
+    if (takeaway)
+        fields.insert(QStringLiteral("takeaway"), QStringLiteral("1"));
+    else
+        fields.insert(QStringLiteral("desk"), desk);
 
     postObject(QStringLiteral("update_order_desk"), fields,
                {QStringLiteral("nrComand"), QStringLiteral("desk")},
