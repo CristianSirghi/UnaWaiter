@@ -17,6 +17,26 @@ Page {
     signal adminRequested()
     // Cerere de deschidere a paginii Actualizari (tratata in main.qml).
     signal updateRequested()
+    // Cerere de schimbare a restaurantului (tratata in main.qml).
+    signal changeRestaurantRequested()
+
+    Components.ConfirmDialog {
+        id: changeRestaurantDialog
+
+        title: qsTr("Change restaurant?")
+        message: qsTr("The phone will start working for another restaurant. You will have to sign in again, with the waiter list of that restaurant.")
+        confirmText: qsTr("Change")
+        onConfirmed: root.changeRestaurantRequested()
+    }
+
+    Components.ConfirmDialog {
+        id: changeBlockedDialog
+
+        infoOnly: true
+        title: qsTr("Unfinished orders")
+        message: qsTr("There are orders started on this phone. Finish or delete them before changing the restaurant.")
+        confirmText: qsTr("OK")
+    }
 
     background: Rectangle {
         color: Theme.background
@@ -129,6 +149,71 @@ Page {
                 Layout.topMargin: 6
                 height: 1
                 color: Theme.border
+            }
+
+            // ----- Restaurantul acestui telefon -----
+            // Se alege o singura data, la prima pornire; aici doar se schimba.
+            // Schimbarea NU e o simpla preferinta: muta telefonul pe alta baza
+            // de date, cu alti chelneri si alte mese, deci trece prin
+            // confirmare si e blocata cat timp exista comenzi neterminate.
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 64
+                radius: 14
+                color: Theme.surface
+                border.width: 1
+                border.color: Theme.border
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+                    spacing: 12
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 1
+
+                        Label {
+                            text: qsTr("Restaurant")
+                            font.pixelSize: 15 * Theme.fontScale
+                            font.bold: true
+                            color: Theme.textPrimary
+                        }
+
+                        Label {
+                            text: AppSettings.restaurantName !== ""
+                                ? AppSettings.restaurantName
+                                : qsTr("Not selected")
+                            font.pixelSize: 12 * Theme.fontScale
+                            color: Theme.textSecondary
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    Icons.IconChevron {
+                        Layout.preferredWidth: 16
+                        Layout.preferredHeight: 16
+                        color: Theme.textSecondary
+                    }
+                }
+
+                Components.TouchArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        // Comenzile locale sunt legate de restaurantul curent:
+                        // numerele lor exista in Oracle-ul acelei filiale.
+                        // Mutand telefonul cu ele nesincronizate, ar ramane
+                        // orfane acolo si ar arata "comanda pornita pe alt
+                        // dispozitiv" - exact bug-ul reparat in iulie.
+                        if (OrdersStore.hasAnyOrders()) {
+                            changeBlockedDialog.open()
+                        } else {
+                            changeRestaurantDialog.open()
+                        }
+                    }
+                }
             }
 
             // Rand de navigare catre pagina Administrare (setari de sistem).

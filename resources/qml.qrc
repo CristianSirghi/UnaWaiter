@@ -44,6 +44,7 @@
         <file alias="pages/WelcomePage.qml">../qml/pages/WelcomePage.qml</file>
         <file alias="pages/LoginPage.qml">../qml/pages/LoginPage.qml</file>
         <file alias="pages/TablesPage.qml">../qml/pages/TablesPage.qml</file>
+        <file alias="pages/SelectRestaurantPage.qml">../qml/pages/SelectRestaurantPage.qml</file>
         <file alias="pages/SelectTablePage.qml">../qml/pages/SelectTablePage.qml</file>
         <file alias="pages/OrderPage.qml">../qml/pages/OrderPage.qml</file>
         <file alias="pages/SettingsPage.qml">../qml/pages/SettingsPage.qml</file>

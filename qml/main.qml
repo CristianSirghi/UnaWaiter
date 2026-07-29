@@ -18,6 +18,21 @@ ApplicationWindow {
         || Qt.platform.os === "osx"
         || Qt.platform.os === "linux"
 
+    // Fixează restaurantul acestui telefon. Schimbarea lui uită și chelnerul
+    // reținut: un chelner e înrolat la o filială anume (uw_waiters are cheia
+    // (cod_univ, oficiant)), deci PIN-ul lui n-ar mai trece la restaurantul
+    // nou, iar ecranul de PIN ar cere la nesfârșit un cod care nu se poate
+    // valida. Mai bine repornim de la lista de chelneri a noului restaurant.
+    function applyRestaurant(cod, name) {
+        var changed = AppSettings.restaurantCod !== cod
+        AppSettings.restaurantCod = cod
+        AppSettings.restaurantName = name
+        if (changed) {
+            AppSettings.waiterOficiant = 0
+            AppSettings.waiterName = ""
+        }
+    }
+
     visible: true
     width: 400
     height: 860
@@ -67,8 +82,15 @@ ApplicationWindow {
         // Verificare automată de versiune, o singură dată, la pornire (pe
         // WelcomePage, înainte de login - să nu întrerupem chelnerul din
         // lucru). Dacă serverul nu răspunde, pornirea continuă normal.
-        appWindow.startupCheckPending = true
-        dataService.loadUpdateInfo()
+        //
+        // La prima pornire, cât timp restaurantul nu e ales, cererea ar eșua
+        // oricum ("No restaurant selected") - e tratată tăcut mai jos, dar mai
+        // bine n-o pornim deloc. Verificarea se va face la următoarea pornire,
+        // după ce telefonul are un restaurant.
+        if (AppSettings.restaurantCod > 0) {
+            appWindow.startupCheckPending = true
+            dataService.loadUpdateInfo()
+        }
     }
 
     // ===================== Auto-update la pornire =====================
@@ -162,6 +184,18 @@ ApplicationWindow {
         restoreMode: Binding.RestoreBinding
     }
 
+    // Restaurantul ales alimentează dataService, care îl atașează la fiecare
+    // cerere. Fără `when`, un telefon nou (restaurantCod = 0) ar trimite
+    // "restaurant=0" în loc de nimic; DataService oricum refuză valorile <= 0,
+    // dar e mai limpede să nu ajungă deloc acolo.
+    Binding {
+        target: dataService
+        property: "restaurant"
+        value: AppSettings.restaurantCod
+        when: AppSettings.restaurantCod > 0
+        restoreMode: Binding.RestoreBinding
+    }
+
     background: Rectangle {
         color: Theme.background
     }
@@ -171,7 +205,12 @@ ApplicationWindow {
         anchors.fill: parent
 
         initialItem: Pages.WelcomePage {
-            onAuthenticateRequested: stackView.push(loginPageComponent)
+            // Fără restaurant ales nu se poate face nimic: lista de chelneri,
+            // mesele și comenzile sunt toate ale unei filiale anume. Deci
+            // întrebarea vine înaintea logării, o singură dată pe telefon.
+            onAuthenticateRequested: AppSettings.restaurantCod > 0
+                ? stackView.push(loginPageComponent)
+                : stackView.push(selectRestaurantPageComponent)
             onSettingsRequested: stackView.push(settingsPageComponent)
         }
     }
@@ -182,6 +221,8 @@ ApplicationWindow {
         Pages.SettingsPage {
             onAdminRequested: stackView.push(adminPageComponent)
             onUpdateRequested: stackView.push(updatePageComponent)
+            onChangeRestaurantRequested: stackView.push(selectRestaurantPageComponent,
+                                                        { changing: true })
         }
     }
 
@@ -202,6 +243,24 @@ ApplicationWindow {
 
         Pages.LoginPage {
             onLoginConfirmed: appWindow.tablesPage = stackView.push(tablesPageComponent)
+        }
+    }
+
+    Component {
+        id: selectRestaurantPageComponent
+
+        Pages.SelectRestaurantPage {
+            onRestaurantChosen: function(cod, name) {
+                appWindow.applyRestaurant(cod, name)
+                if (changing) {
+                    stackView.pop()
+                } else {
+                    // Prima alegere: înlocuim ecranul, nu-l stivuim - un back
+                    // din PIN înapoi la "alege restaurantul" n-ar avea sens
+                    // acum că e deja ales.
+                    stackView.replace(loginPageComponent)
+                }
+            }
         }
     }
 

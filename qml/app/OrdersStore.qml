@@ -254,6 +254,14 @@ QtObject {
         return indexForKey(keyFor(zone, tableNumber)) >= 0
     }
 
+    // Există vreo comandă locală, a oricui? Folosit înainte de a muta telefonul
+    // pe alt restaurant: numerele comenzilor de aici trăiesc în Oracle-ul
+    // filialei curente, deci mutate cu ele nesincronizate ar rămâne orfane
+    // acolo, iar aici ar apărea ca "pornite pe alt dispozitiv".
+    function hasAnyOrders() {
+        return ordersModel.count > 0
+    }
+
     // True dacă masa are o comandă locală pe care chelnerul dat o poate edita
     // pe ACEST telefon.
     //

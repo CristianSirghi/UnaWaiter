@@ -164,12 +164,17 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+143"/>
+        <location filename="../src/core/dataservice.cpp" line="+155"/>
         <source>Invalid response from server: %1</source>
         <translation>Răspuns invalid de la server: %1</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+39"/>
+        <source>No restaurant selected.</source>
+        <translation>Niciun restaurant selectat.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Missing backend address.</source>
         <translation>Adresa serverului lipsește.</translation>
     </message>
@@ -318,7 +323,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+368"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+369"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
@@ -328,8 +333,8 @@
         <translation>Sala</translation>
     </message>
     <message>
-        <location line="-344"/>
-        <location line="+1874"/>
+        <location line="-345"/>
+        <location line="+1859"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
@@ -340,36 +345,36 @@
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-1013"/>
+        <location line="-999"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Masa %1 tocmai a fost luată de %2 - alege altă masă.</translation>
     </message>
     <message>
-        <location line="-724"/>
-        <location line="+1873"/>
+        <location line="-723"/>
+        <location line="+1858"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
     </message>
     <message>
-        <location line="-1690"/>
+        <location line="-1675"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>Comanda nu are ce achita.</translation>
     </message>
     <message>
-        <location line="+276"/>
-        <location line="+478"/>
+        <location line="+277"/>
+        <location line="+476"/>
         <source>Product %1</source>
         <translation>Produsul %1</translation>
     </message>
     <message>
-        <location line="-302"/>
-        <location line="+80"/>
+        <location line="-297"/>
+        <location line="+75"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Masa %1 tocmai a fost luată de altcineva - alege altă masă.</translation>
     </message>
     <message>
-        <location line="-78"/>
+        <location line="-73"/>
         <source>Couldn&apos;t create the order right now - please try again.</source>
         <translation>Comanda nu a putut fi creată acum - încearcă din nou.</translation>
     </message>
@@ -384,7 +389,7 @@
         <translation>Comanda nu a putut fi mutată acum - încearcă din nou.</translation>
     </message>
     <message>
-        <location line="+403"/>
+        <location line="+384"/>
         <source>Couldn&apos;t read the order before paying: %1</source>
         <translation>Nu am putut citi comanda înainte de achitare: %1</translation>
     </message>
@@ -765,6 +770,51 @@ Se va reîncerca automat la repornirea aplicației.</translation>
     </message>
 </context>
 <context>
+    <name>SelectRestaurantPage</name>
+    <message>
+        <location filename="../qml/pages/SelectRestaurantPage.qml" line="+51"/>
+        <source>The restaurant list is unavailable right now.</source>
+        <translation>Lista de restaurante nu este disponibilă acum.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Change restaurant</source>
+        <translation>Schimbă restaurantul</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>At which restaurant do you work?</source>
+        <translation>La ce restaurant lucrezi?</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>The answer is remembered on this phone. You can change it later from Settings.</source>
+        <translation>Răspunsul este reținut pe acest telefon. Îl poți schimba mai târziu din Setări.</translation>
+    </message>
+    <message>
+        <location line="+49"/>
+        <source>No restaurant is available. Contact the administrator.</source>
+        <translation>Niciun restaurant disponibil. Contactează administratorul.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Couldn&apos;t load the restaurants:
+%1</source>
+        <translation>Nu am putut încărca restaurantele:
+%1</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Loading restaurants…</source>
+        <translation>Se încarcă restaurantele…</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Retry</source>
+        <translation>Reîncearcă</translation>
+    </message>
+</context>
+<context>
     <name>SelectTablePage</name>
     <message>
         <location filename="../qml/pages/SelectTablePage.qml" line="+96"/>
@@ -843,6 +893,36 @@ Se va reîncerca automat la repornirea aplicației.</translation>
     <name>SettingsPage</name>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="+26"/>
+        <source>Change restaurant?</source>
+        <translation>Schimbi restaurantul?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The phone will start working for another restaurant. You will have to sign in again, with the waiter list of that restaurant.</source>
+        <translation>Telefonul va începe să lucreze pentru alt restaurant. Va trebui să te conectezi din nou, cu lista de chelneri a acelui restaurant.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Change</source>
+        <translation>Schimbă</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Unfinished orders</source>
+        <translation>Comenzi neterminate</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>There are orders started on this phone. Finish or delete them before changing the restaurant.</source>
+        <translation>Există comenzi începute pe acest telefon. Termină-le sau șterge-le înainte de a schimba restaurantul.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Settings</source>
         <translation>Setări</translation>
     </message>
@@ -892,7 +972,17 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Mare</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+38"/>
+        <source>Restaurant</source>
+        <translation>Restaurant</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Not selected</source>
+        <translation>Neselectat</translation>
+    </message>
+    <message>
+        <location line="+65"/>
         <source>Administration</source>
         <translation>Administrare</translation>
     </message>
@@ -954,7 +1044,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+378"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+380"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>
@@ -964,23 +1054,23 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Toate</translation>
     </message>
     <message>
-        <location line="-318"/>
+        <location line="-320"/>
         <source>Hall</source>
         <translation>Sala</translation>
     </message>
     <message>
         <location line="-1"/>
-        <location line="+78"/>
+        <location line="+76"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
     </message>
     <message>
-        <location line="-77"/>
+        <location line="-75"/>
         <source>Terrace</source>
         <translation>Terasă</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+76"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
@@ -989,7 +1079,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation type="vanished">Masă necunoscută</translation>
     </message>
     <message>
-        <location line="+162"/>
+        <location line="+166"/>
         <source>Sign out?</source>
         <translation>Vă deconectați?</translation>
     </message>
@@ -1210,7 +1300,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="+131"/>
+        <location filename="../qml/main.qml" line="+153"/>
         <source>New version available: %1</source>
         <translation>Versiune nouă disponibilă: %1</translation>
     </message>

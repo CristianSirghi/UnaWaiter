@@ -48,6 +48,18 @@ void DataService::setBaseUrl(const QString &baseUrl)
     sendPing();
 }
 
+int DataService::restaurant() const { return m_restaurant; }
+
+void DataService::setRestaurant(int restaurant)
+{
+    if (m_restaurant == restaurant)
+        return;
+    m_restaurant = restaurant;
+    emit restaurantChanged();
+}
+
+QVariantList DataService::restaurants() const { return m_restaurants; }
+
 bool DataService::online() const { return m_online; }
 
 void DataService::setOnline(bool online)
@@ -166,8 +178,27 @@ void DataService::sendRequest(const QString &command,
                               const QStringList &requiredKeys,
                               const std::function<void(const QVariant &)> &onResult)
 {
+    // Restaurantul se adaugă AICI, în pâlnia comună, nu în fiecare load*/
+    // acțiune în parte: e singurul loc prin care trec toate comenzile, și GET,
+    // și POST. Adăugat în fiecare metodă separat, ar fi fost o chestiune de
+    // timp până când una nouă l-ar fi uitat - iar o comandă fără restaurant nu
+    // dă eroare vizibilă la chelner, ci ajunge în restaurantul greșit.
+    //
+    // `get_restaurants` și `ping` sunt scutite: prima tocmai aduce lista din
+    // care se alege restaurantul, a doua e doar sonda de conexiune.
+    QVariantMap effectiveParams = params;
+    const bool needsRestaurant = (command != QStringLiteral("get_restaurants")
+                                  && command != QStringLiteral("ping"));
+    if (needsRestaurant) {
+        if (m_restaurant <= 0) {
+            emit requestFailed(command, tr("No restaurant selected."));
+            return;
+        }
+        effectiveParams.insert(QStringLiteral("restaurant"), m_restaurant);
+    }
+
     // La POST parametrii merg în corp, deci URL-ul poartă doar comanda.
-    const QString url = post ? buildUrl(command) : buildUrl(command, params);
+    const QString url = post ? buildUrl(command) : buildUrl(command, effectiveParams);
     if (url.isEmpty()) {
         emit requestFailed(command, tr("Missing backend address."));
         return;
@@ -179,9 +210,9 @@ void DataService::sendRequest(const QString &command,
     QNetworkReply *reply = nullptr;
     if (post) {
         QUrlQuery body;
-        const auto keys = params.keys();
+        const auto keys = effectiveParams.keys();
         for (const QString &key : keys)
-            body.addQueryItem(key, params.value(key).toString());
+            body.addQueryItem(key, effectiveParams.value(key).toString());
 
         request.setHeader(QNetworkRequest::ContentTypeHeader,
                           QStringLiteral("application/x-www-form-urlencoded"));
@@ -242,6 +273,20 @@ void DataService::postObject(const QString &command,
 {
     sendRequest(command, true, formFields, QVariant::Map, requiredKeys,
                 [onObject](const QVariant &value) { onObject(value.toMap()); });
+}
+
+void DataService::loadRestaurants()
+{
+    // Emitem NECONDIȚIONAT, ca toate celelalte setări din fișier: semnalul
+    // înseamnă "a sosit răspunsul", nu "s-a schimbat valoarea". Paginile îl
+    // folosesc ca să iasă din starea de încărcare, iar lista de restaurante e
+    // aproape mereu identică de la o încărcare la alta - o comparație aici
+    // lăsa ecranul blocat pe "Se încarcă…" la a doua intrare.
+    getArray(QStringLiteral("get_restaurants"), QVariantMap(),
+             [this](const QVariantList &rows) {
+                 m_restaurants = rows;
+                 emit restaurantsChanged();
+             });
 }
 
 void DataService::loadWaiters()

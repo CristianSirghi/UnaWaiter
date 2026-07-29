@@ -40,6 +40,21 @@ QtObject {
     // vorbească tăcut cu backend-ul Foișor.
     property string serverUrl: "http://una.md:3323/um/una_waiter/foisor.php"
 
+    // --- Restaurantul acestui telefon ---
+    // Codul filialei (COD_UNIV din UAMenu: 11 Miron Costin, 13 Columna,
+    // 17 M.cel Batrin). 0 = nealess încă, deci la prima pornire se cere
+    // alegerea lui înainte de logare.
+    //
+    // Se trimite la FIECARE cerere spre backend, care fără el refuză să
+    // lucreze - nu există restaurant implicit nici în aplicație, nici pe
+    // server. Altfel o scăpare aici ar trimite comenzile în restaurantul
+    // greșit, iar asta s-ar descoperi abia peste o lună, în rapoarte.
+    //
+    // Numele e ținut doar ca să-l putem afișa în Setări fără o cerere în plus;
+    // sursa de adevăr rămâne codul.
+    property int restaurantCod: 0
+    property string restaurantName: ""
+
     // Notă despre deconectare: NU golim nimic de-aici, intenționat.
     // waiterOficiant rămâne reținut, ca la următoarea logare chelnerul să sară
     // direct la PIN (decizia lui Kristian, 2026-07-25) - cine preia telefonul
@@ -57,6 +72,8 @@ QtObject {
         property alias waiterName: root.waiterName
         property alias waiterOficiant: root.waiterOficiant
         property alias serverUrl: root.serverUrl
+        property alias restaurantCod: root.restaurantCod
+        property alias restaurantName: root.restaurantName
         property alias pinFailedAttempts: root.pinFailedAttempts
         property alias pinLockUntilMs: root.pinLockUntilMs
     }

@@ -18,6 +18,16 @@ class DataService : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString baseUrl READ baseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
+    // Restaurantul (filiala) la care lucrează telefonul ăsta - COD_UNIV din
+    // UAMenu. Se trimite ca parametru la FIECARE comandă, iar backend-ul refuză
+    // să lucreze fără el; nu există restaurant implicit nici aici, nici acolo.
+    // 0 = neales încă (prima pornire).
+    Q_PROPERTY(int restaurant READ restaurant WRITE setRestaurant NOTIFY restaurantChanged)
+    // Restaurantele la care backend-ul chiar se poate conecta. Lista NU vine
+    // din Oracle, ci din registrul back-office-ului, filtrat la cele accesibile
+    // - altfel am afișa filiale care există pe hârtie dar la care conectarea
+    // eșuează (Megapolis, Aleco Russo).
+    Q_PROPERTY(QVariantList restaurants READ restaurants NOTIFY restaurantsChanged)
     // Conexiunea la backend (rezultatul fiecărei cereri + un ping periodic):
     // true = serverul răspunde, false = pierdută. Vezi beculețul din TablesPage.
     Q_PROPERTY(bool online READ online NOTIFY onlineChanged)
@@ -55,6 +65,9 @@ public:
 
     QString baseUrl() const;
     void setBaseUrl(const QString &baseUrl);
+    int restaurant() const;
+    void setRestaurant(int restaurant);
+    QVariantList restaurants() const;
     bool online() const;
     QVariantList waiters() const;
     QVariantList categories() const;
@@ -69,6 +82,9 @@ public:
     QString updateInfoUrl() const;
 
     // Reads (GET) -> fill the matching property, emit its *Changed signal.
+    // Singura comandă care NU are nevoie de un restaurant ales - tocmai ea
+    // aduce lista din care se alege.
+    Q_INVOKABLE void loadRestaurants();
     Q_INVOKABLE void loadWaiters();
     Q_INVOKABLE void loadCategories();
     Q_INVOKABLE void loadMenu(int category);
@@ -159,6 +175,8 @@ public:
 
 signals:
     void baseUrlChanged();
+    void restaurantChanged();
+    void restaurantsChanged();
     void onlineChanged();
     void waitersChanged();
     void categoriesChanged();
@@ -242,6 +260,8 @@ private:
 
     QNetworkAccessManager *m_network = nullptr;
     QString m_baseUrl;
+    int m_restaurant = 0;
+    QVariantList m_restaurants;
     QVariantList m_waiters;
     QVariantList m_categories;
     QVariantList m_menu;

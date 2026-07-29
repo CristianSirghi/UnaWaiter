@@ -164,12 +164,17 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+143"/>
+        <location filename="../src/core/dataservice.cpp" line="+155"/>
         <source>Invalid response from server: %1</source>
         <translation>Некорректный ответ от сервера: %1</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+39"/>
+        <source>No restaurant selected.</source>
+        <translation>Ресторан не выбран.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Missing backend address.</source>
         <translation>Не указан адрес сервера.</translation>
     </message>
@@ -318,7 +323,7 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+368"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+369"/>
         <source>Terrace</source>
         <translation>Терраса</translation>
     </message>
@@ -328,8 +333,8 @@
         <translation>Зал</translation>
     </message>
     <message>
-        <location line="-344"/>
-        <location line="+1874"/>
+        <location line="-345"/>
+        <location line="+1859"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
@@ -340,36 +345,36 @@
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-1013"/>
+        <location line="-999"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Стол %1 только что заняла(-л) %2 - выберите другой стол.</translation>
     </message>
     <message>
-        <location line="-724"/>
-        <location line="+1873"/>
+        <location line="-723"/>
+        <location line="+1858"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
     <message>
-        <location line="-1690"/>
+        <location line="-1675"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>В заказе нечего оплачивать.</translation>
     </message>
     <message>
-        <location line="+276"/>
-        <location line="+478"/>
+        <location line="+277"/>
+        <location line="+476"/>
         <source>Product %1</source>
         <translation>Товар %1</translation>
     </message>
     <message>
-        <location line="-302"/>
-        <location line="+80"/>
+        <location line="-297"/>
+        <location line="+75"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Стол %1 только что заняли - выберите другой стол.</translation>
     </message>
     <message>
-        <location line="-78"/>
+        <location line="-73"/>
         <source>Couldn&apos;t create the order right now - please try again.</source>
         <translation>Не удалось создать заказ сейчас - попробуйте ещё раз.</translation>
     </message>
@@ -384,7 +389,7 @@
         <translation>Не удалось перенести заказ - попробуйте ещё раз.</translation>
     </message>
     <message>
-        <location line="+403"/>
+        <location line="+384"/>
         <source>Couldn&apos;t read the order before paying: %1</source>
         <translation>Не удалось прочитать заказ перед оплатой: %1</translation>
     </message>
@@ -765,6 +770,51 @@ It will be retried automatically when the app restarts.</source>
     </message>
 </context>
 <context>
+    <name>SelectRestaurantPage</name>
+    <message>
+        <location filename="../qml/pages/SelectRestaurantPage.qml" line="+51"/>
+        <source>The restaurant list is unavailable right now.</source>
+        <translation>Список ресторанов сейчас недоступен.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Change restaurant</source>
+        <translation>Сменить ресторан</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>At which restaurant do you work?</source>
+        <translation>В каком ресторане вы работаете?</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>The answer is remembered on this phone. You can change it later from Settings.</source>
+        <translation>Ответ сохраняется на этом телефоне. Его можно изменить позже в Настройках.</translation>
+    </message>
+    <message>
+        <location line="+49"/>
+        <source>No restaurant is available. Contact the administrator.</source>
+        <translation>Нет доступных ресторанов. Обратитесь к администратору.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Couldn&apos;t load the restaurants:
+%1</source>
+        <translation>Не удалось загрузить рестораны:
+%1</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Loading restaurants…</source>
+        <translation>Загрузка ресторанов…</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Retry</source>
+        <translation>Повторить</translation>
+    </message>
+</context>
+<context>
     <name>SelectTablePage</name>
     <message>
         <location filename="../qml/pages/SelectTablePage.qml" line="+96"/>
@@ -843,6 +893,36 @@ It will be retried automatically when the app restarts.</source>
     <name>SettingsPage</name>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="+26"/>
+        <source>Change restaurant?</source>
+        <translation>Сменить ресторан?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The phone will start working for another restaurant. You will have to sign in again, with the waiter list of that restaurant.</source>
+        <translation>Телефон начнёт работать для другого ресторана. Потребуется войти заново, со списком официантов того ресторана.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Change</source>
+        <translation>Сменить</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Unfinished orders</source>
+        <translation>Незавершённые заказы</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>There are orders started on this phone. Finish or delete them before changing the restaurant.</source>
+        <translation>На этом телефоне есть начатые заказы. Завершите или удалите их перед сменой ресторана.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -892,7 +972,17 @@ It will be retried automatically when the app restarts.</source>
         <translation>Крупный</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+38"/>
+        <source>Restaurant</source>
+        <translation>Ресторан</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Not selected</source>
+        <translation>Не выбран</translation>
+    </message>
+    <message>
+        <location line="+65"/>
         <source>Administration</source>
         <translation>Администрирование</translation>
     </message>
@@ -954,7 +1044,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+378"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+380"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -964,23 +1054,23 @@ It will be retried automatically when the app restarts.</source>
         <translation>Все</translation>
     </message>
     <message>
-        <location line="-318"/>
+        <location line="-320"/>
         <source>Hall</source>
         <translation>Зал</translation>
     </message>
     <message>
         <location line="-1"/>
-        <location line="+78"/>
+        <location line="+76"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
     <message>
-        <location line="-77"/>
+        <location line="-75"/>
         <source>Terrace</source>
         <translation>Терраса</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+76"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
@@ -989,7 +1079,7 @@ It will be retried automatically when the app restarts.</source>
         <translation type="vanished">Неизвестный стол</translation>
     </message>
     <message>
-        <location line="+162"/>
+        <location line="+166"/>
         <source>Sign out?</source>
         <translation>Выйти?</translation>
     </message>
@@ -1210,7 +1300,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="+131"/>
+        <location filename="../qml/main.qml" line="+153"/>
         <source>New version available: %1</source>
         <translation>Доступна новая версия: %1</translation>
     </message>
