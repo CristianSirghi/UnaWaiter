@@ -418,20 +418,6 @@ void DataService::updateOrderDesk(const QString &nrComand, const QString &desk, 
                });
 }
 
-void DataService::updateGuestCount(const QString &nrComand, const QString &guestCount)
-{
-    QVariantMap fields;
-    fields.insert(QStringLiteral("nrComand"), nrComand);
-    fields.insert(QStringLiteral("guestCount"), guestCount);
-
-    postObject(QStringLiteral("update_guest_count"), fields,
-               {QStringLiteral("nrComand"), QStringLiteral("guestCount")},
-               [this](const QVariantMap &obj) {
-                   emit orderGuestCountUpdated(obj.value(QStringLiteral("nrComand")).toInt(),
-                                               obj.value(QStringLiteral("guestCount")).toInt());
-               });
-}
-
 void DataService::cancelOrder(const QString &nrComand)
 {
     QVariantMap fields;

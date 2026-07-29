@@ -102,8 +102,6 @@ Page {
             // pe card ca "Masa NaN". Îl tratăm ca "fără masă utilizabilă".
             if (isNaN(deskNo))
                 deskNo = 0
-            var hasGuestCount = r.BARMEN !== undefined && r.BARMEN !== null && String(r.BARMEN).trim() !== ""
-
             var nrComandStr = (r.NR_COMAND !== undefined && r.NR_COMAND !== null)
                 ? String(r.NR_COMAND).trim() : ""
             var nrComand = parseInt(nrComandStr)
@@ -142,7 +140,11 @@ Page {
                 waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
                 orderNo: "#" + nrComandStr,
                 preview: r.PREVIEW ? String(r.PREVIEW).trim() : "",
-                guestCount: hasGuestCount ? parseInt(r.BARMEN) : 1,
+                // Numărul de clienți e local, nu vine din Oracle: coloana
+                // BARMEN/PERSON pe care o foloseam nu e "număr de persoane", ci
+                // codul casierului turei (TMS_CASIR.DEP) - îl scriam peste și
+                // stricam atribuirea liniilor în documentul din back-office.
+                guestCount: placeNo > 0 ? OrdersStore.guestsFor(zone, placeNo) : 1,
                 total: Format.money(r.CLCCOSTT),
                 // Nu doar "există local", ci "există local ȘI e a chelnerului
                 // logat acum" - altfel, când altcineva preia telefonul
