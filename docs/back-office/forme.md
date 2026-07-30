@@ -168,10 +168,36 @@ crezând că e cache.
 **Scrie întotdeauna în ambele, identic.** Peste 255 de caractere încape doar în
 `LVALUE`.
 
-### 2. Definiția formei se citește la pornirea clientului
+### 2. Definiția se citește la pornire — dar cache-ul din `A$LOB` o bate
 
 Nu la deschiderea ferestrei. După orice modificare de proprietăți, **repornește
 `UniacCLNT.exe`** — nu e de ajuns să închizi și să redeschizi forma.
+
+**Și nici repornirea nu e de ajuns, dacă forma și-a salvat deja un cache.**
+XML-ul din `A$LOB` nu ține doar coloanele grilei, ci și o **copie a
+interogărilor**, iar clientul **o rulează pe ea**, nu pe `A$ADP`:
+
+```xml
+<ds …><sql>…</sql><sqli>…</sqli><sqlu>…</sqlu><sqld>…</sqld><sqlr>…</sqlr></ds>
+```
+
+Simptomul: corectezi `SQL_INSERT`, repornești clientul, și tot vechea variantă se
+execută — cu o eroare care arată ca o problemă de definiție, deși definiția e
+corectă.
+
+Cache-ul trebuie sincronizat, nu șters (ștergerea readuce capcana #4):
+
+```sql
+-- înlocuiește conținutul dintre <sqli> și </sqli> cu valoarea din A$ADP
+```
+
+Corespondența etichetă ↔ proprietate, pe niveluri:
+
+| grilă | `<sql>` | `<sqli>` | `<sqlu>` | `<sqld>` | `<sqlr>` |
+|---|---|---|---|---|---|
+| `gr01` (nivel 1) | `SQL` | `SQL_INSERT` | `SQL_UPDATE` | `SQL_DELETE` | `SQL_REFRESH` |
+| `gr01a` (nivel 2) | `XSQL` | `XSQL_INSERT` | … | … | … |
+| `gr01b` (nivel 3) | `YSQL` | `YSQL_INSERT` | … | … | … |
 
 ### 3. `CREATE OR REPLACE VIEW` șterge trigger-ul `INSTEAD OF`
 
@@ -278,7 +304,14 @@ nicăieri — și dacă ai clonat o formă, **toate formele apar în meniu cu nu
 formei-sursă**.
 
 Măsurat pe 2026-07-30: din 42 de proprietăți `vtype='C'` din tot back-office-ul,
-**toate 42 au `VALUE1`** și doar 3 au `SVALUE`. `SVALUE` nu e convenția casei.
+**toate 42 au `VALUE1`** și doar 3 au `SVALUE`. `SVALUE` nu e convenția casei —
+confirmat și direct: când editezi `Caption` din Configurator, el scrie
+`VALUE1`/`VALUE2` și **golește** `SVALUE`/`LVALUE`.
+
+> Atenție, sunt **două** denumiri diferite, în tabele diferite:
+> `A$ADP.CAPTION` → titlul ferestrei și eticheta din meniul back-office;
+> `A$ADM.NAME0/1/2` → eticheta nodului din arborele **Configuratorului**.
+> Configuratorul o editează doar pe prima. A doua se schimbă din `A$ADM`.
 
 ```sql
 update a$adp set value1 = '14. Zone UnaWaiter',
@@ -289,6 +322,51 @@ update a$adp set value1 = '14. Zone UnaWaiter',
 > ⚠️ **`A$ADM.NAME0/1/2` nu sunt de ajuns singure.** Erau puse corect (`14.`,
 > `15.`), și meniul tot afișa „13. Chelneri UnaWaiter" de trei ori. Eticheta din
 > meniu urmează `CAPTION`. Pune-le pe amândouă, consecvent.
+
+---
+
+## Forme pe mai multe niveluri (master → detail → subdetail)
+
+O formă poate afișa trei grile legate — de exemplu **locația → zonele ei →
+mesele zonei**. Avantajul nu e estetic: cheile părintelui (`cod_univ`, codul
+zonei) **nu se mai tastează**, se moștenesc din rândul selectat mai sus. Exact
+acolo se produc greșelile care mută date la alt restaurant.
+
+```
+FORMUSEDETAIL     true      MASTERSIZE   200     ← înălțimea grilei 1
+FORMUSESUBDETAIL  true      MASTERSIZE2  190     ← înălțimea grilei 2
+EDITQUERY1/2/3    editarea pe cele trei niveluri
+```
+
+Nivelurile 2 și 3 se descriu cu prefixele `X…` și `Y…` (`XSQL`, `XSQL_INSERT`,
+`YSQL`, …). Filtrarea după părinte se scrie ca bind normal:
+
+```sql
+-- XSQL: zonele locației selectate
+select … from vuw_zones_all where cod_univ = :cod_univ
+-- YSQL: mesele zonei selectate
+select … from vuw_tables_all where cod_univ = :cod_univ and zone = :zone_code
+```
+
+> ⚠️ **Parametrii se leagă din surse DIFERITE, după operație** — regula care
+> costă cel mai mult timp dacă n-o știi:
+>
+> | operație | `:parametru` se caută în |
+> |---|---|
+> | `SELECT` (`XSQL`/`YSQL`) | rândul din grila **părinte** |
+> | `INSERT` / `UPDATE` / `DELETE` | câmpurile **propriei** grile |
+>
+> De aceea `:zone_code` e corect în `YSQL` (vine din grila de zone), dar în
+> `YSQL_INSERT` trebuie `:zone` — numele coloanei din grila de mese. Amestecate,
+> clientul dă **„Not found field corresponding parameter zone_code"**.
+
+Coloanele-cheie moștenite (`COD_UNIV`, `ZONE`) se pot ascunde din grilele de jos
+cu `visible="false"` — se completează automat la adăugare și se văd oricum mai
+sus. Rămân în `SELECT`, fiindcă `INSERT`-ul le trimite mai departe.
+
+Formele cu un singur nivel **nu au** cheile `Y…` și nici `FORMUSESUBDETAIL` în
+`A$ADP` — la clonare trebuie aduse (goale) dintr-o formă care le are, altfel
+`UPDATE`-ul pe ele nu găsește rândul.
 
 ---
 
