@@ -141,6 +141,33 @@ apelul corect, nu un `set_context` de mână.
 
 ---
 
+## Setul de caractere: fără diacritice românești
+
+`NLS_CHARACTERSET` e **`CL8MSWIN1251`** (cirilic Windows-1251) — verificat pe
+2026-07-30. Pagina asta de cod **nu conține** `ă`, `â`, `î`, `ș`, `ț`.
+
+Un `INSERT` cu diacritice nu dă eroare: se salvează **tăcut** fără ele.
+
+```sql
+-- scris:  'Terasă'
+select dump(name_ro,16) from uw_zones where zone_code='terrace';
+--> Len=6: 54,65,72,61,73,61   ("Terasa")
+```
+
+Așa e toată baza, nu doar datele noastre: produsele sunt `Blinie cu brinza`,
+`smintina`, iar filiala 17 e `MIRCEA cel BATRIN`. Deci **scrie fără diacritice
+de la bun început** — altfel textul din cod nu va corespunde cu ce e în bază, iar
+căutările după el nu vor găsi nimic.
+
+Rusa merge perfect (chirilica *este* conținutul paginii de cod).
+`NLS_NCHAR_CHARACTERSET` e `AL16UTF16`, deci `NVARCHAR2` ar suporta diacriticele —
+dar atunci coloana aia ar arăta altfel decât tot restul sistemului.
+
+⚠️ Setează `NLS_LANG=AMERICAN_AMERICA.AL32UTF8` în client, altfel chirilica se
+citește ca mojibake.
+
+---
+
 ## Ce e unde — tabel de orientare
 
 | vrei să… | te uiți în |

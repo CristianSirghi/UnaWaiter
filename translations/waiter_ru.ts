@@ -128,17 +128,15 @@
         <translation>Столы сейчас недоступны.</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Hall</source>
-        <translation>Зал</translation>
+        <translation type="vanished">Зал</translation>
     </message>
     <message>
-        <location line="+70"/>
         <source>Terrace</source>
-        <translation>Терраса</translation>
+        <translation type="vanished">Терраса</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+122"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
@@ -323,18 +321,16 @@
 <context>
     <name>OrderPage</name>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+369"/>
         <source>Terrace</source>
-        <translation>Терраса</translation>
+        <translation type="vanished">Терраса</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Hall</source>
-        <translation>Зал</translation>
+        <translation type="vanished">Зал</translation>
     </message>
     <message>
-        <location line="-345"/>
-        <location line="+1859"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+25"/>
+        <location line="+1852"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
@@ -350,19 +346,19 @@
         <translation>Стол %1 только что заняла(-л) %2 - выберите другой стол.</translation>
     </message>
     <message>
-        <location line="-723"/>
-        <location line="+1858"/>
+        <location line="-716"/>
+        <location line="+1851"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
     <message>
-        <location line="-1675"/>
+        <location line="-1668"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>В заказе нечего оплачивать.</translation>
     </message>
     <message>
-        <location line="+277"/>
+        <location line="+270"/>
         <location line="+476"/>
         <source>Product %1</source>
         <translation>Товар %1</translation>
@@ -576,7 +572,7 @@
         <translation>Не удалось удалить заказ</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+38"/>
         <source>Move to takeaway?</source>
         <translation>Перевести заказ на вынос?</translation>
     </message>
@@ -601,7 +597,7 @@
         <translation>Перенести</translation>
     </message>
     <message>
-        <location line="-174"/>
+        <location line="-173"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Отправить заказ · %1 · %2 MDL</translation>
     </message>
@@ -817,7 +813,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+96"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+85"/>
         <source>Open the order</source>
         <translation>Открыть заказ</translation>
     </message>
@@ -842,17 +838,15 @@ It will be retried automatically when the app restarts.</source>
         <translation>Выберите стол</translation>
     </message>
     <message>
-        <location line="+23"/>
         <source>Hall</source>
-        <translation>Зал</translation>
+        <translation type="vanished">Зал</translation>
     </message>
     <message>
-        <location line="+66"/>
         <source>Terrace</source>
-        <translation>Терраса</translation>
+        <translation type="vanished">Терраса</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+144"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
@@ -874,7 +868,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Загрузка столов…</translation>
     </message>
     <message>
-        <location line="-285"/>
+        <location line="-241"/>
         <source>Table occupied</source>
         <translation>Стол занят</translation>
     </message>
@@ -1044,7 +1038,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+380"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+387"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -1054,23 +1048,21 @@ It will be retried automatically when the app restarts.</source>
         <translation>Все</translation>
     </message>
     <message>
-        <location line="-320"/>
         <source>Hall</source>
-        <translation>Зал</translation>
+        <translation type="vanished">Зал</translation>
     </message>
     <message>
-        <location line="-1"/>
-        <location line="+76"/>
+        <location line="-324"/>
+        <location line="+79"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
     <message>
-        <location line="-75"/>
         <source>Terrace</source>
-        <translation>Терраса</translation>
+        <translation type="vanished">Терраса</translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+1"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>

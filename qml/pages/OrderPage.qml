@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.15
 import "../components/controls" as Components
 import "../components/icons" as Icons
 import "../app/Format.js" as Format
+import "../app/Zones.js" as Zones
 
 Page {
     id: root
@@ -269,11 +270,10 @@ Page {
     property var occupiedByDesk: ({})
     property var lastOccupancyRows: null
 
-    // Numerele reale de masă per zonă, date mai departe la ChangeTablePicker -
-    // aceeași sursă (uw_tables) ca SelectTablePage, ca picker-ul să nu mai
+    // Zonele cu mesele lor, date mai departe la ChangeTablePicker - aceeași
+    // sursă (uw_zones + uw_tables) ca SelectTablePage, ca picker-ul să nu mai
     // presupună 1..10 (mese peste 10 inaccesibile, mese inexistente oferite).
-    property var pickerHallTables: []
-    property var pickerTerraceTables: []
+    property var pickerZones: []
 
     // Semnalăm către main.qml că am terminat (trimis sau șters) — el ne readuce
     // la lista de mese, indiferent câte pagini sunt pe stivă.
@@ -327,20 +327,8 @@ Page {
     }
 
     function buildPickerDeskZone(rows) {
-        var map = {}
-        var hall = []
-        var terrace = []
-        for (var i = 0; i < rows.length; ++i) {
-            var no = parseInt(rows[i].TABLE_NO)
-            map[no] = rows[i].ZONE
-            if (rows[i].ZONE === "hall")
-                hall.push(no)
-            else if (rows[i].ZONE === "terrace")
-                terrace.push(no)
-        }
-        root.pickerDeskZone = map
-        root.pickerHallTables = hall
-        root.pickerTerraceTables = terrace
+        root.pickerDeskZone = Zones.deskZones(rows)
+        root.pickerZones = Zones.build(rows)
         if (root.lastOccupancyRows !== null)
             root.buildOccupiedTables(root.lastOccupancyRows)
     }
@@ -354,7 +342,8 @@ Page {
             if (!hasDesk) continue
             var deskNo = parseInt(r.DESK)
             if (deskNo <= 0) continue
-            var zone = root.pickerDeskZone[deskNo] ? root.pickerDeskZone[deskNo] : "hall"
+            var zone = root.pickerDeskZone[deskNo] ? root.pickerDeskZone[deskNo]
+                                                   : Zones.fallbackCode(root.pickerZones)
             map[zone + "_" + deskNo] = {
                 waiter: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
                 orderNo: r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : ""
@@ -363,10 +352,15 @@ Page {
         root.occupiedByDesk = map
     }
 
-    // "zone" e un cod intern ("hall"/"terrace"), nu textul afișat — așa
-    // rămâne corect indiferent de limba curentă a interfeței.
+    // "zone" e un cod intern ("hall", "terrace", "etaj2"…), nu textul afișat.
+    // Denumirea vine din uw_zones, în limba curentă — deci o zonă nouă adăugată
+    // din back-office apare aici cu numele ei, nu cu un "Sala" implicit.
+    //
+    // Cât timp get_tables n-a răspuns încă, pickerZones e gol și antetul rămâne
+    // fără denumire de zonă; numărul mesei, care e informația care contează, se
+    // vede oricum lângă el.
     function zoneLabel() {
-        return zone === "terrace" ? qsTr("Terrace") : qsTr("Hall")
+        return Zones.labelFor(root.pickerZones, root.zone, AppSettings.language)
     }
 
     // Câte adaosuri (bucăți) sunt alese pentru un produs — pentru marcajul din rând.
@@ -1970,8 +1964,7 @@ Page {
     Components.ChangeTablePicker {
         id: tablePicker
         occupiedByDesk: root.occupiedByDesk
-        hallTables: root.pickerHallTables
-        terraceTables: root.pickerTerraceTables
+        zones: root.pickerZones
         onTableSelected: function(zone, tableNumber) {
             root.requestMoveToTable(zone, tableNumber)
         }

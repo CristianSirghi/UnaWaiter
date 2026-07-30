@@ -26,6 +26,42 @@ Metoda uzuală: **selectezi o formă existentă → click dreapta → `Create ne
 → `Add node`** (sibling, nu subnode) → modifici proprietățile. Copiezi o formă
 care merge, în loc s-o construiești pe hârtie albă.
 
+### Clonarea prin SQL, când ai deja o formă validată
+
+Dacă pleci de la o formă care **funcționează**, clonarea prin SQL e mai sigură
+decât retastarea în Configurator — copiază și proprietățile care nu apar în
+catalogul `A$ADS` și pe care altfel le scapi:
+
+```sql
+insert into a$adm (obj_id, sys_id, obj_type, obj_subtype, link_id, parent_id,
+                   template_id, name0, name1, name2, section, nrord, ...)
+select <id_nou>, sys_id, obj_type, obj_subtype, link_id, parent_id,
+       template_id, '<ro>', '<ro>', '<ru>', '<SECTION>', <id_nou>, ...
+  from a$adm where obj_id = <id_sursa>;
+
+insert into a$adp (obj_id, key, name, hint, gr, vtype, value0, value1, value2,
+                   svalue, ivalue, bvalue, dvalue, lvalue, attr, fvalue)
+select <id_nou>, key, name, hint, gr, vtype, value0, value1, value2,
+       svalue, ivalue, bvalue, dvalue, lvalue, attr, fvalue
+  from a$adp where obj_id = <id_sursa>;
+```
+
+Apoi schimbi doar `CAPTION` și cele patru `SQL*` — **în `SVALUE` și `LVALUE`
+deodată** (capcana #1). `NRORD` = `OBJ_ID` e convenția casei.
+
+Verificarea de final, care arată dacă ai atins din greșeală altceva:
+
+```sql
+select nvl(a.key,b.key) from (select * from a$adp where obj_id=<sursa>) a
+  full outer join (select * from a$adp where obj_id=<nou>) b on a.key=b.key
+ where nvl(a.svalue,'~')<>nvl(b.svalue,'~')
+    or nvl(a.bvalue,'~')<>nvl(b.bvalue,'~')
+    or nvl(a.ivalue,-1)<>nvl(b.ivalue,-1);
+```
+
+> ⚠️ `EDITQUERY1/2/3` au `VTYPE='B'`, deci valoarea lor stă în **`BVALUE`** ('1'),
+> nu în `SVALUE`. Dacă te uiți doar la `SVALUE`, par goale și crezi că lipsesc.
+
 ---
 
 ## Unde stau metadatele
@@ -42,7 +78,8 @@ care merge, în loc s-o construiești pe hârtie albă.
 
 Valoarea unei proprietăți stă în coloana potrivită tipului ei:
 `S`→`SVALUE`, `I`→`IVALUE`, `B`→`BVALUE` ('1'/'0'), `M`→`SVALUE` **și/sau** `LVALUE`
-(vezi capcana #1).
+(vezi capcana #1), **`C`→`VALUE0`/`VALUE1`/`VALUE2`** — text pe limbi
+(— / ro / ru), vezi capcana #5.
 
 ---
 
@@ -114,10 +151,9 @@ Forma trimite atunci doar la view, fără niciun `@LINK` în ea.
 
 ---
 
-## Cele patru capcane
+## Cele cinci capcane
 
-Toate ne-au lovit în aceeași seară, fiecare o dată. Simptomele lor seamănă cu
-probleme de cache sau de drepturi, dar nu sunt.
+Simptomele lor seamănă cu probleme de cache sau de drepturi, dar nu sunt.
 
 ### 1. Proprietățile Memo stau în DOUĂ coloane
 
@@ -159,9 +195,100 @@ COMMIT;
 
 Clientul regenerează coloanele din interogare la următoarea deschidere.
 
+**S-a și întâmplat**, pe 2026-07-30: forma „13. Chelneri UnaWaiter" arăta trei
+rânduri complet goale. Datele erau intacte (chiar trei chelneri în
+`VUW_WAITERS_ALL`) — doar coloanele lipseau. În `A$LOB` era salvat literal:
+
+```xml
+<cols><col field=""/></cols>
+```
+
+cu `TIME_STAMP` fix la închiderea formei din seara precedentă. Așa se recunoaște:
+**numărul de rânduri e corect, dar nu se vede niciun cap de coloană.**
+Diagnostic rapid, care găsește toate formele afectate dintr-o dată:
+
+```sql
+select obj_id, lob_name, time_stamp from a$lob
+ where utl_raw.cast_to_varchar2(dbms_lob.substr(lob_value,200,1)) like '%<col field=""/>%';
+```
+
+**⚠️ Ștergerea rândului NU e o reparație — e un răgaz.** Forma se redeschide
+corect, dar la următoarea închidere clientul rescrie exact aceeași listă goală.
+Reparația care ține e să-i scrii tu o listă adevărată: odată ce cache-ul conține
+coloane cu nume, clientul le reserializează corect și nu mai revine.
+
+Formatul e XML, iar vocabularul lui **nu trebuie ghicit** — e stocat ca text în
+`Asagi.bpl` (același folder cu clientul):
+
+```
+cols col field visible false color width font align readonly true
+hcolor bstyle caption halign hfont list
+```
+
+Deci: `field` = coloana din interogare, `caption` = capul de coloană,
+`width` = lățimea în pixeli, `readonly`, `visible`, `align`/`halign`.
+**Fără `caption` grila arată datele corect, dar cu antet gol** — ușor de
+confundat cu o formă stricată.
+
+```xml
+<cols><col field="COD_UNIV" caption="Filiala" width="60"/>
+      <col field="CLCZONET" caption="Zona" width="150" readonly="true"/></cols>
+```
+
+Restul XML-ului (`<ds …><sql>…</sql><sqli>…</sqli>…`) e o copie a definiției
+formei — se lasă neatins. Rulează reparația cu **clientul închis**: ține
+aranjarea în memorie și o rescrie când închizi *o formă* (ieșirea din program,
+în schimb, n-a rescris nimic).
+
+> Se lovește doar cine construiește forme pe `FSal1p01` + proprietatea `SQL`.
+> La Foișor, formele UnaWaiter erau primele de acest fel din toată instalarea —
+> celelalte 1699 de aranjări salvate erau din 2019, în formatul binar Delphi
+> (`SDBG`/`TPF0TColumnsWrapper`).
+
+---
+
+### Coloanele calculate rămân goale după salvare — `SQL_REFRESH`
+
+Nu e o capcană, e o proprietate pe care e ușor s-o ratezi. După un INSERT sau
+UPDATE, clientul afișează **ce a tastat operatorul**. Coloanele care se nasc în
+view (`CLC…`: un nume adus prin join, un contor) rămân goale până la un refresh
+manual.
+
+`SQL_REFRESH` îi spune cum să re-citească **un singur rând**, după cheia lui:
+
+```sql
+select cod_univ, table_no, zone, clczonet, display_order, active
+  from vuw_tables_all where cod_univ = :cod_univ and table_no = :table_no
+```
+
+Merită și ca verificare, nu doar cosmetic: tastezi codul unui om și îi vezi pe
+loc numele — dacă apare altcineva, ai greșit codul, și afli imediat.
+
 > **Ordinea corectă de lucru:** scrie întâi `SQL`-ul în Configurator, abia apoi
 > deschide forma în client. Și ține forma **închisă** cât timp se modifică
 > view-ul sau trigger-ul.
+
+---
+
+### 5. `CAPTION` e multilingv — și nu stă în `SVALUE`
+
+`CAPTION` are `VTYPE='C'`: denumirea reală stă în **`VALUE1`** (ro) și **`VALUE2`**
+(ru). Clientul citește `VALUE1`. Scris doar în `SVALUE`, textul nou nu apare
+nicăieri — și dacă ai clonat o formă, **toate formele apar în meniu cu numele
+formei-sursă**.
+
+Măsurat pe 2026-07-30: din 42 de proprietăți `vtype='C'` din tot back-office-ul,
+**toate 42 au `VALUE1`** și doar 3 au `SVALUE`. `SVALUE` nu e convenția casei.
+
+```sql
+update a$adp set value1 = '14. Zone UnaWaiter',
+                 value2 = '14. Зоны UnaWaiter'
+ where obj_id = 1997 and key = 'CAPTION';
+```
+
+> ⚠️ **`A$ADM.NAME0/1/2` nu sunt de ajuns singure.** Erau puse corect (`14.`,
+> `15.`), și meniul tot afișa „13. Chelneri UnaWaiter" de trei ori. Eticheta din
+> meniu urmează `CAPTION`. Pune-le pe amândouă, consecvent.
 
 ---
 
@@ -180,8 +307,9 @@ COMMIT;
 
 ## Convenții ale casei
 
-- denumirea din meniu se pune în `A$ADM.NAME0/NAME1/NAME2` (ro / ro / ru), nu doar
-  în `Caption`
+- denumirea se pune în `A$ADM.NAME0/NAME1/NAME2` (ro / ro / ru) **și** în
+  `CAPTION` (`VALUE1`/`VALUE2`). Eticheta din meniu o ia din `CAPTION` — vezi
+  capcana #5
 - în meniurile de dicționare, denumirile sunt prefixate numeric: `11.`, `12.`, `13.`
 - codurile `SECTION` proprii (`F_CLIENTT`, `F_BARCODES`, `F_UWWAITERS`) sunt doar
   etichete — nu sunt tratate în codul Delphi. Excepție: `FORMUNIV` și `FORMSYSS`,

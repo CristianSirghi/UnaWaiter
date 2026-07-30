@@ -7,6 +7,7 @@ import "../components/controls" as Components
 import "../components/icons" as Icons
 import "../app/ListSync.js" as ListSync
 import "../app/Format.js" as Format
+import "../app/Zones.js" as Zones
 
 Page {
     id: root
@@ -16,6 +17,8 @@ Page {
     // Dicționar masă→zonă (din dataService.tables/uw_tables) - comenzile din
     // Oracle au doar DESK (un număr), zona se rezolvă separat de-aici.
     property var deskZone: ({})
+    // Zonele restaurantului (uw_zones), pentru denumirea și ordinea secțiunilor.
+    property var zones: []
     // Ultimul răspuns brut de la get_open_orders, păstrat ca să putem
     // reconstrui lista dacă tables/orders sosesc în ordine inversată.
     property var lastOrderRows: null
@@ -53,30 +56,33 @@ Page {
     signal settingsRequested()
     signal paidOrdersRequested()
 
-    // "zone" e cod intern ("hall"/"terrace") — îl traducem la afișare, ca
-    // antetele de secțiune să rămână corecte în orice limbă.
+    // "zone" e cod intern ("hall", "terrace", "etaj2"…) — denumirea afișată vine
+    // din uw_zones, în limba curentă. "takeaway" NU e o zonă din bază, ci una
+    // virtuală a aplicației, deci rămâne tradusă cu qsTr.
     function zoneLabel(zone) {
         if (zone === "takeaway")
             return qsTr("Takeaway")
-        return zone === "terrace" ? qsTr("Terrace") : qsTr("Hall")
+        return Zones.labelFor(root.zones, zone, AppSettings.language)
     }
 
-    // Ordinea zonelor în listă: sala, terasa, apoi comenzile la pachet (ca la
-    // SelectTablePage, unde intrarea "La pachet" e tot la urmă), ca antetele de
-    // secțiune să nu se repete pentru mese amestecate.
+    // Ordinea zonelor în listă: cea din uw_zones.display_order (aceeași ca în
+    // SelectTablePage, fiindcă vine din același răspuns), apoi comenzile la
+    // pachet la urmă — ca antetele de secțiune să nu se repete pentru mese
+    // amestecate. O zonă necunoscută (masă rămasă dintr-o zonă ștearsă) se duce
+    // înaintea celor la pachet, nu peste ele.
     function zoneRank(zone) {
         if (zone === "takeaway")
-            return 2
-        return zone === "terrace" ? 1 : 0
+            return 100000
+        for (var i = 0; i < root.zones.length; ++i) {
+            if (root.zones[i].code === zone)
+                return i
+        }
+        return 99999
     }
 
     function buildDeskZone(rows) {
-        var map = ({})
-        for (var i = 0; i < rows.length; ++i) {
-            var r = rows[i]
-            map[parseInt(r.TABLE_NO)] = r.ZONE
-        }
-        root.deskZone = map
+        root.deskZone = Zones.deskZones(rows)
+        root.zones = Zones.build(rows)
         root.tablesReady = true
         if (root.lastOrderRows !== null)
             root.buildOrders(root.lastOrderRows)
@@ -115,7 +121,8 @@ Page {
             var isTakeaway = !hasDesk || deskNo <= 0
             var zone = isTakeaway
                 ? "takeaway"
-                : (root.deskZone[deskNo] ? root.deskZone[deskNo] : "hall")
+                : (root.deskZone[deskNo] ? root.deskZone[deskNo]
+                                         : Zones.fallbackCode(root.zones))
             var placeNo = isTakeaway ? nrComand : deskNo
 
             if (placeNo > 0)

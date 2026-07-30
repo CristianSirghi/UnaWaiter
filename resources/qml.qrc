@@ -9,6 +9,7 @@
         <file alias="app/OrdersStore.qml">../qml/app/OrdersStore.qml</file>
         <file alias="app/ListSync.js">../qml/app/ListSync.js</file>
         <file alias="app/Format.js">../qml/app/Format.js</file>
+        <file alias="app/Zones.js">../qml/app/Zones.js</file>
         <file alias="icons/settings.png">icons/settings.png</file>
         <file alias="icons/settings_white.png">icons/settings_white.png</file>
         <file alias="icons/logout.png">icons/logout.png</file>

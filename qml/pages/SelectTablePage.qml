@@ -5,15 +5,16 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../components/controls" as Components
 import "../components/icons" as Icons
+import "../app/Zones.js" as Zones
 
 Page {
     id: root
 
-    // Mesele vin din backend (uw_tables, via pg_mobile_web_waiter.get_tables) -
-    // nu mai sunt hardcodate aici, ca restaurantul să poată adăuga/renumerota
-    // mese doar cu un INSERT/UPDATE în Oracle, fără recompilare.
-    property var hallTables: []
-    property var terraceTables: []
+    // Mesele ȘI zonele vin din backend (uw_tables + uw_zones, via
+    // pg_mobile_web_waiter.get_tables) - nu mai sunt hardcodate aici, ca
+    // restaurantul să poată adăuga/renumerota mese sau să deschidă o zonă nouă
+    // din back-office, fără recompilare. Vezi app/Zones.js.
+    property var zones: []
     property bool tablesReady: false
     property string loadError: ""
 
@@ -36,21 +37,8 @@ Page {
     signal takeawayRequested()
 
     function buildTables(rows) {
-        var hall = []
-        var terrace = []
-        var zoneMap = {}
-        for (var i = 0; i < rows.length; ++i) {
-            var r = rows[i]
-            var no = parseInt(r.TABLE_NO)
-            zoneMap[no] = r.ZONE
-            if (r.ZONE === "hall")
-                hall.push(no)
-            else if (r.ZONE === "terrace")
-                terrace.push(no)
-        }
-        root.hallTables = hall
-        root.terraceTables = terrace
-        root.deskZone = zoneMap
+        root.zones = Zones.build(rows)
+        root.deskZone = Zones.deskZones(rows)
         root.tablesReady = true
         if (root.lastOpenOrderRows !== null)
             root.buildOccupied(root.lastOpenOrderRows)
@@ -65,7 +53,8 @@ Page {
             if (!hasDesk) continue
             var deskNo = parseInt(r.DESK)
             if (deskNo <= 0) continue
-            var zone = root.deskZone[deskNo] ? root.deskZone[deskNo] : "hall"
+            var zone = root.deskZone[deskNo] ? root.deskZone[deskNo]
+                                             : Zones.fallbackCode(root.zones)
             map[zone + "_" + deskNo] = {
                 waiter: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
                 orderNo: r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : ""
@@ -170,130 +159,86 @@ Page {
             // Lățimea unui card de masă (3 coloane, margini 16, spațiu 12).
             readonly property real cardSize: (width - 32 - 24) / 3
 
-            // ----- Sala -----
-            Label {
-                x: 16
-                text: qsTr("Hall")
-                font.pixelSize: 18 * Theme.fontScale
-                font.bold: true
-                color: Theme.textPrimary
-            }
+            // ----- Zonele, în ordinea din uw_zones.display_order -----
+            // O zonă fără mese active nu ajunge aici deloc (get_tables n-o mai
+            // întoarce), deci "terasa închisă pe iarnă" dispare singură, la fel
+            // ca înainte - doar că acum se face dintr-un UPDATE pe zonă.
+            Repeater {
+                model: root.zones
 
-            Grid {
-                x: 16
-                columns: 3
-                rowSpacing: 12
-                columnSpacing: 12
+                Column {
+                    id: zoneSection
 
-                Repeater {
-                    model: root.hallTables
+                    // modelData e "capturat" aici fiindcă Repeater-ul de mese de
+                    // mai jos îl umbrește cu numărul mesei.
+                    readonly property var zoneData: modelData
+                    readonly property int zoneIndex: index
 
-                    Rectangle {
-                        readonly property var occupied: root.occupiedInfo("hall", modelData)
+                    width: contentCol.width
+                    spacing: 8
 
-                        width: contentCol.cardSize
-                        height: contentCol.cardSize
-                        radius: 14
-                        color: occupied ? Theme.keyBackground : Theme.surface
-                        border.width: 1.5
-                        border.color: occupied ? Theme.border : Theme.primary
+                    Item { width: 1; height: zoneSection.zoneIndex > 0 ? 12 : 0 }
 
-                        Label {
-                            anchors.centerIn: parent
-                            anchors.verticalCenterOffset: occupied ? -6 : 0
-                            text: modelData
-                            font.pixelSize: 22 * Theme.fontScale
-                            font.bold: true
-                            color: occupied ? Theme.textSecondary : Theme.primary
-                        }
-
-                        Label {
-                            visible: !!occupied
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 6
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: parent.width - 8
-                            horizontalAlignment: Text.AlignHCenter
-                            elide: Text.ElideRight
-                            text: occupied ? occupied.waiter : ""
-                            font.pixelSize: 11 * Theme.fontScale
-                            color: Theme.textSecondary
-                        }
-
-                        Components.TouchArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (occupied)
-                                    root.openOccupiedDialog("hall", modelData, occupied)
-                                else
-                                    root.tableSelected("hall", modelData)
-                            }
-                        }
+                    Label {
+                        x: 16
+                        text: Zones.label(zoneSection.zoneData, AppSettings.language)
+                        font.pixelSize: 18 * Theme.fontScale
+                        font.bold: true
+                        color: Theme.textPrimary
                     }
-                }
-            }
 
-            Item { width: 1; height: 12; visible: root.terraceTables.length > 0 }
+                    Grid {
+                        x: 16
+                        columns: 3
+                        rowSpacing: 12
+                        columnSpacing: 12
 
-            // ----- Terasă (ascunsă dacă nu există mese active, ex. sezon închis) -----
-            Label {
-                x: 16
-                visible: root.terraceTables.length > 0
-                text: qsTr("Terrace")
-                font.pixelSize: 18 * Theme.fontScale
-                font.bold: true
-                color: Theme.textPrimary
-            }
+                        Repeater {
+                            model: zoneSection.zoneData.tables
 
-            Grid {
-                x: 16
-                visible: root.terraceTables.length > 0
-                columns: 3
-                rowSpacing: 12
-                columnSpacing: 12
+                            Rectangle {
+                                readonly property int tableNo: modelData
+                                readonly property string zoneCode: zoneSection.zoneData.code
+                                readonly property var occupied: root.occupiedInfo(zoneCode, tableNo)
 
-                Repeater {
-                    model: root.terraceTables
+                                width: contentCol.cardSize
+                                height: contentCol.cardSize
+                                radius: 14
+                                color: occupied ? Theme.keyBackground : Theme.surface
+                                border.width: 1.5
+                                border.color: occupied ? Theme.border : Theme.primary
 
-                    Rectangle {
-                        readonly property var occupied: root.occupiedInfo("terrace", modelData)
+                                Label {
+                                    anchors.centerIn: parent
+                                    anchors.verticalCenterOffset: occupied ? -6 : 0
+                                    text: tableNo
+                                    font.pixelSize: 22 * Theme.fontScale
+                                    font.bold: true
+                                    color: occupied ? Theme.textSecondary : Theme.primary
+                                }
 
-                        width: contentCol.cardSize
-                        height: contentCol.cardSize
-                        radius: 14
-                        color: occupied ? Theme.keyBackground : Theme.surface
-                        border.width: 1.5
-                        border.color: occupied ? Theme.border : Theme.primary
+                                Label {
+                                    visible: !!occupied
+                                    anchors.bottom: parent.bottom
+                                    anchors.bottomMargin: 6
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    width: parent.width - 8
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                    text: occupied ? occupied.waiter : ""
+                                    font.pixelSize: 11 * Theme.fontScale
+                                    color: Theme.textSecondary
+                                }
 
-                        Label {
-                            anchors.centerIn: parent
-                            anchors.verticalCenterOffset: occupied ? -6 : 0
-                            text: modelData
-                            font.pixelSize: 22 * Theme.fontScale
-                            font.bold: true
-                            color: occupied ? Theme.textSecondary : Theme.primary
-                        }
-
-                        Label {
-                            visible: !!occupied
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 6
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: parent.width - 8
-                            horizontalAlignment: Text.AlignHCenter
-                            elide: Text.ElideRight
-                            text: occupied ? occupied.waiter : ""
-                            font.pixelSize: 11 * Theme.fontScale
-                            color: Theme.textSecondary
-                        }
-
-                        Components.TouchArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (occupied)
-                                    root.openOccupiedDialog("terrace", modelData, occupied)
-                                else
-                                    root.tableSelected("terrace", modelData)
+                                Components.TouchArea {
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        if (occupied)
+                                            root.openOccupiedDialog(zoneCode, tableNo, occupied)
+                                        else
+                                            root.tableSelected(zoneCode, tableNo)
+                                    }
+                                }
                             }
                         }
                     }

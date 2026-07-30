@@ -4,11 +4,12 @@ import "../../app"
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../icons"
+import "../../app/Zones.js" as Zones
 
 // Sheet de jos pentru mutarea unei comenzi deschise pe altă masă/zonă
-// (chelnerul a trimis din greșeală pe masa greșită). Grilele Sala/Terasă
-// urmează exact layout-ul din SelectTablePage; mesele cu comandă activă
-// (alta decât cea editată acum) apar dezactivate/estompate.
+// (chelnerul a trimis din greșeală pe masa greșită). Grilele de zone urmează
+// exact layout-ul din SelectTablePage; mesele cu comandă activă (alta decât cea
+// editată acum) apar dezactivate/estompate.
 //
 // Utilizare:
 //   ChangeTablePicker {
@@ -23,15 +24,14 @@ Popup {
     property string currentZone: ""
     property int currentTableNumber: 0
 
-    // Numerele reale de masă per zonă (din uw_tables, via dataService.tables) -
+    // Zonele cu mesele lor (din uw_zones + uw_tables, via dataService.tables) -
     // completate de OrderPage, exact ca occupiedByDesk mai jos. NU mai sunt
     // hardcodate 1..10: grilele de-aici au rămas în urmă când SelectTablePage a
     // trecut pe mese din DB, iar asta însemna că mesele peste 10 nu se puteau
     // alege deloc, iar la un restaurant cu mai puține mese chelnerul putea muta
     // comanda pe o masă inexistentă în uw_tables (TablesPage o punea apoi tăcut
     // în "hall", fiindcă deskZone n-o cunoștea).
-    property var hallTables: []
-    property var terraceTables: []
+    property var zones: []
 
     // "zonă_masă" → { waiter, orderNo } - completat de OrderPage din
     // dataService.tableOccupancy (Oracle, toți chelnerii/toate telefoanele).
@@ -164,7 +164,7 @@ Popup {
                 Label {
                     x: 16
                     width: contentCol.width - 32
-                    visible: root.hallTables.length === 0 && root.terraceTables.length === 0
+                    visible: root.zones.length === 0
                     topPadding: 24
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WordWrap
@@ -173,136 +173,86 @@ Popup {
                     color: Theme.textSecondary
                 }
 
-                Label {
-                    x: 16
-                    visible: root.hallTables.length > 0
-                    text: qsTr("Hall")
-                    font.pixelSize: 15 * Theme.fontScale
-                    font.bold: true
-                    color: Theme.textPrimary
-                }
+                // Zonele, în ordinea din uw_zones - aceeași listă și aceeași
+                // ordine ca în SelectTablePage, fiindcă vin din același răspuns.
+                Repeater {
+                    model: root.zones
 
-                Grid {
-                    x: 16
-                    visible: root.hallTables.length > 0
-                    columns: 3
-                    rowSpacing: 12
-                    columnSpacing: 12
+                    Column {
+                        id: zoneSection
 
-                    Repeater {
-                        model: root.hallTables
+                        // Capturat aici: Repeater-ul de mese de mai jos umbrește
+                        // modelData cu numărul mesei.
+                        readonly property var zoneData: modelData
+                        readonly property int zoneIndex: index
 
-                        Rectangle {
-                            readonly property bool isCurrent: root.currentZone === "hall" && root.currentTableNumber === modelData
-                            readonly property var occupant: root.occupantFor("hall", modelData)
-                            readonly property bool taken: root.isTaken("hall", modelData)
+                        width: contentCol.width
+                        spacing: 8
 
-                            width: contentCol.cardSize
-                            height: contentCol.cardSize
-                            radius: 14
-                            color: isCurrent ? Theme.primary : Theme.surface
-                            border.width: 1.5
-                            border.color: isCurrent ? Theme.primary : Theme.border
-                            opacity: taken ? 0.4 : 1
+                        Item { width: 1; height: zoneSection.zoneIndex > 0 ? 8 : 0 }
 
-                            Label {
-                                anchors.centerIn: parent
-                                anchors.verticalCenterOffset: (taken && occupant) ? -6 : 0
-                                text: modelData
-                                font.pixelSize: 20 * Theme.fontScale
-                                font.bold: true
-                                color: isCurrent ? "white" : Theme.textPrimary
-                            }
-
-                            Label {
-                                visible: taken && !!occupant
-                                anchors.bottom: parent.bottom
-                                anchors.bottomMargin: 6
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                width: parent.width - 8
-                                horizontalAlignment: Text.AlignHCenter
-                                elide: Text.ElideRight
-                                text: occupant ? occupant.waiter : ""
-                                font.pixelSize: 10 * Theme.fontScale
-                                color: Theme.textSecondary
-                            }
-
-                            TouchArea {
-                                anchors.fill: parent
-                                enabled: !taken
-                                onClicked: {
-                                    root.tableSelected("hall", modelData)
-                                    root.close()
-                                }
-                            }
+                        Label {
+                            x: 16
+                            text: Zones.label(zoneSection.zoneData, AppSettings.language)
+                            font.pixelSize: 15 * Theme.fontScale
+                            font.bold: true
+                            color: Theme.textPrimary
                         }
-                    }
-                }
 
-                Item { width: 1; height: 8; visible: root.terraceTables.length > 0 }
+                        Grid {
+                            x: 16
+                            columns: 3
+                            rowSpacing: 12
+                            columnSpacing: 12
 
-                // Terasă ascunsă dacă nu există mese active (ex. sezon închis),
-                // exact ca în SelectTablePage.
-                Label {
-                    x: 16
-                    visible: root.terraceTables.length > 0
-                    text: qsTr("Terrace")
-                    font.pixelSize: 15 * Theme.fontScale
-                    font.bold: true
-                    color: Theme.textPrimary
-                }
+                            Repeater {
+                                model: zoneSection.zoneData.tables
 
-                Grid {
-                    x: 16
-                    visible: root.terraceTables.length > 0
-                    columns: 3
-                    rowSpacing: 12
-                    columnSpacing: 12
+                                Rectangle {
+                                    readonly property int tableNo: modelData
+                                    readonly property string zoneCode: zoneSection.zoneData.code
+                                    readonly property bool isCurrent: root.currentZone === zoneCode && root.currentTableNumber === tableNo
+                                    readonly property var occupant: root.occupantFor(zoneCode, tableNo)
+                                    readonly property bool taken: root.isTaken(zoneCode, tableNo)
 
-                    Repeater {
-                        model: root.terraceTables
+                                    width: contentCol.cardSize
+                                    height: contentCol.cardSize
+                                    radius: 14
+                                    color: isCurrent ? Theme.primary : Theme.surface
+                                    border.width: 1.5
+                                    border.color: isCurrent ? Theme.primary : Theme.border
+                                    opacity: taken ? 0.4 : 1
 
-                        Rectangle {
-                            readonly property bool isCurrent: root.currentZone === "terrace" && root.currentTableNumber === modelData
-                            readonly property var occupant: root.occupantFor("terrace", modelData)
-                            readonly property bool taken: root.isTaken("terrace", modelData)
+                                    Label {
+                                        anchors.centerIn: parent
+                                        anchors.verticalCenterOffset: (taken && occupant) ? -6 : 0
+                                        text: tableNo
+                                        font.pixelSize: 20 * Theme.fontScale
+                                        font.bold: true
+                                        color: isCurrent ? "white" : Theme.textPrimary
+                                    }
 
-                            width: contentCol.cardSize
-                            height: contentCol.cardSize
-                            radius: 14
-                            color: isCurrent ? Theme.primary : Theme.surface
-                            border.width: 1.5
-                            border.color: isCurrent ? Theme.primary : Theme.border
-                            opacity: taken ? 0.4 : 1
+                                    Label {
+                                        visible: taken && !!occupant
+                                        anchors.bottom: parent.bottom
+                                        anchors.bottomMargin: 6
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        width: parent.width - 8
+                                        horizontalAlignment: Text.AlignHCenter
+                                        elide: Text.ElideRight
+                                        text: occupant ? occupant.waiter : ""
+                                        font.pixelSize: 10 * Theme.fontScale
+                                        color: Theme.textSecondary
+                                    }
 
-                            Label {
-                                anchors.centerIn: parent
-                                anchors.verticalCenterOffset: (taken && occupant) ? -6 : 0
-                                text: modelData
-                                font.pixelSize: 20 * Theme.fontScale
-                                font.bold: true
-                                color: isCurrent ? "white" : Theme.textPrimary
-                            }
-
-                            Label {
-                                visible: taken && !!occupant
-                                anchors.bottom: parent.bottom
-                                anchors.bottomMargin: 6
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                width: parent.width - 8
-                                horizontalAlignment: Text.AlignHCenter
-                                elide: Text.ElideRight
-                                text: occupant ? occupant.waiter : ""
-                                font.pixelSize: 10 * Theme.fontScale
-                                color: Theme.textSecondary
-                            }
-
-                            TouchArea {
-                                anchors.fill: parent
-                                enabled: !taken
-                                onClicked: {
-                                    root.tableSelected("terrace", modelData)
-                                    root.close()
+                                    TouchArea {
+                                        anchors.fill: parent
+                                        enabled: !taken
+                                        onClicked: {
+                                            root.tableSelected(zoneCode, tableNo)
+                                            root.close()
+                                        }
+                                    }
                                 }
                             }
                         }
