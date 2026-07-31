@@ -648,28 +648,22 @@ Page {
             visible: root.ordersReady && root.loadError === "" && tableOrdersModel.count === 0
             spacing: 8
 
-            Item { Layout.fillHeight: true }
+            // Blocul nu mai stă la mijlocul ecranului: spațiul liber se împarte
+            // 3 sus / 4 jos, deci urcă cu ~7% din înălțime. Proporție, nu o
+            // margine fixă în pixeli, ca să arate la fel pe orice diagonală.
+            Item { Layout.fillHeight: true; Layout.preferredHeight: 3 }
 
-            // Iconiță bon desenată din forme (fără dependență de font).
-            Item {
+            // Desenul are fundal transparent (doar liniile), deci merge la fel
+            // pe tema deschisă și pe cea închisă, fără o a doua variantă de
+            // fișier ca la logout.png/logout_white.png.
+            Image {
                 Layout.alignment: Qt.AlignHCenter
-                width: 64
-                height: 72
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: 6
-                    color: "transparent"
-                    border.width: 3
-                    border.color: Theme.border
-                }
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 7
-                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
-                    Rectangle { width: 34; height: 3; radius: 1.5; color: Theme.border }
-                    Rectangle { width: 22; height: 3; radius: 1.5; color: Theme.border }
-                }
+                Layout.preferredWidth: 96 * Theme.fontScale
+                Layout.preferredHeight: Layout.preferredWidth * 645 / 631
+                source: "qrc:/icons/file.png"
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                mipmap: true
             }
 
             Label {
@@ -690,7 +684,7 @@ Page {
                 wrapMode: Text.WordWrap
             }
 
-            Item { Layout.fillHeight: true }
+            Item { Layout.fillHeight: true; Layout.preferredHeight: 4 }
         }
         } // sfârșitul containerului listă + pullIndicator
     }

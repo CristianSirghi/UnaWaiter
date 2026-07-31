@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 90 -->
+    <!-- build rev 91 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="theme/qmldir">../qml/theme/qmldir</file>
@@ -16,6 +16,7 @@
         <file alias="icons/logout_white.png">icons/logout_white.png</file>
         <file alias="icons/una_logo.png">icons/una_logo.png</file>
         <file alias="icons/hand_waiter.png">icons/hand_waiter.png</file>
+        <file alias="icons/file.png">icons/file.png</file>
         <file alias="i18n/waiter_en.qm">../translations/waiter_en.qm</file>
         <file alias="i18n/waiter_ro.qm">../translations/waiter_ro.qm</file>
         <file alias="i18n/waiter_ru.qm">../translations/waiter_ru.qm</file>
