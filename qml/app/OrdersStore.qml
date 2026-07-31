@@ -3,16 +3,16 @@ import QtQuick 2.15
 import Qt.labs.settings 1.0
 
 // Comenzile active pe ACEST dispozitiv (singleton global, accesat ca
-// `OrdersStore.submitOrder(...)` — import "../app"). Va fi înlocuit cu
-// apeluri reale către Oracle (via PHP) — până atunci, "Trimite comanda"
-// scrie aici, iar TablesPage citește de aici (inclusiv marcajul "editable"
-// care spune dacă masa poate fi editată pe acest telefon).
+// `OrdersStore.submitOrder(...)` — import "../app").
 //
-// Persistat pe disc (nu doar în memorie): fără asta, orice repornire a
-// aplicației - rebuild/redeploy, crash, sau Android omorând procesul în
-// fundal (frecvent) - pierde marcajul "am creat-o eu" pentru toate mesele
-// deschise, iar chelnerul vede fals "Această comandă a fost începută pe alt
-// dispozitiv" pentru propriile lui comenzi, pe propriul lui telefon.
+// NU mai e sursa de adevăr despre ce comenzi există: aia e Oracle, prin
+// get_open_orders/get_order_lines, iar orice comandă deschisă poate fi reluată
+// de pe orice telefon. A rămas pentru ce nu ține Oracle - adaosurile alese și
+// numărul de clienți - plus nr_comand-ul comenzilor locale vechi.
+//
+// Persistat pe disc (nu doar în memorie): orice repornire a aplicației
+// (rebuild/redeploy, crash, sau Android omorând procesul în fundal, frecvent)
+// ar pierde altfel adaosurile comenzilor deschise.
 QtObject {
     id: root
 
@@ -110,9 +110,8 @@ QtObject {
                 zone: e.zone,
                 tableNumber: e.tableNumber,
                 // Intrări salvate înainte ca proprietarul să fie reținut: le dăm
-                // 0 = "necunoscut", tratat în isEditableBy ca editabil de
-                // oricine, ca o actualizare a aplicației să nu blocheze
-                // comenzile deja deschise.
+                // 0 = "necunoscut", tratat ca "a chelnerului curent" (vezi
+                // isOwnLocalOrder și pruneMissing).
                 waiterOficiant: e.waiterOficiant !== undefined ? e.waiterOficiant : 0,
                 guestCount: e.guestCount !== undefined ? e.guestCount : 1
             })
@@ -159,8 +158,8 @@ QtObject {
     //
     // nrComand = numărul real din Oracle, dacă e cunoscut la acest punct
     // (0 = necunoscut, caz în care păstrăm ce era deja reținut, ca să nu-l
-    // pierdem). waiterOficiant = codul chelnerului care deține comanda pe acest
-    // telefon (vezi isEditableBy).
+    // pierdem). waiterOficiant = codul chelnerului care a scris ultima oară
+    // comanda de pe acest telefon (vezi isOwnLocalOrder și pruneMissing).
     //
     // Ordinea intrărilor nu contează: nimic nu afișează `ordersModel`, e doar
     // un index căutat după cheie (indexForKey). Înainte exista o inserție
@@ -228,7 +227,7 @@ QtObject {
 
             // Lista filtrată nu spune nimic despre comenzile altcuiva - le
             // lăsăm intacte. owner 0 = intrare veche, fără proprietar reținut:
-            // tratată ca "a oricui", la fel ca în isEditableBy.
+            // tratată ca a chelnerului curent, la fel ca în isOwnLocalOrder.
             if (ownerOficiant) {
                 var owner = idx >= 0 ? ordersModel.get(idx).waiterOficiant : 0
                 if (owner && owner !== ownerOficiant)
@@ -262,18 +261,17 @@ QtObject {
         return ordersModel.count > 0
     }
 
-    // True dacă masa are o comandă locală pe care chelnerul dat o poate edita
-    // pe ACEST telefon.
+    // True dacă masa are o comandă pornită de chelnerul dat, de pe ACEST telefon.
     //
-    // Deconectarea nu golește acest cache (și nici n-ar trebui: dacă același
-    // chelner se reloghează, trebuie să-și regăsească mesele editabile - exact
-    // motivul pentru care starea e persistată). Dar fără verificarea de
-    // proprietar, un al doilea chelner care se loga pe același telefon găsea
-    // comenzile primului marcate "editable" și le putea deschide și modifica.
+    // NU mai decide cine poate edita ce - orice comandă deschisă poate fi
+    // reluată de oricine, fiindcă OrderPage primește numărul comenzii de la
+    // server și îi reîncarcă liniile reale. A rămas doar ca să știm cum să
+    // formulăm dialogul din SelectTablePage: "comanda ta" sună altfel decât
+    // "comanda lui Ion". De-aceea a fost redenumită din `isEditableBy`.
     //
-    // oficiant 0 reținut = intrare veche, dinainte de acest tracking: rămâne
-    // editabilă ca înainte (vezi restoreState).
-    function isEditableBy(zone, tableNumber, oficiant) {
+    // oficiant 0 reținut = intrare veche, dinainte ca proprietarul să fie
+    // reținut: o considerăm a chelnerului curent (vezi restoreState).
+    function isOwnLocalOrder(zone, tableNumber, oficiant) {
         var idx = indexForKey(keyFor(zone, tableNumber))
         if (idx < 0)
             return false

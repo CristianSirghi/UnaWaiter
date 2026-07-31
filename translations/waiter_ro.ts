@@ -329,8 +329,8 @@
         <translation type="vanished">Sala</translation>
     </message>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+25"/>
-        <location line="+1852"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+38"/>
+        <location line="+1861"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
     </message>
@@ -341,30 +341,30 @@
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-999"/>
+        <location line="-1008"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Masa %1 tocmai a fost luată de %2 - alege altă masă.</translation>
     </message>
     <message>
         <location line="-716"/>
-        <location line="+1851"/>
+        <location line="+1860"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
     </message>
     <message>
-        <location line="-1668"/>
+        <location line="-1677"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>Comanda nu are ce achita.</translation>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+476"/>
+        <location line="+485"/>
         <source>Product %1</source>
         <translation>Produsul %1</translation>
     </message>
     <message>
-        <location line="-297"/>
+        <location line="-306"/>
         <location line="+75"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Masa %1 tocmai a fost luată de altcineva - alege altă masă.</translation>
@@ -385,7 +385,7 @@
         <translation>Comanda nu a putut fi mutată acum - încearcă din nou.</translation>
     </message>
     <message>
-        <location line="+384"/>
+        <location line="+393"/>
         <source>Couldn&apos;t read the order before paying: %1</source>
         <translation>Nu am putut citi comanda înainte de achitare: %1</translation>
     </message>
@@ -813,7 +813,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+85"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+92"/>
         <source>Open the order</source>
         <translation>Deschide comanda</translation>
     </message>
@@ -823,17 +823,15 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Masa %1 are deja comanda ta deschisă (#%2). O deschizi?</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Table %1 is already open by %2 (order #%3).</source>
-        <translation>Masa %1 e deja ocupată de %2 (comanda #%3).</translation>
+        <translation type="vanished">Masa %1 e deja ocupată de %2 (comanda #%3).</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Table %1 is already open (order #%2).</source>
-        <translation>Masa %1 e deja ocupată (comanda #%2).</translation>
+        <translation type="vanished">Masa %1 e deja ocupată (comanda #%2).</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+54"/>
         <source>Select table</source>
         <translation>Selectați masa</translation>
     </message>
@@ -856,7 +854,17 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation type="vanished">Terasă</translation>
     </message>
     <message>
-        <location line="+162"/>
+        <location line="-93"/>
+        <source>Table %1 is open by %2 (order #%3). Open that order?</source>
+        <translation>Masa %1 e deschisă de %2 (comanda #%3). Deschizi comanda?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 is already open (order #%2). Open that order?</source>
+        <translation>Masa %1 e deja deschisă (comanda #%2). Deschizi comanda?</translation>
+    </message>
+    <message>
+        <location line="+254"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
     </message>
@@ -888,9 +896,8 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Comanda ta deschisă</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
 </context>
 <context>
@@ -1048,7 +1055,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+369"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+355"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>
@@ -1062,8 +1069,8 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation type="vanished">Sala</translation>
     </message>
     <message>
-        <location line="-306"/>
-        <location line="+79"/>
+        <location line="-292"/>
+        <location line="+81"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
     </message>
@@ -1081,7 +1088,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation type="vanished">Masă necunoscută</translation>
     </message>
     <message>
-        <location line="+148"/>
+        <location line="+143"/>
         <source>Sign out?</source>
         <translation>Vă deconectați?</translation>
     </message>
@@ -1096,18 +1103,15 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Deconectare</translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Not editable here yet</source>
-        <translation>Încă nu se poate edita aici</translation>
+        <translation type="vanished">Încă nu se poate edita aici</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
-        <translation>Această comandă a fost începută de alt chelner sau pe alt dispozitiv, deci nu poate fi deschisă aici.</translation>
+        <translation type="vanished">Această comandă a fost începută de alt chelner sau pe alt dispozitiv, deci nu poate fi deschisă aici.</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+14"/>
+        <location line="+23"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -1132,7 +1136,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Server: %1</translation>
     </message>
     <message>
-        <location line="+350"/>
+        <location line="+339"/>
         <source>No open orders</source>
         <translation>Nu există comenzi deschise</translation>
     </message>
@@ -1289,12 +1293,11 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Bine ați venit</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Choose how you&apos;d like to start</source>
-        <translation>Alegeți cum doriți să începeți</translation>
+        <translation type="vanished">Alegeți cum doriți să începeți</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
         <source>Sign in</source>
         <translation>Autentificare</translation>
     </message>

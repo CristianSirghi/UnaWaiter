@@ -329,8 +329,8 @@
         <translation type="vanished">Hall</translation>
     </message>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+25"/>
-        <location line="+1852"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+38"/>
+        <location line="+1861"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
@@ -341,30 +341,30 @@
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-999"/>
+        <location line="-1008"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
     <message>
         <location line="-716"/>
-        <location line="+1851"/>
+        <location line="+1860"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
     <message>
-        <location line="-1668"/>
+        <location line="-1677"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>This order has nothing to pay for.</translation>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+476"/>
+        <location line="+485"/>
         <source>Product %1</source>
         <translation>Product %1</translation>
     </message>
     <message>
-        <location line="-297"/>
+        <location line="-306"/>
         <location line="+75"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Table %1 was just taken by someone else - pick another table.</translation>
@@ -385,7 +385,7 @@
         <translation>Couldn&apos;t move the order right now - please try again.</translation>
     </message>
     <message>
-        <location line="+384"/>
+        <location line="+393"/>
         <source>Couldn&apos;t read the order before paying: %1</source>
         <translation>Couldn&apos;t read the order before paying: %1</translation>
     </message>
@@ -813,7 +813,7 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+85"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+92"/>
         <source>Open the order</source>
         <translation>Open the order</translation>
     </message>
@@ -823,17 +823,15 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Table %1 already has your open order (#%2). Open it?</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Table %1 is already open by %2 (order #%3).</source>
-        <translation>Table %1 is already open by %2 (order #%3).</translation>
+        <translation type="vanished">Table %1 is already open by %2 (order #%3).</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Table %1 is already open (order #%2).</source>
-        <translation>Table %1 is already open (order #%2).</translation>
+        <translation type="vanished">Table %1 is already open (order #%2).</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+54"/>
         <source>Select table</source>
         <translation>Select table</translation>
     </message>
@@ -856,7 +854,17 @@ It will be retried automatically when the app restarts.</translation>
         <translation type="vanished">Terrace</translation>
     </message>
     <message>
-        <location line="+162"/>
+        <location line="-93"/>
+        <source>Table %1 is open by %2 (order #%3). Open that order?</source>
+        <translation>Table %1 is open by %2 (order #%3). Open that order?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 is already open (order #%2). Open that order?</source>
+        <translation>Table %1 is already open (order #%2). Open that order?</translation>
+    </message>
+    <message>
+        <location line="+254"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
@@ -888,9 +896,8 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Your open order</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
 </context>
 <context>
@@ -1048,7 +1055,7 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+369"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+355"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -1062,8 +1069,8 @@ It will be retried automatically when the app restarts.</translation>
         <translation type="vanished">Hall</translation>
     </message>
     <message>
-        <location line="-306"/>
-        <location line="+79"/>
+        <location line="-292"/>
+        <location line="+81"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
@@ -1081,7 +1088,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation type="vanished">Unknown table</translation>
     </message>
     <message>
-        <location line="+148"/>
+        <location line="+143"/>
         <source>Sign out?</source>
         <translation>Sign out?</translation>
     </message>
@@ -1096,18 +1103,15 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Sign out</translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Not editable here yet</source>
-        <translation>Not editable here yet</translation>
+        <translation type="vanished">Not editable here yet</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
-        <translation>This order was started by another waiter or on another device, so it can&apos;t be opened here.</translation>
+        <translation type="vanished">This order was started by another waiter or on another device, so it can&apos;t be opened here.</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+14"/>
+        <location line="+23"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -1132,7 +1136,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Server: %1</translation>
     </message>
     <message>
-        <location line="+350"/>
+        <location line="+339"/>
         <source>No open orders</source>
         <translation>No open orders</translation>
     </message>
@@ -1289,12 +1293,11 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Welcome</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Choose how you&apos;d like to start</source>
-        <translation>Choose how you&apos;d like to start</translation>
+        <translation type="vanished">Choose how you&apos;d like to start</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
         <source>Sign in</source>
         <translation>Sign in</translation>
     </message>

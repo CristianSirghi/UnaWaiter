@@ -14,6 +14,19 @@ Page {
     property string zone: ""
     property int tableNumber: 0
 
+    // Numărul comenzii (nr_comand) cu care a fost deschis ecranul, dat de cine
+    // navighează aici (TablesPage / SelectTablePage îl au din get_open_orders).
+    // 0 = comandă nouă.
+    //
+    // Fără el, singura dovadă că masa are deja o comandă era cache-ul local
+    // (OrdersStore) - deci o comandă pornită de alt chelner sau de pe alt
+    // telefon arăta ca masă liberă și un "Trimite" ar fi făcut un al DOILEA
+    // create_order pe aceeași masă. De-aceea comenzile străine erau blocate cu
+    // "Încă nu se poate edita aici". Acum identitatea comenzii vine de la
+    // server, nu din ce s-a întâmplat pe telefonul ăsta, deci oricine o poate
+    // deschide - vezi setupAfterMenu.
+    property int openNrComand: 0
+
     // Comandă LA PACHET, fără masă. `zone` e "takeaway" (zonă virtuală, nu una
     // din uw_tables), iar `tableNumber` NU e un număr de masă, ci numărul real
     // al comenzii din Oracle - singura identitate stabilă pe care o are o
@@ -611,10 +624,10 @@ Page {
         return lines
     }
 
-    // Păstrează comanda în OrdersStore (cache local, citit de TablesPage pentru
-    // gardarea "editable") și închide pagina. Folosit atât după o trimitere/
-    // actualizare reală reușită, cât și pentru editarea comenzilor locale vechi
-    // fără nr_comand cunoscut (vezi submitOrder).
+    // Păstrează comanda în OrdersStore (cache local pentru adaosuri și numărul
+    // de clienți, pe care Oracle nu le ține) și închide pagina. Folosit atât
+    // după o trimitere/actualizare reală reușită, cât și pentru editarea
+    // comenzilor locale vechi fără nr_comand cunoscut (vezi submitOrder).
     function finishSubmit() {
         // O comandă la pachet n-are masă, deci nu are cheie locală până când
         // Oracle nu-i dă un număr. Abia aici (după create_order) putem s-o
@@ -690,9 +703,9 @@ Page {
             // Comandă reală, cunoscută - orice schimbare merge direct în
             // Oracle; cache-ul local (OrdersStore) se actualizează abia după
             // ce Oracle confirmă, ca să nu rămână niciodată în urma realității
-            // (exact ce producea "Not editable here yet" înainte: masa se
-            // muta doar local, DESK-ul real rămânea neschimbat). Numărul de
-            // clienți nu mai e un pas aici - se salvează local, în finishSubmit.
+            // (altfel masa s-ar muta doar local, iar DESK-ul real ar rămâne
+            // neschimbat). Numărul de clienți nu e un pas aici - se salvează
+            // local, în finishSubmit.
             root.sendError = ""
             root.sending = true
             if (tableChanged) {
@@ -763,10 +776,9 @@ Page {
     function deleteOrder() {
         if (root.sentNrComand > 0) {
             // Anulăm mai întâi în Oracle (STATE=4) — altfel comanda rămâne
-            // deschisă acolo dar dispare din cache-ul local, și la
-            // următoarea apăsare pe masă apare dialogul "Încă nu se poate
-            // edita aici" (marcată editable:false, pare pornită de pe alt
-            // dispozitiv). Golim cache-ul local DOAR după ce Oracle confirmă.
+            // deschisă acolo dar dispare din cache-ul local, deci masa ar
+            // continua să apară ocupată în listă, cu un bon pe care nimeni nu
+            // l-a închis. Golim cache-ul local DOAR după ce Oracle confirmă.
             root.deleteError = ""
             root.deleting = true
             dataService.cancelOrder(String(root.sentNrComand))
@@ -862,17 +874,27 @@ Page {
         var hasExisting = false
         for (var name in existing) { hasExisting = true; break }
 
-        if (hasExisting) {
+        // Numărul primit de la cine ne-a deschis are prioritate față de cel din
+        // cache: el vine din răspunsul Oracle de acum câteva secunde, pe când
+        // cel local poate fi al unei comenzi între timp achitate la casă.
+        // Pentru o comandă străină e oricum singurul pe care-l avem.
+        var nrComand = root.openNrComand > 0
+            ? root.openNrComand
+            : (hasExisting ? OrdersStore.nrComandFor(root.zone, root.tableNumber) : 0)
+
+        if (hasExisting || nrComand > 0) {
             root.isEditing = true
             root.originalZone = root.zone
             root.originalTableNumber = root.tableNumber
+            // La o comandă a altcuiva numărul de clienți nu e cunoscut aici:
+            // Oracle nu-l întoarce, iar cache-ul local n-are intrare. Rămâne 1,
+            // exact cât arăta și cardul ei din listă până acum.
             root.guestCount = OrdersStore.guestsFor(root.zone, root.tableNumber)
             root.sentGuestCount = root.guestCount
 
             root.addonStore = root.migrateLegacyAddons(
                 OrdersStore.addonsFor(root.zone, root.tableNumber))
 
-            var nrComand = OrdersStore.nrComandFor(root.zone, root.tableNumber)
             if (nrComand > 0) {
                 root.sentNrComand = nrComand
                 root.awaitingOrderLines = true

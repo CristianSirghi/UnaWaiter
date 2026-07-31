@@ -51,7 +51,7 @@ Page {
     }
 
     signal newTableRequested()
-    signal orderOpened(string zone, int tableNumber)
+    signal orderOpened(string zone, int tableNumber, int nrComand)
     signal profileRequested()
     signal settingsRequested()
     signal paidOrdersRequested()
@@ -89,12 +89,14 @@ Page {
     }
 
     // Construiește lista de comenzi active (get_open_orders: STATE 1/2) din
-    // răspunsul real al backend-ului. "editable" marchează dacă masa are o
-    // copie locală în OrdersStore (comandă creată din ACEST dispozitiv/sesiune) -
-    // fără ea, OrderPage n-ar avea de unde reîncărca liniile existente și ar
-    // porni o comandă nouă goală pe o masă deja ocupată (ar dubla comanda în
-    // Oracle). Editarea comenzilor reale de pe alte dispozitive e un pas
-    // separat (get_order_lines există deja în backend, doar nu e cablat încă).
+    // răspunsul real al backend-ului.
+    //
+    // Orice comandă din listă poate fi deschisă, indiferent cine a creat-o și
+    // de pe ce telefon: `nrComand` de mai jos merge cu ea la OrderPage, care
+    // reîncarcă liniile reale din Oracle (get_order_lines) în loc să pornească
+    // una nouă. Înainte exista un marcaj "editable" (masa are copie locală în
+    // OrdersStore, făcută de chelnerul logat acum) - fără el OrderPage n-avea
+    // de unde ști că masa are deja comandă și ar fi dublat-o în Oracle.
     function buildOrders(rows) {
         root.lastOrderRows = rows
         var items = []
@@ -146,6 +148,10 @@ Page {
                 orderTime: r.ORDER_TIME ? String(r.ORDER_TIME).trim() : "",
                 waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
                 orderNo: "#" + nrComandStr,
+                // Numărul real, ca număr - identitatea cu care OrderPage
+                // deschide comanda din Oracle. `orderNo` de mai sus e doar
+                // eticheta afișată pe card.
+                nrComand: nrComand,
                 preview: r.PREVIEW ? String(r.PREVIEW).trim() : "",
                 // Numărul de clienți e local, nu vine din Oracle: coloana
                 // BARMEN/PERSON pe care o foloseam nu e "număr de persoane", ci
@@ -153,15 +159,6 @@ Page {
                 // stricam atribuirea liniilor în documentul din back-office.
                 guestCount: placeNo > 0 ? OrdersStore.guestsFor(zone, placeNo) : 1,
                 total: Format.money(r.CLCCOSTT),
-                // Nu doar "există local", ci "există local ȘI e a chelnerului
-                // logat acum" - altfel, când altcineva preia telefonul
-                // (deconectare, sau "Schimbă utilizatorul" din ecranul de PIN),
-                // al doilea chelner găsea comenzile primului deschise spre
-                // editare. Cache-ul supraviețuiește intenționat schimbării de
-                // utilizator, ca primul să nu-și piardă mesele la re-logare -
-                // de-aici nevoia verificării de proprietar, în loc de golire.
-                editable: placeNo > 0
-                    && OrdersStore.isEditableBy(zone, placeNo, AppSettings.waiterOficiant)
             })
         }
 
@@ -302,17 +299,6 @@ Page {
     // (ceea ce părea o deconectare bruscă, fără nicio întrebare).
     function confirmSignOut() {
         signOutDialog.open()
-    }
-
-    // Avertisment când chelnerul apasă o masă ocupată de o comandă reală care
-    // n-a fost creată din acest dispozitiv/sesiune - vezi comentariul din
-    // buildOrders() despre riscul de comandă dublă.
-    Components.ConfirmDialog {
-        id: notEditableDialog
-        title: qsTr("Not editable here yet")
-        message: qsTr("This order was started by another waiter or on another device, so it can't be opened here.")
-        confirmText: qsTr("OK")
-        infoOnly: true
     }
 
     // Stare conexiune la server - deschis din beculețul de sus. Mesajul e legat
@@ -524,12 +510,7 @@ Page {
 
                 Components.TouchArea {
                     anchors.fill: parent
-                    onClicked: {
-                        if (editable)
-                            root.orderOpened(zone, tableNumber)
-                        else
-                            notEditableDialog.open()
-                    }
+                    onClicked: root.orderOpened(zone, tableNumber, nrComand)
                 }
 
                 ColumnLayout {

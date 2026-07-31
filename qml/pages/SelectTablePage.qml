@@ -31,7 +31,9 @@ Page {
     // dacă sosește înaintea mapării masă→zonă.
     property var lastOpenOrderRows: null
 
-    signal tableSelected(string zone, int tableNumber)
+    // nrComand = 0 la o masă liberă (comandă nouă), altfel numărul comenzii deja
+    // deschise pe ea, ca OrderPage s-o poată relua în loc să pornească alta.
+    signal tableSelected(string zone, int tableNumber, int nrComand)
     // Comandă LA PACHET - fără masă. Semnal separat, nu o "masă specială":
     // n-are număr, nu poate fi ocupată și pot exista oricâte deodată.
     signal takeawayRequested()
@@ -55,9 +57,11 @@ Page {
             if (deskNo <= 0) continue
             var zone = root.deskZone[deskNo] ? root.deskZone[deskNo]
                                              : Zones.fallbackCode(root.zones)
+            var nrComand = parseInt(r.NR_COMAND)
             map[zone + "_" + deskNo] = {
                 waiter: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
-                orderNo: r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : ""
+                orderNo: r.NR_COMAND !== undefined && r.NR_COMAND !== null ? String(r.NR_COMAND) : "",
+                nrComand: isNaN(nrComand) ? 0 : nrComand
             }
         }
         root.occupiedByDesk = map
@@ -67,30 +71,33 @@ Page {
         return root.occupiedByDesk[zone + "_" + tableNumber]
     }
 
-    // Masa are o comandă deschisă. Dacă e chiar comanda chelnerului logat, de
-    // pe ACEST telefon, îi oferim s-o deschidă direct de aici - înainte dialogul
-    // avea doar "OK", deci trebuia să ieși din ecran și s-o cauți în lista de
-    // mese, deși erai deja cu degetul pe masa ei.
+    // Masa are o comandă deschisă. Oricare ar fi ea, o poate relua oricine -
+    // dialogul cere doar confirmarea, ca să nu ajungi din greșeală în comanda
+    // altcuiva când voiai o masă liberă.
     //
-    // "tableSelected" e exact acțiunea potrivită: OrderPage recunoaște singur o
-    // comandă existentă (OrdersStore.itemsFor) și o reîncarcă din Oracle, în loc
-    // să pornească una nouă. Nu e nevoie de nicio cale separată.
+    // "tableSelected" e exact acțiunea potrivită: primind numărul comenzii,
+    // OrderPage o reîncarcă din Oracle (get_order_lines) în loc să pornească
+    // una nouă. Nu e nevoie de nicio cale separată.
+    //
+    // Distincția "a mea"/"a altcuiva" a rămas doar pentru text: e liniștitor să
+    // vezi scris al cui e bonul înainte să te bagi în el.
     function openOccupiedDialog(zone, tableNumber, info) {
-        var mine = OrdersStore.isEditableBy(zone, tableNumber, AppSettings.waiterOficiant)
+        var mine = OrdersStore.isOwnLocalOrder(zone, tableNumber, AppSettings.waiterOficiant)
 
         occupiedDialog.zone = zone
         occupiedDialog.tableNumber = tableNumber
-        occupiedDialog.infoOnly = !mine
+        occupiedDialog.nrComand = info.nrComand
+        occupiedDialog.infoOnly = false
         occupiedDialog.title = mine ? qsTr("Your open order") : qsTr("Table occupied")
-        occupiedDialog.confirmText = mine ? qsTr("Open the order") : qsTr("OK")
+        occupiedDialog.confirmText = qsTr("Open the order")
 
         if (mine) {
             occupiedDialog.message = qsTr("Table %1 already has your open order (#%2). Open it?")
                 .arg(tableNumber).arg(info.orderNo)
         } else {
             occupiedDialog.message = info.waiter
-                ? qsTr("Table %1 is already open by %2 (order #%3).").arg(tableNumber).arg(info.waiter).arg(info.orderNo)
-                : qsTr("Table %1 is already open (order #%2).").arg(tableNumber).arg(info.orderNo)
+                ? qsTr("Table %1 is open by %2 (order #%3). Open that order?").arg(tableNumber).arg(info.waiter).arg(info.orderNo)
+                : qsTr("Table %1 is already open (order #%2). Open that order?").arg(tableNumber).arg(info.orderNo)
         }
         occupiedDialog.open()
     }
@@ -297,7 +304,7 @@ Page {
                                         if (occupied)
                                             root.openOccupiedDialog(zoneCode, tableNo, occupied)
                                         else
-                                            root.tableSelected(zoneCode, tableNo)
+                                            root.tableSelected(zoneCode, tableNo, 0)
                                     }
                                 }
                             }
@@ -393,17 +400,14 @@ Page {
     Components.ConfirmDialog {
         id: occupiedDialog
 
-        // Masa la care se referă dialogul, ca butonul de confirmare să știe ce
-        // să deschidă. Titlul/mesajul/infoOnly sunt puse din openOccupiedDialog,
-        // fiindcă depind de cine deține comanda.
+        // Masa și comanda la care se referă dialogul, ca butonul de confirmare
+        // să știe ce să deschidă. Titlul și mesajul sunt puse din
+        // openOccupiedDialog, fiindcă depind de al cui e bonul.
         property string zone: ""
         property int tableNumber: 0
+        property int nrComand: 0
 
-        // Doar când NU e infoOnly (adică e comanda ta) confirmarea chiar are ce
-        // face; în modul informativ butonul e un simplu "OK" care doar închide.
-        onConfirmed: {
-            if (!occupiedDialog.infoOnly)
-                root.tableSelected(occupiedDialog.zone, occupiedDialog.tableNumber)
-        }
+        onConfirmed: root.tableSelected(occupiedDialog.zone, occupiedDialog.tableNumber,
+                                        occupiedDialog.nrComand)
     }
 }

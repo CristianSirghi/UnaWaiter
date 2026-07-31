@@ -329,8 +329,8 @@
         <translation type="vanished">Зал</translation>
     </message>
     <message>
-        <location filename="../qml/pages/OrderPage.qml" line="+25"/>
-        <location line="+1852"/>
+        <location filename="../qml/pages/OrderPage.qml" line="+38"/>
+        <location line="+1861"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
@@ -341,30 +341,30 @@
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-999"/>
+        <location line="-1008"/>
         <source>Table %1 was just taken by %2 - pick another table.</source>
         <translation>Стол %1 только что заняла(-л) %2 - выберите другой стол.</translation>
     </message>
     <message>
         <location line="-716"/>
-        <location line="+1851"/>
+        <location line="+1860"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
     <message>
-        <location line="-1668"/>
+        <location line="-1677"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>В заказе нечего оплачивать.</translation>
     </message>
     <message>
         <location line="+270"/>
-        <location line="+476"/>
+        <location line="+485"/>
         <source>Product %1</source>
         <translation>Товар %1</translation>
     </message>
     <message>
-        <location line="-297"/>
+        <location line="-306"/>
         <location line="+75"/>
         <source>Table %1 was just taken by someone else - pick another table.</source>
         <translation>Стол %1 только что заняли - выберите другой стол.</translation>
@@ -385,7 +385,7 @@
         <translation>Не удалось перенести заказ - попробуйте ещё раз.</translation>
     </message>
     <message>
-        <location line="+384"/>
+        <location line="+393"/>
         <source>Couldn&apos;t read the order before paying: %1</source>
         <translation>Не удалось прочитать заказ перед оплатой: %1</translation>
     </message>
@@ -813,7 +813,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+85"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+92"/>
         <source>Open the order</source>
         <translation>Открыть заказ</translation>
     </message>
@@ -823,17 +823,15 @@ It will be retried automatically when the app restarts.</source>
         <translation>У стола %1 уже есть ваш открытый заказ (#%2). Открыть его?</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Table %1 is already open by %2 (order #%3).</source>
-        <translation>Стол %1 уже занят — %2 (заказ #%3).</translation>
+        <translation type="vanished">Стол %1 уже занят — %2 (заказ #%3).</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Table %1 is already open (order #%2).</source>
-        <translation>Стол %1 уже занят (заказ #%2).</translation>
+        <translation type="vanished">Стол %1 уже занят (заказ #%2).</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+54"/>
         <source>Select table</source>
         <translation>Выберите стол</translation>
     </message>
@@ -856,7 +854,17 @@ It will be retried automatically when the app restarts.</source>
         <translation type="vanished">Терраса</translation>
     </message>
     <message>
-        <location line="+162"/>
+        <location line="-93"/>
+        <source>Table %1 is open by %2 (order #%3). Open that order?</source>
+        <translation>Стол %1 открыт официантом %2 (заказ #%3). Открыть этот заказ?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 is already open (order #%2). Open that order?</source>
+        <translation>Стол %1 уже открыт (заказ #%2). Открыть этот заказ?</translation>
+    </message>
+    <message>
+        <location line="+254"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
@@ -888,9 +896,8 @@ It will be retried automatically when the app restarts.</source>
         <translation>Ваш открытый заказ</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>OK</source>
-        <translation>ОК</translation>
+        <translation type="vanished">ОК</translation>
     </message>
 </context>
 <context>
@@ -1048,7 +1055,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+369"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+355"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -1062,8 +1069,8 @@ It will be retried automatically when the app restarts.</source>
         <translation type="vanished">Зал</translation>
     </message>
     <message>
-        <location line="-306"/>
-        <location line="+79"/>
+        <location line="-292"/>
+        <location line="+81"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
@@ -1081,7 +1088,7 @@ It will be retried automatically when the app restarts.</source>
         <translation type="vanished">Неизвестный стол</translation>
     </message>
     <message>
-        <location line="+148"/>
+        <location line="+143"/>
         <source>Sign out?</source>
         <translation>Выйти?</translation>
     </message>
@@ -1096,18 +1103,15 @@ It will be retried automatically when the app restarts.</source>
         <translation>Выйти</translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Not editable here yet</source>
-        <translation>Пока нельзя редактировать здесь</translation>
+        <translation type="vanished">Пока нельзя редактировать здесь</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
-        <translation>Этот заказ был начат другим официантом или на другом устройстве, поэтому его нельзя открыть здесь.</translation>
+        <translation type="vanished">Этот заказ был начат другим официантом или на другом устройстве, поэтому его нельзя открыть здесь.</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+14"/>
+        <location line="+23"/>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
@@ -1132,7 +1136,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Сервер: %1</translation>
     </message>
     <message>
-        <location line="+350"/>
+        <location line="+339"/>
         <source>No open orders</source>
         <translation>Нет открытых заказов</translation>
     </message>
@@ -1289,12 +1293,11 @@ It will be retried automatically when the app restarts.</source>
         <translation>Добро пожаловать</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Choose how you&apos;d like to start</source>
-        <translation>Выберите, как хотите начать</translation>
+        <translation type="vanished">Выберите, как хотите начать</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
         <source>Sign in</source>
         <translation>Войти</translation>
     </message>

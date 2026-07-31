@@ -269,7 +269,9 @@ ApplicationWindow {
 
         Pages.TablesPage {
             onNewTableRequested: stackView.push(selectTablePageComponent)
-            onOrderOpened: stackView.push(orderPageComponent, { zone: zone, tableNumber: tableNumber })
+            onOrderOpened: stackView.push(orderPageComponent,
+                                          { zone: zone, tableNumber: tableNumber,
+                                            openNrComand: nrComand })
             onProfileRequested: stackView.push(profilePageComponent)
             onSettingsRequested: stackView.push(settingsPageComponent)
             onPaidOrdersRequested: stackView.push(paidOrdersPageComponent)
@@ -292,8 +294,10 @@ ApplicationWindow {
         id: selectTablePageComponent
 
         Pages.SelectTablePage {
-            onTableSelected: function(zone, tableNumber) {
-                stackView.push(orderPageComponent, { zone: zone, tableNumber: tableNumber })
+            onTableSelected: function(zone, tableNumber, nrComand) {
+                stackView.push(orderPageComponent,
+                               { zone: zone, tableNumber: tableNumber,
+                                 openNrComand: nrComand })
             }
             // La pachet: aceeași pagină de comandă, doar fără masă. tableNumber
             // rămâne 0 până când Oracle dă numărul comenzii - abia el devine

@@ -80,13 +80,6 @@ Page {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        Label {
-            text: qsTr("Choose how you'd like to start")
-            font.pixelSize: 15 * Theme.fontScale
-            color: Theme.textSecondary
-            Layout.alignment: Qt.AlignHCenter
-        }
-
         Item { Layout.fillHeight: true }
 
         Rectangle {

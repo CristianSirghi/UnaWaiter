@@ -60,11 +60,11 @@ QtObject {
     // direct la PIN (decizia lui Kristian, 2026-07-25) - cine preia telefonul
     // folosește "Schimbă utilizatorul" din ecranul de PIN.
     //
-    // Nici OrdersStore nu se golește: comenzile locale sunt marcate cu
-    // proprietarul lor (vezi OrdersStore.isEditableBy), deci al doilea chelner
-    // tot nu le poate deschide, iar primul și le regăsește intacte. Golirea
-    // cache-ului ar readuce exact bug-ul pentru care a fost persistat:
-    // "comanda ta pare pornită pe alt dispozitiv".
+    // Nici OrdersStore nu se golește: cine preia telefonul poate oricum deschide
+    // orice comandă (identitatea ei vine de la server, nu din cache), iar primul
+    // chelner își regăsește intacte adaosurile și numărul de clienți - date pe
+    // care Oracle nu le ține. Golirea cache-ului le-ar pierde la fiecare
+    // schimbare de utilizator.
 
     // Persistă setările între lansări (aceleași chei ca vechiul bloc din main.qml).
     property var _persist: Settings {
