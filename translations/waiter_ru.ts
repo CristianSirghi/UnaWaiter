@@ -838,6 +838,16 @@ It will be retried automatically when the app restarts.</source>
         <translation>Выберите стол</translation>
     </message>
     <message>
+        <location line="+26"/>
+        <source>Free</source>
+        <translation>Свободен</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Occupied</source>
+        <translation>Занят</translation>
+    </message>
+    <message>
         <source>Hall</source>
         <translation type="vanished">Зал</translation>
     </message>
@@ -846,7 +856,7 @@ It will be retried automatically when the app restarts.</source>
         <translation type="vanished">Терраса</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+162"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
@@ -868,7 +878,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Загрузка столов…</translation>
     </message>
     <message>
-        <location line="-241"/>
+        <location line="-302"/>
         <source>Table occupied</source>
         <translation>Стол занят</translation>
     </message>
@@ -1038,7 +1048,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+387"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+369"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -1052,7 +1062,7 @@ It will be retried automatically when the app restarts.</source>
         <translation type="vanished">Зал</translation>
     </message>
     <message>
-        <location line="-324"/>
+        <location line="-306"/>
         <location line="+79"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
@@ -1071,7 +1081,7 @@ It will be retried automatically when the app restarts.</source>
         <translation type="vanished">Неизвестный стол</translation>
     </message>
     <message>
-        <location line="+166"/>
+        <location line="+148"/>
         <source>Sign out?</source>
         <translation>Выйти?</translation>
     </message>

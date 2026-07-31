@@ -22,6 +22,12 @@ RowLayout {
 
     property string title: ""
 
+    // Conținut opțional la dreapta titlului (SelectTablePage își pune acolo
+    // legenda liber/ocupat). E `Component`, nu un slot de copii: QML împachetează
+    // singur declarația inline, iar paginile care nu-l setează nu plătesc nimic -
+    // Loader-ul rămâne gol și de lățime zero, deci antetul lor arată exact ca înainte.
+    property Component trailing: null
+
     signal backRequested()
 
     // `height`, nu `implicitHeight`: exact ca înainte în fiecare pagină.
@@ -45,6 +51,16 @@ RowLayout {
         color: Theme.textPrimary
         elide: Text.ElideRight
         Layout.fillWidth: true
+    }
+
+    Loader {
+        id: trailingLoader
+
+        sourceComponent: root.trailing
+        Layout.alignment: Qt.AlignVCenter
+        // `item`, nu `active`: Loader.active e true și fără sourceComponent,
+        // deci ar fi lăsat o margine de 12px în antetul celorlalte cinci pagini.
+        Layout.leftMargin: trailingLoader.item ? 12 : 0
     }
 
     Item { Layout.preferredWidth: 12 }

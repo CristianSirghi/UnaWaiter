@@ -838,6 +838,16 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Select table</translation>
     </message>
     <message>
+        <location line="+26"/>
+        <source>Free</source>
+        <translation>Free</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Occupied</source>
+        <translation>Occupied</translation>
+    </message>
+    <message>
         <source>Hall</source>
         <translation type="vanished">Hall</translation>
     </message>
@@ -846,7 +856,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation type="vanished">Terrace</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+162"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
@@ -868,7 +878,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Loading tables…</translation>
     </message>
     <message>
-        <location line="-241"/>
+        <location line="-302"/>
         <source>Table occupied</source>
         <translation>Table occupied</translation>
     </message>
@@ -1038,7 +1048,7 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+387"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+369"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -1052,7 +1062,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation type="vanished">Hall</translation>
     </message>
     <message>
-        <location line="-324"/>
+        <location line="-306"/>
         <location line="+79"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
@@ -1071,7 +1081,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation type="vanished">Unknown table</translation>
     </message>
     <message>
-        <location line="+166"/>
+        <location line="+148"/>
         <source>Sign out?</source>
         <translation>Sign out?</translation>
     </message>

@@ -240,60 +240,42 @@ Page {
         color: Theme.background
     }
 
-    // Item, nu direct RowLayout, ca logo-ul sa poata fi centrat pe latimea
-    // REALA a ecranului: avatarul (stanga) si hamburgerul (dreapta) nu au
-    // aceeasi latime, deci pus in interiorul randului ar iesi vizibil descentrat.
-    header: Item {
+    // `height`, nu `implicitHeight`: Page isi dimensioneaza antetul dupa asta,
+    // iar restul continutului porneste de sub el.
+    header: RowLayout {
         height: 64
-        implicitHeight: 64
 
-        RowLayout {
-            anchors.fill: parent
+        Item { Layout.preferredWidth: 16 }
 
-            Item { Layout.preferredWidth: 16 }
+        Rectangle {
+            width: 36
+            height: 36
+            radius: 18
+            color: Theme.primary
 
-            Rectangle {
-                width: 36
-                height: 36
-                radius: 18
-                color: Theme.primary
-
-                Label {
-                    anchors.centerIn: parent
-                    text: AppSettings.waiterName.length > 0
-                        ? AppSettings.waiterName.charAt(0).toUpperCase()
-                        : "W"
-                    color: "white"
-                    font.bold: true
-                }
-
-                Components.TouchArea {
-                    anchors.fill: parent
-                    onClicked: root.profileRequested()
-                }
+            Label {
+                anchors.centerIn: parent
+                text: AppSettings.waiterName.length > 0
+                    ? AppSettings.waiterName.charAt(0).toUpperCase()
+                    : "W"
+                color: "white"
+                font.bold: true
             }
 
-            Item { Layout.fillWidth: true }
-
-            Icons.IconHamburger {
-                color: Theme.textPrimary
-                onClicked: navDrawer.open()
+            Components.TouchArea {
+                anchors.fill: parent
+                onClicked: root.profileRequested()
             }
-
-            Item { Layout.preferredWidth: 16 }
         }
 
-        // Frate cu RowLayout (nu copil), ca sa nu intre in calculul lui de
-        // latimi. Raportul 2.651:1 e cel exact al asetului 660x249.
-        Image {
-            anchors.centerIn: parent
-            width: 76
-            height: width / 2.651
-            source: "qrc:/icons/una_logo.png"
-            fillMode: Image.PreserveAspectFit
-            smooth: true
-            mipmap: true
+        Item { Layout.fillWidth: true }
+
+        Icons.IconHamburger {
+            color: Theme.textPrimary
+            onClicked: navDrawer.open()
         }
+
+        Item { Layout.preferredWidth: 16 }
     }
 
     Components.AppDrawer {

@@ -141,6 +141,53 @@ Page {
     header: Components.PageHeader {
         title: qsTr("Select table")
         onBackRequested: root.StackView.view.pop()
+
+        // Legenda culorilor, în dreapta titlului. Bulinele sunt Rectangle-uri,
+        // nu emoji (🟢/🔴): emoji se desenează cu fontul de sistem, deci pe
+        // Android vechi (font fără Emoji 12.0, de unde vine 🟢) ar ieși un
+        // pătrățel gol, iar acolo unde apare arată altfel de la producător la
+        // producător și nu ține cont nici de dark mode, nici de Theme.fontScale.
+        //
+        // Pe două rânduri, nu pe unul: așa ocupă ~50px în loc de ~110px, deci
+        // titlul nu ajunge să fie tăiat nici pe rusă („Свободен"/„Занят"), nici
+        // cu textul setat pe Mare.
+        trailing: ColumnLayout {
+            spacing: 2
+
+            RowLayout {
+                spacing: 5
+
+                Rectangle {
+                    Layout.preferredWidth: 7
+                    Layout.preferredHeight: 7
+                    radius: 3.5
+                    color: Theme.success
+                }
+
+                Label {
+                    text: qsTr("Free")
+                    font.pixelSize: 10 * Theme.fontScale
+                    color: Theme.textSecondary
+                }
+            }
+
+            RowLayout {
+                spacing: 5
+
+                Rectangle {
+                    Layout.preferredWidth: 7
+                    Layout.preferredHeight: 7
+                    radius: 3.5
+                    color: Theme.danger
+                }
+
+                Label {
+                    text: qsTr("Occupied")
+                    font.pixelSize: 10 * Theme.fontScale
+                    color: Theme.textSecondary
+                }
+            }
+        }
     }
 
     Flickable {
@@ -207,6 +254,20 @@ Page {
                                 color: occupied ? Theme.keyBackground : Theme.surface
                                 border.width: 1.5
                                 border.color: occupied ? Theme.border : Theme.primary
+
+                                // Starea mesei, dincolo de culoarea cardului:
+                                // gri-vs-alb se pierde în soare pe terasă, iar
+                                // numele chelnerului de dedesubt apare doar la
+                                // mesele ocupate, deci nu se poate compara.
+                                Rectangle {
+                                    width: 10
+                                    height: 10
+                                    radius: 5
+                                    anchors.top: parent.top
+                                    anchors.right: parent.right
+                                    anchors.margins: 8
+                                    color: occupied ? Theme.danger : Theme.success
+                                }
 
                                 Label {
                                     anchors.centerIn: parent

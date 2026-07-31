@@ -838,6 +838,16 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Selectați masa</translation>
     </message>
     <message>
+        <location line="+26"/>
+        <source>Free</source>
+        <translation>Liberă</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Occupied</source>
+        <translation>Ocupată</translation>
+    </message>
+    <message>
         <source>Hall</source>
         <translation type="vanished">Sala</translation>
     </message>
@@ -846,7 +856,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation type="vanished">Terasă</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+162"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
     </message>
@@ -868,7 +878,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Se încarcă mesele…</translation>
     </message>
     <message>
-        <location line="-241"/>
+        <location line="-302"/>
         <source>Table occupied</source>
         <translation>Masă ocupată</translation>
     </message>
@@ -1038,7 +1048,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+387"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+369"/>
         <source>Mine</source>
         <translation>Ale mele</translation>
     </message>
@@ -1052,7 +1062,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation type="vanished">Sala</translation>
     </message>
     <message>
-        <location line="-324"/>
+        <location line="-306"/>
         <location line="+79"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
@@ -1071,7 +1081,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation type="vanished">Masă necunoscută</translation>
     </message>
     <message>
-        <location line="+166"/>
+        <location line="+148"/>
         <source>Sign out?</source>
         <translation>Vă deconectați?</translation>
     </message>
