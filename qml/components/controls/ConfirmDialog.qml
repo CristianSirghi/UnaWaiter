@@ -94,7 +94,11 @@ Popup {
             text: root.title
             font.pixelSize: 18 * Theme.fontScale
             font.bold: true
-            color: Theme.textPrimary
+            // Accentul, nu textPrimary: titlul dialogului e singurul loc din
+            // aplicație unde textul poartă culoarea mărcii. Mesajul de dedesubt
+            // rămâne textSecondary, ca separarea titlu/explicație să se vadă
+            // și din culoare, nu doar din mărime.
+            color: Theme.primary
             wrapMode: Text.WordWrap
         }
 
