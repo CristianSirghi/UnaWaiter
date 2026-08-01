@@ -14,7 +14,7 @@
         <translation>Masă necunoscută</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+57"/>
         <source>Paid orders</source>
         <translation>Comenzi achitate</translation>
     </message>
@@ -34,7 +34,7 @@
         <translation>Achitat</translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+69"/>
         <source>Loading…</source>
         <translation>Se încarcă…</translation>
     </message>
@@ -609,15 +609,138 @@
     </message>
 </context>
 <context>
+    <name>PaidOrderPage</name>
+    <message>
+        <location filename="../qml/pages/PaidOrderPage.qml" line="+36"/>
+        <source>Cash</source>
+        <translation>Numerar</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Card</source>
+        <translation>Card</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Unknown</source>
+        <translation>Necunoscut</translation>
+    </message>
+    <message>
+        <source>This terminal has no fiscal memory - print on a SmartOne terminal.</source>
+        <translation type="vanished">Acest terminal nu are memorie fiscală - tipăriți pe un terminal SmartOne.</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Product</source>
+        <translation>Produs</translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Receipt printed</source>
+        <translation>Bonul s-a tipărit</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Receipt %1 was printed again.</source>
+        <translation>Bonul %1 a fost tipărit din nou.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Couldn&apos;t print</source>
+        <translation>Nu s-a putut tipări</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Paid order</source>
+        <translation>Comandă achitată</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Order</source>
+        <translation>Comanda</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Waiter</source>
+        <translation>Chelner</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Paid at</source>
+        <translation>Achitată la</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Payment</source>
+        <translation>Plata</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Receipt</source>
+        <translation>Bon</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>closed at the register</source>
+        <translation>achitată la casă</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Total</source>
+        <translation>Total</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Products</source>
+        <translation>Produse</translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>Couldn&apos;t load the products:
+%1</source>
+        <translation>Nu s-au putut încărca produsele:
+%1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This order has no lines.</source>
+        <translation>Comanda nu are produse.</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Loading…</source>
+        <translation>Se încarcă…</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Printing…</source>
+        <translation>Se tipărește…</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Print receipt again</source>
+        <translation>Tipărește bonul din nou</translation>
+    </message>
+    <message>
+        <source>This order was closed at the register, so the app has no receipt to reprint.</source>
+        <translation type="vanished">Comanda a fost achitată la casă, deci aplicația nu are ce bon să retipărească.</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+</context>
+<context>
     <name>PaymentController</name>
     <message>
         <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
-        <location line="+422"/>
+        <location line="+439"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>O plata este deja in curs pe acest dispozitiv. Asteptati sa se termine si incercati din nou.</translation>
     </message>
     <message>
-        <location line="-415"/>
+        <location line="-432"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>Aceasta comanda nu poate fi achitata: lipseste din sistem sau nu are linii.</translation>
     </message>
@@ -645,7 +768,7 @@ It will be retried automatically when the app restarts.</source>
 Se va reîncerca automat la repornirea aplicației.</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+77"/>
         <source>The card payment was declined.</source>
         <translation>Plata cu cardul a fost refuzată.</translation>
     </message>
@@ -665,7 +788,12 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Terminalul de card nu raspunde: %1</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+85"/>
+        <source>This terminal has no fiscal memory - receipts can only be printed on a SmartOne terminal.</source>
+        <translation>Acest terminal nu are memorie fiscală - bonurile pot fi tipărite doar pe un terminal SmartOne.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>There is no receipt to reprint.</source>
         <translation>Nu există bon de retipărit.</translation>
     </message>
@@ -1358,7 +1486,12 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Actualizează acum</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+57"/>
+        <source>Couldn&apos;t print</source>
+        <translation>Nu s-a putut tipări</translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>Unfinished payment</source>
         <translation>Plată neterminată</translation>
     </message>
@@ -1368,7 +1501,8 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>O plată începută mai devreme nu a putut fi finalizată (comanda %1): %2</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-11"/>
+        <location line="+13"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>

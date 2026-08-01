@@ -14,7 +14,7 @@
         <translation>Unknown table</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+57"/>
         <source>Paid orders</source>
         <translation>Paid orders</translation>
     </message>
@@ -34,7 +34,7 @@
         <translation>Paid</translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+69"/>
         <source>Loading…</source>
         <translation>Loading…</translation>
     </message>
@@ -609,15 +609,138 @@
     </message>
 </context>
 <context>
+    <name>PaidOrderPage</name>
+    <message>
+        <location filename="../qml/pages/PaidOrderPage.qml" line="+36"/>
+        <source>Cash</source>
+        <translation>Cash</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Card</source>
+        <translation>Card</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Unknown</source>
+        <translation>Unknown</translation>
+    </message>
+    <message>
+        <source>This terminal has no fiscal memory - print on a SmartOne terminal.</source>
+        <translation type="vanished">This terminal has no fiscal memory - print on a SmartOne terminal.</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Product</source>
+        <translation>Product</translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Receipt printed</source>
+        <translation>Receipt printed</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Receipt %1 was printed again.</source>
+        <translation>Receipt %1 was printed again.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Couldn&apos;t print</source>
+        <translation>Couldn&apos;t print</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Paid order</source>
+        <translation>Paid order</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Order</source>
+        <translation>Order</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Waiter</source>
+        <translation>Waiter</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Paid at</source>
+        <translation>Paid at</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Payment</source>
+        <translation>Payment</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Receipt</source>
+        <translation>Receipt</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>closed at the register</source>
+        <translation>closed at the register</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Total</source>
+        <translation>Total</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Products</source>
+        <translation>Products</translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>Couldn&apos;t load the products:
+%1</source>
+        <translation>Couldn&apos;t load the products:
+%1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This order has no lines.</source>
+        <translation>This order has no lines.</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Loading…</source>
+        <translation>Loading…</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Printing…</source>
+        <translation>Printing…</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Print receipt again</source>
+        <translation>Print receipt again</translation>
+    </message>
+    <message>
+        <source>This order was closed at the register, so the app has no receipt to reprint.</source>
+        <translation type="vanished">This order was closed at the register, so the app has no receipt to reprint.</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+</context>
+<context>
     <name>PaymentController</name>
     <message>
         <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
-        <location line="+422"/>
+        <location line="+439"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>A payment is already in progress on this device. Wait for it to finish, then try again.</translation>
     </message>
     <message>
-        <location line="-415"/>
+        <location line="-432"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>This order cannot be paid: it is missing from the system or has no lines.</translation>
     </message>
@@ -645,7 +768,7 @@ It will be retried automatically when the app restarts.</source>
 It will be retried automatically when the app restarts.</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+77"/>
         <source>The card payment was declined.</source>
         <translation>The card payment was declined.</translation>
     </message>
@@ -665,7 +788,12 @@ It will be retried automatically when the app restarts.</translation>
         <translation>The card terminal could not be reached: %1</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+85"/>
+        <source>This terminal has no fiscal memory - receipts can only be printed on a SmartOne terminal.</source>
+        <translation>This terminal has no fiscal memory - receipts can only be printed on a SmartOne terminal.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>There is no receipt to reprint.</source>
         <translation>There is no receipt to reprint.</translation>
     </message>
@@ -1358,7 +1486,12 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Update now</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+57"/>
+        <source>Couldn&apos;t print</source>
+        <translation>Couldn&apos;t print</translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>Unfinished payment</source>
         <translation>Unfinished payment</translation>
     </message>
@@ -1368,7 +1501,8 @@ It will be retried automatically when the app restarts.</translation>
         <translation>A payment started earlier could not be completed (order %1): %2</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-11"/>
+        <location line="+13"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>

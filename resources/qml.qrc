@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 99 -->
+    <!-- build rev 102 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="theme/qmldir">../qml/theme/qmldir</file>
@@ -54,5 +54,6 @@
         <file alias="pages/UpdatePage.qml">../qml/pages/UpdatePage.qml</file>
         <file alias="pages/ProfilePage.qml">../qml/pages/ProfilePage.qml</file>
         <file alias="pages/AchitatePage.qml">../qml/pages/AchitatePage.qml</file>
+        <file alias="pages/PaidOrderPage.qml">../qml/pages/PaidOrderPage.qml</file>
     </qresource>
 </RCC>

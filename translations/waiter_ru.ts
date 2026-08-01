@@ -14,7 +14,7 @@
         <translation>Неизвестный стол</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+57"/>
         <source>Paid orders</source>
         <translation>Оплаченные заказы</translation>
     </message>
@@ -34,7 +34,7 @@
         <translation>Оплачено</translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+69"/>
         <source>Loading…</source>
         <translation>Загрузка…</translation>
     </message>
@@ -609,15 +609,138 @@
     </message>
 </context>
 <context>
+    <name>PaidOrderPage</name>
+    <message>
+        <location filename="../qml/pages/PaidOrderPage.qml" line="+36"/>
+        <source>Cash</source>
+        <translation>Наличные</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Card</source>
+        <translation>Карта</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Unknown</source>
+        <translation>Неизвестно</translation>
+    </message>
+    <message>
+        <source>This terminal has no fiscal memory - print on a SmartOne terminal.</source>
+        <translation type="vanished">У этого терминала нет фискальной памяти - печатайте на терминале SmartOne.</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Product</source>
+        <translation>Блюдо</translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Receipt printed</source>
+        <translation>Чек напечатан</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Receipt %1 was printed again.</source>
+        <translation>Чек %1 напечатан повторно.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Couldn&apos;t print</source>
+        <translation>Не удалось напечатать</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Paid order</source>
+        <translation>Оплаченный заказ</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Order</source>
+        <translation>Заказ</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Waiter</source>
+        <translation>Официант</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Paid at</source>
+        <translation>Оплачен в</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Payment</source>
+        <translation>Оплата</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Receipt</source>
+        <translation>Чек</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>closed at the register</source>
+        <translation>оплачен на кассе</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Total</source>
+        <translation>Итого</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Products</source>
+        <translation>Блюда</translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>Couldn&apos;t load the products:
+%1</source>
+        <translation>Не удалось загрузить позиции:
+%1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This order has no lines.</source>
+        <translation>В заказе нет позиций.</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Loading…</source>
+        <translation>Загрузка…</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Printing…</source>
+        <translation>Печать…</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Print receipt again</source>
+        <translation>Напечатать чек снова</translation>
+    </message>
+    <message>
+        <source>This order was closed at the register, so the app has no receipt to reprint.</source>
+        <translation type="vanished">Заказ был оплачен на кассе, поэтому у приложения нет чека для повторной печати.</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>OK</source>
+        <translation>ОК</translation>
+    </message>
+</context>
+<context>
     <name>PaymentController</name>
     <message>
         <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
-        <location line="+422"/>
+        <location line="+439"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>На этом устройстве уже выполняется оплата. Дождитесь её завершения и повторите попытку.</translation>
     </message>
     <message>
-        <location line="-415"/>
+        <location line="-432"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>Этот заказ нельзя оплатить: он отсутствует в системе или не содержит позиций.</translation>
     </message>
@@ -645,7 +768,7 @@ It will be retried automatically when the app restarts.</source>
 Попытка повторится автоматически при перезапуске приложения.</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+77"/>
         <source>The card payment was declined.</source>
         <translation>Оплата картой отклонена.</translation>
     </message>
@@ -665,7 +788,12 @@ It will be retried automatically when the app restarts.</source>
         <translation>Карточный терминал не отвечает: %1</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+85"/>
+        <source>This terminal has no fiscal memory - receipts can only be printed on a SmartOne terminal.</source>
+        <translation>У этого терминала нет фискальной памяти - чеки можно печатать только на терминале SmartOne.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>There is no receipt to reprint.</source>
         <translation>Нет чека для повторной печати.</translation>
     </message>
@@ -1358,7 +1486,12 @@ It will be retried automatically when the app restarts.</source>
         <translation>Обновить сейчас</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+57"/>
+        <source>Couldn&apos;t print</source>
+        <translation>Не удалось напечатать</translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>Unfinished payment</source>
         <translation>Незавершённая оплата</translation>
     </message>
@@ -1368,7 +1501,8 @@ It will be retried automatically when the app restarts.</source>
         <translation>Начатую ранее оплату не удалось завершить (заказ %1): %2</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-11"/>
+        <location line="+13"/>
         <source>OK</source>
         <translation>ОК</translation>
     </message>

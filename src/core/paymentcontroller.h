@@ -126,6 +126,12 @@ signals:
     // oferă re-tipărirea, nu reluarea plății.
     void printNeedsReprint(const QString &documentNumber, const QString &reason);
     void printConfirmed();
+    // Rezultatul unei retipăriri CERUTE explicit (dialogul din main.qml sau
+    // ecranul unei comenzi achitate). Canal propriu pentru că o retipărire nu
+    // aparține niciunei plăți în curs: `paymentFailed` e filtrat pe numărul
+    // comenzii, iar la un document vechi `m_pending` e al altei comenzi, deci
+    // filtrul l-ar arunca exact acolo unde e nevoie de el.
+    void reprintFinished(bool ok, const QString &reason);
 
 private:
     enum State { Idle, AwaitingPos, AwaitingFiscal, ClosingOrder };
@@ -199,6 +205,10 @@ private:
     // rămas deschis peste o plată ulterioară). Atunci reușita tipăririi nu are
     // voie să șteargă fișierul de recuperare - el aparține altei plăți.
     bool m_reprintOnly = false;
+    // O retipărire cerută explicit e în curs. Distinct de `m_reprintOnly`, care
+    // răspunde la altă întrebare (documentul e al altei plăți?): aici ne
+    // interesează doar pe ce canal raportăm rezultatul.
+    bool m_reprintPending = false;
 };
 
 #endif // PAYMENTCONTROLLER_H

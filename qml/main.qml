@@ -189,6 +189,30 @@ ApplicationWindow {
             backgroundPayDialog.nrComand = nrComand
             backgroundPayDialog.open()
         }
+
+        // Rezultatul retipăririi cerute din dialogul de mai jos. Fără el, un
+        // "Tipărește din nou" care eșua a doua oară nu spunea nimic - chelnerul
+        // rămânea să se uite la o imprimantă tăcută. Când retipărirea e cerută
+        // din PaidOrderPage, pagina aia are propriul handler și îl arată acolo.
+        function onReprintFinished(ok, reason) {
+            if (ok || stackView.currentItem === null)
+                return
+            if (typeof stackView.currentItem.reprinting !== "undefined")
+                return
+            reprintFailedDialog.reason = reason
+            reprintFailedDialog.open()
+        }
+    }
+
+    Components.ConfirmDialog {
+        id: reprintFailedDialog
+
+        property string reason: ""
+
+        title: qsTr("Couldn't print")
+        message: reason
+        confirmText: qsTr("OK")
+        infoOnly: true
     }
 
     Components.ConfirmDialog {

@@ -444,6 +444,12 @@ void PaymentController::onPrintSuccessful()
     m_reprintOnly = false;
     setState(Idle);
     m_recovering = false;
+
+    if (m_reprintPending) {
+        m_reprintPending = false;
+        emit reprintFinished(true, QString());
+    }
+
     emit printConfirmed();
 }
 
@@ -451,6 +457,16 @@ void PaymentController::onPrintFailed(const QString &reason)
 {
     // Operațiunea de tipărire s-a încheiat, oricare ar fi fost ea.
     m_reprintOnly = false;
+
+    // Retipărirea cerută explicit își raportează eșecul pe canalul ei și se
+    // oprește aici: a redeschide dialogul "bonul nu s-a tipărit" ar însemna să
+    // răspundem la apăsarea pe "Tipărește din nou" cu exact aceeași întrebare.
+    if (m_reprintPending) {
+        m_reprintPending = false;
+        setState(Idle);
+        emit reprintFinished(false, reason);
+        return;
+    }
 
     if (m_pending.isCommitted()) {
         // Vânzarea e finalizată; doar hârtia lipsește. Nu ștergem pending-ul.
@@ -597,13 +613,24 @@ void PaymentController::failAndKeepPending(const QString &reason)
 
 void PaymentController::reprint(const QString &documentNumber)
 {
-    // Dialogul de retipărire poate sta deschis peste o plată nouă. Fără garda
-    // asta, un tap pe "Tipărește din nou" trecea starea în AwaitingFiscal peste
-    // plata în curs și rupea mașina de stări.
+    // TOATE refuzurile de aici ies pe `reprintFinished`, nu pe `paymentFailed`:
+    // o retipărire nu aparține niciunei plăți în curs, iar `paymentFailed` e
+    // filtrat pe numărul comenzii - la un bon vechi filtrul l-ar arunca exact
+    // la ecranul care așteaptă răspunsul, care ar rămâne blocat pe "Se tipărește".
     if (busy()) {
-        emit paymentFailed(m_pending.nrComand,
-                           tr("A payment is already in progress on this device. "
-                              "Wait for it to finish, then try again."));
+        emit reprintFinished(false,
+                             tr("A payment is already in progress on this device. "
+                                "Wait for it to finish, then try again."));
+        return;
+    }
+
+    // Plasa de siguranță din spatele butonului dezactivat, ca la preparePending:
+    // fără serviciu fiscal nu există imprimantă de bonuri. Fără ea, apăsarea
+    // ducea la două încercări de rețea și la un "Connection refused" brut.
+    if (m_fiscalStatus == ServiceUnavailable) {
+        emit reprintFinished(false,
+                             tr("This terminal has no fiscal memory - receipts can only be "
+                                "printed on a SmartOne terminal."));
         return;
     }
 
@@ -611,13 +638,14 @@ void PaymentController::reprint(const QString &documentNumber)
     const QString doc = documentNumber.trimmed().isEmpty() ? current : documentNumber.trimmed();
 
     if (doc.isEmpty()) {
-        emit paymentFailed(m_pending.nrComand, tr("There is no receipt to reprint."));
+        emit reprintFinished(false, tr("There is no receipt to reprint."));
         return;
     }
 
     // Dacă tipărim documentul ALTEI plăți, reușita nu are voie să șteargă
     // fișierul de recuperare al plății curente (vezi onPrintSuccessful).
     m_reprintOnly = (doc != current);
+    m_reprintPending = true;
 
     setState(AwaitingFiscal);
     m_client->reprintDocument(doc);

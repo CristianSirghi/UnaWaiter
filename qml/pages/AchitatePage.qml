@@ -34,7 +34,14 @@ Page {
                 tableLabel: desk > 0 ? qsTr("Table %1").arg(desk) : qsTr("Unknown table"),
                 waiterName: r.CLCOFICIANTT ? String(r.CLCOFICIANTT).trim() : "",
                 orderTime: r.DATA_COMAND ? String(r.DATA_COMAND).trim() : "",
-                total: Format.money(r.CLCCOSTT)
+                total: Format.money(r.CLCCOSTT),
+                // DATA1 = ora PLĂȚII, pusă de pay_order la închidere; DATA_COMAND
+                // e ora deschiderii comenzii. În lista de bonuri o cauți pe prima.
+                payTime: r.DATA1 ? String(r.DATA1).trim() : "",
+                payType: r.TIPPLATA !== undefined && r.TIPPLATA !== null ? parseInt(r.TIPPLATA) : 0,
+                // Gol la comenzile achitate la casă: uw_fiscal_receipts e doar a
+                // noastră, iar LEFT JOIN-ul le lasă cu NULL (vezi get_paid_orders).
+                documentNumber: r.DOC_FISCAL ? String(r.DOC_FISCAL).trim() : ""
             })
         }
 
@@ -51,6 +58,11 @@ Page {
     Component.onCompleted: root.refresh()
 
     ListModel { id: ordersModel }
+
+    Component {
+        id: paidOrderPageComponent
+        PaidOrderPage {}
+    }
 
     Connections {
         target: dataService
@@ -204,6 +216,23 @@ Page {
                         font.bold: true
                         color: Theme.textPrimary
                     }
+                }
+
+                // Cardul întreg duce la detaliu (produse + retipărirea bonului).
+                // Ultimul copil, ca să stea peste ColumnLayout și să prindă
+                // atingerea oriunde pe card.
+                Components.TouchArea {
+                    anchors.fill: parent
+                    veilRadius: 14
+                    onClicked: root.StackView.view.push(paidOrderPageComponent, {
+                        nrComand: nrComand,
+                        tableLabel: tableLabel,
+                        waiterName: waiterName,
+                        payTime: payTime !== "" ? payTime : orderTime,
+                        totalText: total,
+                        documentNumber: documentNumber,
+                        payType: payType
+                    })
                 }
             }
         }
