@@ -177,7 +177,8 @@ public:
                               double pay,
                               const QString &docFiscal,
                               const QString &oficiant,
-                              double amount = 0.0);
+                              double amount = 0.0,
+                              const QString &rrn = QString());
 
 signals:
     void baseUrlChanged();

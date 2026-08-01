@@ -223,7 +223,7 @@ Page {
         paymentSheet.openWith(total)
     }
 
-    function pay(method, received) {
+    function pay(method, received, rrn) {
         var lines = dataService.orderLines
         var total = root.oracleLinesTotal(lines)
         if (total <= 0) {
@@ -238,7 +238,7 @@ Page {
         if (method === "cardPos")
             paymentController.payCardPos(root.sentNrComand, lines, total, AppSettings.waiterName, oficiant)
         else if (method === "cardManual")
-            paymentController.payCardManual(root.sentNrComand, lines, total, AppSettings.waiterName, oficiant)
+            paymentController.payCardManual(root.sentNrComand, lines, total, AppSettings.waiterName, oficiant, rrn)
         else
             paymentController.payCash(root.sentNrComand, lines, total, received, AppSettings.waiterName, oficiant)
     }
@@ -1960,7 +1960,7 @@ Page {
     Components.PaymentSheet {
         id: paymentSheet
         posAvailable: paymentController.posAvailable
-        onPayRequested: root.pay(method, received)
+        onPayRequested: root.pay(method, received, rrn)
     }
 
     Components.ConfirmDialog {

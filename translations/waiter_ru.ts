@@ -735,12 +735,12 @@
     <name>PaymentController</name>
     <message>
         <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
-        <location line="+439"/>
+        <location line="+446"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>На этом устройстве уже выполняется оплата. Дождитесь её завершения и повторите попытку.</translation>
     </message>
     <message>
-        <location line="-432"/>
+        <location line="-439"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>Этот заказ нельзя оплатить: он отсутствует в системе или не содержит позиций.</translation>
     </message>
@@ -750,7 +750,7 @@
         <translation>У этого терминала нет фискальной памяти - оплату можно принять только на терминале SmartOne.</translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+78"/>
         <source>The built-in card terminal is not available on this device.</source>
         <translation>Встроенный карточный терминал недоступен на этом устройстве.</translation>
     </message>
@@ -760,7 +760,7 @@
         <translation>Сервис данных недоступен.</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+64"/>
         <location line="+17"/>
         <source>The receipt was issued, but the order could not be closed: %1
 It will be retried automatically when the app restarts.</source>
@@ -801,18 +801,18 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>PaymentSheet</name>
     <message>
-        <location filename="../qml/components/controls/PaymentSheet.qml" line="+182"/>
+        <location filename="../qml/components/controls/PaymentSheet.qml" line="+197"/>
         <source>To pay</source>
         <translation>К оплате</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+173"/>
+        <location line="+222"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-321"/>
+        <location line="-384"/>
         <source>Cash</source>
         <translation>Наличные</translation>
     </message>
@@ -832,17 +832,40 @@ It will be retried automatically when the app restarts.</source>
         <translation>Откроет банковское приложение на этом терминале</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Card (separate terminal)</source>
-        <translation>Карта (отдельный терминал)</translation>
+        <translation type="vanished">Карта (отдельный терминал)</translation>
+    </message>
+    <message>
+        <source>Card already charged elsewhere</source>
+        <translation type="vanished">Карта уже проведена на другом терминале</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Manual RRN</source>
+        <translation>RRN вручную</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Card already charged elsewhere</source>
+        <source>Card already charged on another terminal</source>
         <translation>Карта уже проведена на другом терминале</translation>
     </message>
     <message>
-        <location line="+246"/>
+        <location line="+267"/>
+        <source>RRN from the POS receipt (13 digits)</source>
+        <translation>RRN с чека POS-терминала (13 цифр)</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>13 digits</source>
+        <translation>13 цифр</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>The RRN must have exactly 13 digits (%1 so far).</source>
+        <translation>RRN должен содержать ровно 13 цифр (сейчас %1).</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Cash received (leave empty for exact amount)</source>
         <translation>Полученная сумма (пусто — точная сумма)</translation>
     </message>

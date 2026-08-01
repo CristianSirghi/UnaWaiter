@@ -29,6 +29,7 @@ bool PendingFiscalStore::save(const PendingFiscal &data)
     obj[QStringLiteral("oraclePaid")] = data.oraclePaid;
     obj[QStringLiteral("oficiant")] = data.oficiant;
     obj[QStringLiteral("employeeName")] = data.employeeName;
+    obj[QStringLiteral("rrn")] = data.rrn;
     obj[QStringLiteral("timestamp")] = data.timestamp.isEmpty()
         ? QDateTime::currentDateTime().toString(Qt::ISODate)
         : data.timestamp;
@@ -86,6 +87,7 @@ bool PendingFiscalStore::load(PendingFiscal &out)
     out.oraclePaid = obj.value(QStringLiteral("oraclePaid")).toBool(false);
     out.oficiant = obj.value(QStringLiteral("oficiant")).toString();
     out.employeeName = obj.value(QStringLiteral("employeeName")).toString();
+    out.rrn = obj.value(QStringLiteral("rrn")).toString();
     out.timestamp = obj.value(QStringLiteral("timestamp")).toString();
     out.lines = obj.value(QStringLiteral("lines")).toArray().toVariantList();
 

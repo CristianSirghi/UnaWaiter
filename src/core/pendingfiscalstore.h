@@ -33,6 +33,11 @@ struct PendingFiscal
     // iar închiderea comenzii în Oracle are nevoie de chelner.
     QString oficiant;
     QString employeeName;
+    // Referința tranzacției bancare la plata "RRN Manual" (13 cifre). Se
+    // persistă odată cu restul: la metoda asta aplicația nu vorbește cu niciun
+    // terminal, deci RRN-ul tastat de chelner e SINGURA urmă că plata a avut
+    // loc - dacă s-ar pierde la o repornire, n-ar mai putea fi recuperat.
+    QString rrn;
     // Comanda a fost deja închisă în Oracle (pay_order a reușit). Ne ferește să
     // reapelăm pay_order la o recuperare care are nevoie doar de re-tipărire.
     bool oraclePaid = false;

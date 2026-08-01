@@ -65,13 +65,16 @@ public:
                              const QString &employeeName,
                              const QString &oficiant);
 
-    // Card trecut pe un terminal bancar SEPARAT: sărim peste pasul POS și
-    // emitem doar bonul fiscal.
+    // Card trecut pe un terminal bancar SEPARAT ("RRN Manual"): sărim peste
+    // pasul POS și emitem doar bonul fiscal. `rrn` e referința tranzacției
+    // bancare, tastată de chelner de pe chitanța POS - singura urmă că plata
+    // chiar a avut loc, de vreme ce aplicația n-a atins niciun terminal.
     Q_INVOKABLE void payCardManual(int nrComand,
                                    const QVariantList &lines,
                                    double total,
                                    const QString &employeeName,
-                                   const QString &oficiant);
+                                   const QString &oficiant,
+                                   const QString &rrn = QString());
 
     // Card prin POS-ul integrat al terminalului: aplicația trece în fundal
     // spre app-ul băncii și revine cu rezultatul.

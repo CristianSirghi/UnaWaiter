@@ -250,11 +250,17 @@ void PaymentController::payCardManual(int nrComand,
                                       const QVariantList &lines,
                                       double total,
                                       const QString &employeeName,
-                                      const QString &oficiant)
+                                      const QString &oficiant,
+                                      const QString &rrn)
 {
     if (!preparePending(nrComand, lines, total, 0.0,
                         QStringLiteral("V"), employeeName, oficiant))
         return;
+
+    // După preparePending, care resetează m_pending în întregime.
+    m_pending.rrn = rrn.trimmed();
+    qInfo("[Payment] RRN manual pentru comanda %d: %s",
+          nrComand, qPrintable(m_pending.rrn));
 
     beginFiscal(true);
 }
@@ -362,7 +368,8 @@ void PaymentController::closeOrderInOracle()
                             m_pending.paid,
                             m_pending.documentNumber,
                             m_oficiant,
-                            m_pending.total);
+                            m_pending.total,
+                            m_pending.rrn);
 }
 
 void PaymentController::onOrderPaid(int nrComand, int payType)

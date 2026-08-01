@@ -23,7 +23,8 @@ Popup {
 
     // method: "cash" | "cardPos" | "cardManual"
     // received: suma primită de la client (doar la numerar; 0 în rest)
-    signal payRequested(string method, real received)
+    // rrn: referința tranzacției bancare (doar la "cardManual"; gol în rest)
+    signal payRequested(string method, real received, string rrn)
 
     // false = terminalul n-are POS integrat (bridge-ul de pe :8888 nu ascultă),
     // deci metoda "Card (POS încorporat)" dispare din listă. E o proprietate, nu
@@ -38,7 +39,7 @@ Popup {
         var all = [
             { key: "cash",       label: qsTr("Cash"),                     hint: qsTr("Receipt printed on the terminal") },
             { key: "cardPos",    label: qsTr("Card (built-in POS)"),      hint: qsTr("Opens the bank app on this terminal") },
-            { key: "cardManual", label: qsTr("Card (separate terminal)"), hint: qsTr("Card already charged elsewhere") }
+            { key: "cardManual", label: qsTr("Manual RRN"),              hint: qsTr("Card already charged on another terminal") }
         ]
         var out = []
         for (var i = 0; i < all.length; ++i) {
@@ -51,11 +52,21 @@ Popup {
     property string selectedMethod: "cash"
     // Ce a tastat/ales chelnerul. 0 = "suma exactă" (fără rest).
     property real receivedAmount: 0
+    // Referința tranzacției bancare, tastată de chelner la "RRN Manual".
+    property string rrn: ""
+
+    // Exact 13 cifre. Lungimea NU e doar validare de format: metoda asta închide
+    // comanda fără ca aplicația să atingă vreun terminal, deci e singura care
+    // s-ar putea apăsa din greșeală în locul celorlalte. Obligând tastarea unei
+    // referințe existente de pe chitanța POS, o alegere accidentală nu poate
+    // ajunge până la capăt.
+    readonly property bool rrnValid: /^[0-9]{13}$/.test(root.rrn)
 
     readonly property real changeDue: (selectedMethod === "cash" && receivedAmount > total)
         ? (receivedAmount - total) : 0
     readonly property bool canConfirm: total > 0
         && (selectedMethod !== "cash" || receivedAmount === 0 || receivedAmount >= total)
+        && (selectedMethod !== "cardManual" || root.rrnValid)
 
     // Sheet-ul poate fi deschis chiar când o sondare descoperă că POS-ul a
     // dispărut. Fără asta, selecția ar rămâne pe un rând care nu mai e afișat.
@@ -72,6 +83,11 @@ Popup {
         root.selectedMethod = "cash"
         root.receivedAmount = 0
         receivedField.text = ""
+        // RRN-ul NU se păstrează între deschideri: e al unei tranzacții anume,
+        // iar o valoare rămasă de la comanda precedentă ar fi exact greșeala pe
+        // care obligativitatea lui trebuie s-o prevină.
+        root.rrn = ""
+        rrnField.text = ""
         root.open()
     }
 
@@ -176,7 +192,6 @@ Popup {
                 Layout.bottomMargin: 12
 
                 ColumnLayout {
-                    Layout.fillWidth: true
                     spacing: 2
                     Label {
                         text: qsTr("To pay")
@@ -191,7 +206,13 @@ Popup {
                     }
                 }
 
+                // Distanțier explicit, nu `Layout.fillWidth` pe coloana din
+                // stânga: aceea își ia lățimea din suma afișată, iar X-ul ajungea
+                // lipit de ea în loc de marginea din dreapta.
+                Item { Layout.fillWidth: true }
+
                 IconClose {
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     color: Theme.textSecondary
                     TouchArea {
                         anchors.fill: parent
@@ -273,6 +294,49 @@ Popup {
                         height: 1
                         color: Theme.border
                     }
+                }
+            }
+
+            // --- RRN Manual: referința tranzacției bancare ---
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.margins: 16
+                spacing: 8
+                visible: root.selectedMethod === "cardManual"
+
+                Label {
+                    Layout.fillWidth: true
+                    text: qsTr("RRN from the POS receipt (13 digits)")
+                    font.pixelSize: 12 * Theme.fontScale
+                    color: Theme.textSecondary
+                    wrapMode: Text.WordWrap
+                }
+
+                TextInputField {
+                    id: rrnField
+                    Layout.fillWidth: true
+                    placeholder: qsTr("13 digits")
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onTextChanged: {
+                        // Păstrăm doar cifrele și tăiem la 13: tastatura numerică
+                        // de pe Android lasă să treacă spații și separatoare, iar
+                        // un RRN copiat de pe chitanță le aduce cu el.
+                        var digits = text.replace(/[^0-9]/g, "").substring(0, 13)
+                        if (digits !== text)
+                            rrnField.text = digits
+                        root.rrn = digits
+                    }
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    // Fără avertisment cât timp câmpul e gol: chelnerul tocmai a
+                    // ales metoda, n-a greșit încă nimic.
+                    opacity: (root.rrn !== "" && !root.rrnValid) ? 1 : 0
+                    text: qsTr("The RRN must have exactly 13 digits (%1 so far).").arg(root.rrn.length)
+                    font.pixelSize: 12 * Theme.fontScale
+                    color: Theme.danger
+                    wrapMode: Text.WordWrap
                 }
             }
 
@@ -405,7 +469,8 @@ Popup {
                     enabled: root.canConfirm
                     onClicked: {
                         root.close()
-                        root.payRequested(root.selectedMethod, root.receivedAmount)
+                        root.payRequested(root.selectedMethod, root.receivedAmount,
+                                          root.selectedMethod === "cardManual" ? root.rrn : "")
                     }
                 }
             }

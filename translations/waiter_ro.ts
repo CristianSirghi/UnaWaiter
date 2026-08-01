@@ -735,12 +735,12 @@
     <name>PaymentController</name>
     <message>
         <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
-        <location line="+439"/>
+        <location line="+446"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>O plata este deja in curs pe acest dispozitiv. Asteptati sa se termine si incercati din nou.</translation>
     </message>
     <message>
-        <location line="-432"/>
+        <location line="-439"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>Aceasta comanda nu poate fi achitata: lipseste din sistem sau nu are linii.</translation>
     </message>
@@ -750,7 +750,7 @@
         <translation>Acest terminal nu are memorie fiscala - achitarea se poate face doar pe un terminal SmartOne.</translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+78"/>
         <source>The built-in card terminal is not available on this device.</source>
         <translation>Terminalul de card integrat nu este disponibil pe acest dispozitiv.</translation>
     </message>
@@ -760,7 +760,7 @@
         <translation>Serviciul de date nu este disponibil.</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+64"/>
         <location line="+17"/>
         <source>The receipt was issued, but the order could not be closed: %1
 It will be retried automatically when the app restarts.</source>
@@ -801,18 +801,18 @@ Se va reîncerca automat la repornirea aplicației.</translation>
 <context>
     <name>PaymentSheet</name>
     <message>
-        <location filename="../qml/components/controls/PaymentSheet.qml" line="+182"/>
+        <location filename="../qml/components/controls/PaymentSheet.qml" line="+197"/>
         <source>To pay</source>
         <translation>De achitat</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+173"/>
+        <location line="+222"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-321"/>
+        <location line="-384"/>
         <source>Cash</source>
         <translation>Numerar</translation>
     </message>
@@ -832,17 +832,40 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Deschide aplicația băncii pe acest terminal</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Card (separate terminal)</source>
-        <translation>Card (terminal separat)</translation>
+        <translation type="vanished">Card (terminal separat)</translation>
+    </message>
+    <message>
+        <source>Card already charged elsewhere</source>
+        <translation type="vanished">Cardul a fost deja trecut pe alt terminal</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Manual RRN</source>
+        <translation>RRN Manual</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Card already charged elsewhere</source>
+        <source>Card already charged on another terminal</source>
         <translation>Cardul a fost deja trecut pe alt terminal</translation>
     </message>
     <message>
-        <location line="+246"/>
+        <location line="+267"/>
+        <source>RRN from the POS receipt (13 digits)</source>
+        <translation>RRN-ul de pe chitanța POS (13 cifre)</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>13 digits</source>
+        <translation>13 cifre</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>The RRN must have exactly 13 digits (%1 so far).</source>
+        <translation>RRN-ul trebuie să aibă exact 13 cifre (deocamdată %1).</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Cash received (leave empty for exact amount)</source>
         <translation>Suma primită (lasă gol pentru suma exactă)</translation>
     </message>

@@ -480,7 +480,8 @@ void DataService::payOrder(const QString &nrComand,
                            double pay,
                            const QString &docFiscal,
                            const QString &oficiant,
-                           double amount)
+                           double amount,
+                           const QString &rrn)
 {
     QVariantMap fields;
     fields.insert(QStringLiteral("nrComand"), nrComand);
@@ -493,6 +494,10 @@ void DataService::payOrder(const QString &nrComand,
     // plătit, iar el trebuie să corespundă comenzii.
     if (amount > 0.0)
         fields.insert(QStringLiteral("amount"), QString::number(amount, 'f', 2));
+    // Doar plata "RRN Manual" produce așa ceva; la celelalte rămâne gol și nu
+    // se trimite, iar Oracle păstrează NULL.
+    if (!rrn.isEmpty())
+        fields.insert(QStringLiteral("rrn"), rrn);
     if (!docFiscal.isEmpty())
         fields.insert(QStringLiteral("docFiscal"), docFiscal);
     if (!oficiant.isEmpty())
