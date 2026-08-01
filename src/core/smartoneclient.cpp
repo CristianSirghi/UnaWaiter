@@ -24,6 +24,28 @@ const char *kPosBase = "http://127.0.0.1:8888";
 // clară pentru chelner.
 const int kFiscalSaleTimeoutMs = 20000;
 const int kCardCheckTimeoutMs = 5000;
+// Sondarea serviciului fiscal e o simplă întrebare "ești acolo?": pe loopback
+// un refuz de conexiune vine în milisecunde, iar termenul ăsta acoperă doar
+// cazul în care ceva ascultă pe port dar nu răspunde.
+const int kProbeTimeoutMs = 3000;
+// Verificarea turii nu mai poate atârna la nesfârșit (înainte n-avea niciun
+// termen: un serviciu care accepta conexiunea dar nu răspundea lăsa chelnerul
+// cu ecranul blocat). Larg intenționat - vezi serviceMissing() pentru ce
+// tratăm drept "lipsește" și ce nu.
+const int kShiftCheckTimeoutMs = 8000;
+
+// Nimeni nu ascultă pe port: bridge-ul SmartOne nu e instalat sau nu rulează.
+// DOAR erorile de nivel conexiune contează aici - nu și un timeout sau o eroare
+// HTTP. Un 404/500 dovedește că serviciul există, iar un timeout înseamnă doar
+// că e lent; dacă le-am trata pe toate la fel, un terminal fiscal bun dar
+// încet ar rămâne fără achitare. Greșeala trebuie făcută în direcția asta:
+// mai bine încercăm o plată care eșuează explicit, decât să blocăm una validă.
+bool serviceMissing(QNetworkReply *reply)
+{
+    const QNetworkReply::NetworkError err = reply->error();
+    return err == QNetworkReply::ConnectionRefusedError
+        || err == QNetworkReply::HostNotFoundError;
+}
 
 int toBani(double amount)
 {
@@ -66,11 +88,65 @@ SmartOneClient::SmartOneClient(QObject *parent)
 {
 }
 
+void SmartOneClient::probeFiscalService()
+{
+    QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(QString(kFiscalBase) + "/check-shift")));
+
+    QTimer::singleShot(kProbeTimeoutMs, reply, [reply]() {
+        if (reply->isRunning())
+            reply->abort();
+    });
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        const bool missing = serviceMissing(reply);
+        reply->deleteLater();
+        emit fiscalServiceProbed(!missing);
+    });
+}
+
+void SmartOneClient::probePosService()
+{
+    // GET pe rădăcină, nu pe /check: ne interesează exclusiv dacă cineva ascultă
+    // pe port, iar /check ar întreba despre o plată anume. Un 404 e un răspuns
+    // perfect bun aici - dovedește că bridge-ul e acolo.
+    QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(QString(kPosBase) + "/")));
+
+    QTimer::singleShot(kProbeTimeoutMs, reply, [reply]() {
+        if (reply->isRunning())
+            reply->abort();
+    });
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        const bool missing = serviceMissing(reply);
+        reply->deleteLater();
+        emit posServiceProbed(!missing);
+    });
+}
+
 void SmartOneClient::ensureShiftOpen(const std::function<void()> &onReady)
 {
     QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(QString(kFiscalBase) + "/check-shift")));
 
+    QTimer::singleShot(kShiftCheckTimeoutMs, reply, [reply]() {
+        if (reply->isRunning())
+            reply->abort();
+    });
+
     connect(reply, &QNetworkReply::finished, this, [this, reply, onReady]() {
+        // Nimeni nu ascultă pe loopback: nu are rost să trimitem /sale, ar eșua
+        // la fel și chelnerul ar primi drept explicație textul brut al erorii de
+        // rețea ("Connection refused"). Ne oprim aici, cu un motiv pe înțeles.
+        if (serviceMissing(reply)) {
+            reply->deleteLater();
+            emit fiscalServiceProbed(false);
+            emit fiscalPrintFailed(tr("The fiscal service is not available on this terminal. "
+                                      "The receipt can only be issued on a SmartOne terminal "
+                                      "with fiscal memory."));
+            return;
+        }
+
+        emit fiscalServiceProbed(true);
+
         const QByteArray response = reply->readAll();
         reply->deleteLater();
 
@@ -139,8 +215,16 @@ void SmartOneClient::startCardPayment(int payId, double amount)
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         const bool ok = (reply->error() == QNetworkReply::NoError);
+        const bool missing = serviceMissing(reply);
         const QString detail = ok ? QString::fromUtf8(reply->readAll()) : reply->errorString();
         reply->deleteLater();
+
+        // Un refuz de conexiune spune despre POS exact ce spune și o sondare,
+        // doar că mai devreme: actualizăm disponibilitatea fără să mai așteptăm
+        // următoarea revenire în prim-plan.
+        if (ok || missing)
+            emit posServiceProbed(ok);
+
         emit cardSaleDispatched(ok, detail);
     });
 }

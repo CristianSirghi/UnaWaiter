@@ -25,6 +25,29 @@ Popup {
     // received: suma primită de la client (doar la numerar; 0 în rest)
     signal payRequested(string method, real received)
 
+    // false = terminalul n-are POS integrat (bridge-ul de pe :8888 nu ascultă),
+    // deci metoda "Card (POS încorporat)" dispare din listă. E o proprietate, nu
+    // o citire directă din paymentController: sheet-ul nu vorbește cu terminalul,
+    // pagina îi spune ce se poate (vezi antetul).
+    property bool posAvailable: true
+
+    // Metodele arătate chelnerului, în ordinea din listă. Filtrate, nu doar
+    // dezactivate: o plată cu cardul pe un POS inexistent n-are nicio variantă
+    // de rezolvare pe loc, deci un rând gri n-ar spune nimic util.
+    readonly property var methods: {
+        var all = [
+            { key: "cash",       label: qsTr("Cash"),                     hint: qsTr("Receipt printed on the terminal") },
+            { key: "cardPos",    label: qsTr("Card (built-in POS)"),      hint: qsTr("Opens the bank app on this terminal") },
+            { key: "cardManual", label: qsTr("Card (separate terminal)"), hint: qsTr("Card already charged elsewhere") }
+        ]
+        var out = []
+        for (var i = 0; i < all.length; ++i) {
+            if (all[i].key !== "cardPos" || root.posAvailable)
+                out.push(all[i])
+        }
+        return out
+    }
+
     property string selectedMethod: "cash"
     // Ce a tastat/ales chelnerul. 0 = "suma exactă" (fără rest).
     property real receivedAmount: 0
@@ -33,6 +56,16 @@ Popup {
         ? (receivedAmount - total) : 0
     readonly property bool canConfirm: total > 0
         && (selectedMethod !== "cash" || receivedAmount === 0 || receivedAmount >= total)
+
+    // Sheet-ul poate fi deschis chiar când o sondare descoperă că POS-ul a
+    // dispărut. Fără asta, selecția ar rămâne pe un rând care nu mai e afișat.
+    onMethodsChanged: {
+        for (var i = 0; i < root.methods.length; ++i) {
+            if (root.methods[i].key === root.selectedMethod)
+                return
+        }
+        root.selectedMethod = "cash"
+    }
 
     function openWith(orderTotal) {
         root.total = orderTotal
@@ -173,11 +206,7 @@ Popup {
 
             // --- Metode de plată ---
             Repeater {
-                model: [
-                    { key: "cash",       label: qsTr("Cash"),                  hint: qsTr("Receipt printed on the terminal") },
-                    { key: "cardPos",    label: qsTr("Card (built-in POS)"),   hint: qsTr("Opens the bank app on this terminal") },
-                    { key: "cardManual", label: qsTr("Card (separate terminal)"), hint: qsTr("Card already charged elsewhere") }
-                ]
+                model: root.methods
 
                 Item {
                     id: methodRow

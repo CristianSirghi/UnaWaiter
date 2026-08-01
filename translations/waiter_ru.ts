@@ -527,12 +527,12 @@
     <message>
         <location line="+2"/>
         <location line="+8"/>
-        <location line="+38"/>
+        <location line="+51"/>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
     <message>
-        <location line="-40"/>
+        <location line="-53"/>
         <source>Payment failed</source>
         <translation>Оплата не прошла</translation>
     </message>
@@ -557,7 +557,12 @@
         <translation>Пропустить</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
+        <source>This terminal has no fiscal memory - pay on a SmartOne terminal.</source>
+        <translation>У этого терминала нет фискальной памяти - оплатите на терминале SmartOne.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>This order isn&apos;t in the system yet.</source>
         <translation>Заказ ещё не в системе.</translation>
     </message>
@@ -567,7 +572,7 @@
         <translation>Сначала отправьте изменения — чек должен соответствовать заказу.</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+22"/>
         <source>Couldn&apos;t delete the order</source>
         <translation>Не удалось удалить заказ</translation>
     </message>
@@ -597,7 +602,7 @@
         <translation>Перенести</translation>
     </message>
     <message>
-        <location line="-173"/>
+        <location line="-186"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Отправить заказ · %1 · %2 MDL</translation>
     </message>
@@ -610,7 +615,27 @@
 <context>
     <name>PaymentController</name>
     <message>
-        <location filename="../src/core/paymentcontroller.cpp" line="+245"/>
+        <location filename="../src/core/paymentcontroller.cpp" line="+164"/>
+        <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
+        <translation>На этом устройстве уже выполняется оплата. Дождитесь её завершения и повторите попытку.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>This order cannot be paid: it is missing from the system or has no lines.</source>
+        <translation>Этот заказ нельзя оплатить: он отсутствует в системе или не содержит позиций.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>This terminal has no fiscal memory - the payment can only be taken on a SmartOne terminal.</source>
+        <translation>У этого терминала нет фискальной памяти - оплату можно принять только на терминале SmartOne.</translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <source>The built-in card terminal is not available on this device.</source>
+        <translation>Встроенный карточный терминал недоступен на этом устройстве.</translation>
+    </message>
+    <message>
+        <location line="+76"/>
         <source>The data service is not available.</source>
         <translation>Сервис данных недоступен.</translation>
     </message>
@@ -632,7 +657,17 @@ It will be retried automatically when the app restarts.</source>
         <translation>Нет ответа от карточного терминала. Проверьте, прошла ли оплата, прежде чем повторять.</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+18"/>
+        <source>The card terminal could not be reached.</source>
+        <translation>Карточный терминал не отвечает.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The card terminal could not be reached: %1</source>
+        <translation>Карточный терминал не отвечает: %1</translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>There is no receipt to reprint.</source>
         <translation>Нет чека для повторной печати.</translation>
     </message>
@@ -640,18 +675,18 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>PaymentSheet</name>
     <message>
-        <location filename="../qml/components/controls/PaymentSheet.qml" line="+149"/>
+        <location filename="../qml/components/controls/PaymentSheet.qml" line="+182"/>
         <source>To pay</source>
         <translation>К оплате</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+177"/>
+        <location line="+173"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-154"/>
+        <location line="-321"/>
         <source>Cash</source>
         <translation>Наличные</translation>
     </message>
@@ -681,7 +716,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Карта уже проведена на другом терминале</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+246"/>
         <source>Cash received (leave empty for exact amount)</source>
         <translation>Полученная сумма (пусто — точная сумма)</translation>
     </message>
@@ -1016,7 +1051,12 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>SmartOneClient</name>
     <message>
-        <location filename="../src/core/smartoneclient.cpp" line="+345"/>
+        <location filename="../src/core/smartoneclient.cpp" line="+142"/>
+        <source>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</source>
+        <translation>Фискальная служба недоступна на этом терминале. Чек можно выдать только на терминале SmartOne с фискальной памятью.</translation>
+    </message>
+    <message>
+        <location line="+287"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>Оплата подтверждена, но фискальный сервис не ответил при выдаче чека. НЕ повторяйте оплату — чек нужно перевыпустить.</translation>
     </message>

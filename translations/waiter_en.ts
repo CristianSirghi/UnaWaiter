@@ -527,12 +527,12 @@
     <message>
         <location line="+2"/>
         <location line="+8"/>
-        <location line="+38"/>
+        <location line="+51"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location line="-40"/>
+        <location line="-53"/>
         <source>Payment failed</source>
         <translation>Payment failed</translation>
     </message>
@@ -557,7 +557,12 @@
         <translation>Skip</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
+        <source>This terminal has no fiscal memory - pay on a SmartOne terminal.</source>
+        <translation>This terminal has no fiscal memory - pay on a SmartOne terminal.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>This order isn&apos;t in the system yet.</source>
         <translation>This order isn&apos;t in the system yet.</translation>
     </message>
@@ -567,7 +572,7 @@
         <translation>Send the changes first - the receipt must match the order.</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+22"/>
         <source>Couldn&apos;t delete the order</source>
         <translation>Couldn&apos;t delete the order</translation>
     </message>
@@ -597,7 +602,7 @@
         <translation>Move</translation>
     </message>
     <message>
-        <location line="-173"/>
+        <location line="-186"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -610,7 +615,27 @@
 <context>
     <name>PaymentController</name>
     <message>
-        <location filename="../src/core/paymentcontroller.cpp" line="+245"/>
+        <location filename="../src/core/paymentcontroller.cpp" line="+164"/>
+        <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
+        <translation>A payment is already in progress on this device. Wait for it to finish, then try again.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>This order cannot be paid: it is missing from the system or has no lines.</source>
+        <translation>This order cannot be paid: it is missing from the system or has no lines.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>This terminal has no fiscal memory - the payment can only be taken on a SmartOne terminal.</source>
+        <translation>This terminal has no fiscal memory - the payment can only be taken on a SmartOne terminal.</translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <source>The built-in card terminal is not available on this device.</source>
+        <translation>The built-in card terminal is not available on this device.</translation>
+    </message>
+    <message>
+        <location line="+76"/>
         <source>The data service is not available.</source>
         <translation>The data service is not available.</translation>
     </message>
@@ -632,7 +657,17 @@ It will be retried automatically when the app restarts.</translation>
         <translation>No response from the card terminal. Check whether the payment went through before trying again.</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+18"/>
+        <source>The card terminal could not be reached.</source>
+        <translation>The card terminal could not be reached.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The card terminal could not be reached: %1</source>
+        <translation>The card terminal could not be reached: %1</translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>There is no receipt to reprint.</source>
         <translation>There is no receipt to reprint.</translation>
     </message>
@@ -640,18 +675,18 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>PaymentSheet</name>
     <message>
-        <location filename="../qml/components/controls/PaymentSheet.qml" line="+149"/>
+        <location filename="../qml/components/controls/PaymentSheet.qml" line="+182"/>
         <source>To pay</source>
         <translation>To pay</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+177"/>
+        <location line="+173"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
     </message>
     <message>
-        <location line="-154"/>
+        <location line="-321"/>
         <source>Cash</source>
         <translation>Cash</translation>
     </message>
@@ -681,7 +716,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Card already charged elsewhere</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+246"/>
         <source>Cash received (leave empty for exact amount)</source>
         <translation>Cash received (leave empty for exact amount)</translation>
     </message>
@@ -1016,7 +1051,12 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>SmartOneClient</name>
     <message>
-        <location filename="../src/core/smartoneclient.cpp" line="+345"/>
+        <location filename="../src/core/smartoneclient.cpp" line="+142"/>
+        <source>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</source>
+        <translation>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</translation>
+    </message>
+    <message>
+        <location line="+287"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</translation>
     </message>

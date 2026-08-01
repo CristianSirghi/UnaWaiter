@@ -36,11 +36,24 @@ class PaymentController : public QObject
     // afara secvenței lui ("Invalid docNumber") - atunci trebuie potrivit cu ce
     // așteaptă aparatul, fără reinstalarea aplicației.
     Q_PROPERTY(int nextPayId READ nextPayId WRITE setNextPayId NOTIFY nextPayIdChanged)
+    // false = pe terminalul ăsta NU se poate emite bon fiscal (bridge-ul
+    // SmartOne lipsește - e un Android obișnuit, fără memorie fiscală).
+    // Interfața dezactivează achitarea, iar preparePending o refuză și dacă
+    // totuși se ajunge acolo. Cât timp sondarea n-a răspuns încă, proprietatea
+    // e true: presupunem terminalul bun și dezactivăm doar pe un "nu" confirmat.
+    Q_PROPERTY(bool fiscalAvailable READ fiscalAvailable NOTIFY fiscalAvailableChanged)
+    // false = bridge-ul POS de pe :8888 nu ascultă, deci plata cu cardul prin
+    // POS-ul integrat nu are cum să pornească. Interfața scoate metoda din
+    // listă; celelalte două (numerar, card pe terminal separat) rămân, pentru
+    // că nu depind de el.
+    Q_PROPERTY(bool posAvailable READ posAvailable NOTIFY posAvailableChanged)
 
 public:
     explicit PaymentController(DataService *dataService, QObject *parent = nullptr);
 
     bool busy() const { return m_state != Idle; }
+    bool fiscalAvailable() const { return m_fiscalStatus != ServiceUnavailable; }
+    bool posAvailable() const { return m_posStatus != ServiceUnavailable; }
     int nextPayId() const;
     void setNextPayId(int value);
 
@@ -78,9 +91,20 @@ public:
     // De chemat la pornire: duce la capăt o plată întreruptă de o cădere.
     Q_INVOKABLE void recoverIfPending();
 
+    // Reîntreabă serviciul fiscal dacă e prezent. Se cheamă singură la pornire
+    // și la fiecare revenire în prim-plan; expusă pentru cazul în care
+    // bridge-ul SmartOne e pornit după aplicație.
+    Q_INVOKABLE void probeFiscalService();
+
+    // Reîntreabă bridge-ul POS. Ca și cea fiscală, se cheamă singură la pornire
+    // și la fiecare revenire în prim-plan.
+    Q_INVOKABLE void probePosService();
+
 signals:
     void busyChanged();
     void nextPayIdChanged();
+    void fiscalAvailableChanged();
+    void posAvailableChanged();
     // Comanda e închisă în Oracle: plata s-a încheiat cu succes.
     void paymentSucceeded(int nrComand);
     void paymentFailed(const QString &reason);
@@ -91,6 +115,10 @@ signals:
 
 private:
     enum State { Idle, AwaitingPos, AwaitingFiscal, ClosingOrder };
+    // Trei stări, nu un bool: "încă nu știu" trebuie deosebit de "nu există",
+    // altfel prima secundă de după pornire ar arăta achitarea ca imposibilă
+    // pe un terminal perfect bun. Folosit pentru ambele bridge-uri SmartOne.
+    enum ServiceStatus { ServiceUnknown, ServiceAvailable, ServiceUnavailable };
 
     void setState(State state);
     // Pregătește starea comună celor trei metode de plată. Întoarce false dacă
@@ -117,6 +145,9 @@ private:
     void onCardConfirmed(const QJsonObject &data);
     void onCardDeclined(const QString &reason);
     void onCardNotReady();
+    void onCardSaleDispatched(bool success, const QString &response);
+    void onFiscalServiceProbed(bool available);
+    void onPosServiceProbed(bool available);
     void onOrderPaid(int nrComand, int payType);
     void onRequestFailed(const QString &command, const QString &error);
 
@@ -125,6 +156,8 @@ private:
     DataService *m_dataService = nullptr;
     SmartOneClient *m_client = nullptr;
     State m_state = Idle;
+    ServiceStatus m_fiscalStatus = ServiceUnknown;
+    ServiceStatus m_posStatus = ServiceUnknown;
     PendingFiscal m_pending;
     QString m_employeeName;
     QString m_oficiant;

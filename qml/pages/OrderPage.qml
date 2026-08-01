@@ -1954,15 +1954,28 @@ Page {
     Components.OrderActionSheet {
         id: actionSheet
         canPay: root.sentNrComand > 0 && !root.hasUnsavedChanges()
-        payBlockedReason: root.sentNrComand <= 0
-            ? qsTr("This order isn't in the system yet.")
-            : qsTr("Send the changes first - the receipt must match the order.")
+            && paymentController.fiscalAvailable
+        payBlockedReason: !paymentController.fiscalAvailable
+            ? qsTr("This terminal has no fiscal memory - pay on a SmartOne terminal.")
+            : root.sentNrComand <= 0
+                ? qsTr("This order isn't in the system yet.")
+                : qsTr("Send the changes first - the receipt must match the order.")
         onPayRequested: root.startPayment()
         onDeleteRequested: deleteDialog.open()
+
+        // Resondăm chiar la deschidere. Fără asta, un terminal SmartOne bun pe
+        // care bridge-ul a pornit DUPĂ aplicație (se întâmplă la boot) rămânea
+        // cu "fără memorie fiscală" până când chelnerul trecea aplicația prin
+        // fundal - singurul alt moment în care se resonda.
+        onAboutToShow: {
+            paymentController.probeFiscalService()
+            paymentController.probePosService()
+        }
     }
 
     Components.PaymentSheet {
         id: paymentSheet
+        posAvailable: paymentController.posAvailable
         onPayRequested: root.pay(method, received)
     }
 
