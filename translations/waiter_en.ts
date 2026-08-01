@@ -330,7 +330,7 @@
     </message>
     <message>
         <location filename="../qml/pages/OrderPage.qml" line="+38"/>
-        <location line="+1861"/>
+        <location line="+1860"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
@@ -346,8 +346,8 @@
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
     <message>
-        <location line="-716"/>
-        <location line="+1860"/>
+        <location line="-715"/>
+        <location line="+1859"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
@@ -527,37 +527,33 @@
     <message>
         <location line="+2"/>
         <location line="+8"/>
-        <location line="+51"/>
+        <location line="+36"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location line="-53"/>
+        <location line="-38"/>
         <source>Payment failed</source>
         <translation>Payment failed</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Receipt not printed</source>
-        <translation>Receipt not printed</translation>
+        <translation type="vanished">Receipt not printed</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>The payment went through, but the receipt didn&apos;t print: %1</source>
-        <translation>The payment went through, but the receipt didn&apos;t print: %1</translation>
+        <translation type="vanished">The payment went through, but the receipt didn&apos;t print: %1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Print again</source>
-        <translation>Print again</translation>
+        <translation type="vanished">Print again</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Skip</source>
-        <translation>Skip</translation>
+        <translation type="vanished">Skip</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+11"/>
         <source>This terminal has no fiscal memory - pay on a SmartOne terminal.</source>
         <translation>This terminal has no fiscal memory - pay on a SmartOne terminal.</translation>
     </message>
@@ -602,7 +598,7 @@
         <translation>Move</translation>
     </message>
     <message>
-        <location line="-186"/>
+        <location line="-171"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -615,49 +611,51 @@
 <context>
     <name>PaymentController</name>
     <message>
-        <location filename="../src/core/paymentcontroller.cpp" line="+164"/>
+        <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
+        <location line="+422"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>A payment is already in progress on this device. Wait for it to finish, then try again.</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-415"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>This order cannot be paid: it is missing from the system or has no lines.</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+10"/>
         <source>This terminal has no fiscal memory - the payment can only be taken on a SmartOne terminal.</source>
         <translation>This terminal has no fiscal memory - the payment can only be taken on a SmartOne terminal.</translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+72"/>
         <source>The built-in card terminal is not available on this device.</source>
         <translation>The built-in card terminal is not available on this device.</translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+80"/>
         <source>The data service is not available.</source>
         <translation>The data service is not available.</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+63"/>
+        <location line="+17"/>
         <source>The receipt was issued, but the order could not be closed: %1
 It will be retried automatically when the app restarts.</source>
         <translation>The receipt was issued, but the order could not be closed: %1
 It will be retried automatically when the app restarts.</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+61"/>
         <source>The card payment was declined.</source>
         <translation>The card payment was declined.</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>No response from the card terminal. Check whether the payment went through before trying again.</source>
         <translation>No response from the card terminal. Check whether the payment went through before trying again.</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+16"/>
         <source>The card terminal could not be reached.</source>
         <translation>The card terminal could not be reached.</translation>
     </message>
@@ -667,7 +665,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>The card terminal could not be reached: %1</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+83"/>
         <source>There is no receipt to reprint.</source>
         <translation>There is no receipt to reprint.</translation>
     </message>
@@ -1051,12 +1049,12 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>SmartOneClient</name>
     <message>
-        <location filename="../src/core/smartoneclient.cpp" line="+142"/>
+        <location filename="../src/core/smartoneclient.cpp" line="+162"/>
         <source>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</source>
         <translation>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</translation>
     </message>
     <message>
-        <location line="+287"/>
+        <location line="+320"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</translation>
     </message>
@@ -1076,7 +1074,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>There is no document to reprint.</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+37"/>
         <source>Network error while printing the receipt.</source>
         <translation>Network error while printing the receipt.</translation>
     </message>
@@ -1358,6 +1356,41 @@ It will be retried automatically when the app restarts.</translation>
         <location line="+1"/>
         <source>Update now</source>
         <translation>Update now</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Unfinished payment</source>
+        <translation>Unfinished payment</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>A payment started earlier could not be completed (order %1): %2</source>
+        <translation>A payment started earlier could not be completed (order %1): %2</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Receipt not printed</source>
+        <translation>Receipt not printed</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The payment went through, but the receipt didn&apos;t print: %1</source>
+        <translation>The payment went through, but the receipt didn&apos;t print: %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Print again</source>
+        <translation>Print again</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Skip</source>
+        <translation>Skip</translation>
     </message>
 </context>
 </TS>

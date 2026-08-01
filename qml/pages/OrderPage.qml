@@ -168,7 +168,6 @@ Page {
     // ecranului) - vezi startPayment().
     property bool awaitingPayLines: false
     property string payError: ""
-    property string reprintDoc: ""
 
     // Dialog, nu banner (vezi sendErrorDialog mai jos în fișier), deschis
     // EXPLICIT de-aici - nu dintr-un onSendErrorChanged.
@@ -1131,18 +1130,18 @@ Page {
             root.finishPaymentIfDone()
         }
 
-        function onPaymentFailed(reason) {
+        // Doar eșecul comenzii DE PE ECRANUL ĂSTA. Fără filtru, o recuperare de
+        // fundal pentru altă masă scotea dialogul peste comanda deschisă aici.
+        // Eșecurile de fundal au canalul lor, tratat în main.qml.
+        function onPaymentFailed(nrComand, reason) {
+            if (nrComand !== root.sentNrComand)
+                return
             root.showPayError(reason)
         }
 
-        // Vânzarea E finalizată, doar hârtia a lipsit. Oferim RETIPĂRIREA, nu
-        // reluarea plății: o a doua emitere ar scoate un al doilea bon fiscal.
-        function onPrintNeedsReprint(documentNumber, reason) {
-            root.reprintDoc = documentNumber
-            root.payError = reason
-            reprintDialog.open()
-        }
-
+        // `printNeedsReprint` NU se tratează aici: ajunge de cele mai multe ori
+        // după ce pagina a fost distrusă. Dialogul stă în main.qml - vezi
+        // comentariul de acolo.
         function onPrintConfirmed() {
             root.finishPaymentIfDone()
         }
@@ -1934,21 +1933,6 @@ Page {
         message: root.payError
         confirmText: qsTr("OK")
         infoOnly: true
-    }
-
-    // Bonul e emis (banii sunt încasați), dar nu a ieșit pe hârtie. Singura
-    // acțiune corectă e retipărirea aceluiași document - de-aceea nu există
-    // aici nicio variantă de "reia plata".
-    Components.ConfirmDialog {
-        id: reprintDialog
-        title: qsTr("Receipt not printed")
-        message: qsTr("The payment went through, but the receipt didn't print: %1").arg(root.payError)
-        confirmText: qsTr("Print again")
-        cancelText: qsTr("Skip")
-        onConfirmed: paymentController.reprint()
-        // Chiar dacă renunță la hârtie, vânzarea rămâne finalizată - nu are
-        // rost să ținem ecranul deschis pe o comandă deja închisă.
-        onCancelled: root.finishPaymentIfDone()
     }
 
     Components.OrderActionSheet {

@@ -33,6 +33,15 @@ const int kProbeTimeoutMs = 3000;
 // cu ecranul blocat). Larg intenționat - vezi serviceMissing() pentru ce
 // tratăm drept "lipsește" și ce nu.
 const int kShiftCheckTimeoutMs = 8000;
+// Deschiderea turii și tipărirea n-aveau NICIUN termen. Dacă bridge-ul accepta
+// conexiunea și apoi tăcea, `finished` nu se mai emitea niciodată, controller-ul
+// rămânea în AwaitingFiscal/ClosingOrder, `busy()` rămânea true - și de-atunci
+// ORICE altă plată era refuzată până la repornirea aplicației. Nimic nu repara
+// asta singur: `appResumed` iese devreme când starea nu e Idle. Valorile sunt
+// largi intenționat (aparatul chiar scoate hârtie); rolul lor e să nu atârne la
+// infinit, nu să fie strânse.
+const int kOpenShiftTimeoutMs = 20000;
+const int kPrintCheckTimeoutMs = 20000;
 
 // Nimeni nu ascultă pe port: bridge-ul SmartOne nu e instalat sau nu rulează.
 // DOAR erorile de nivel conexiune contează aici - nu și un timeout sau o eroare
@@ -90,6 +99,11 @@ SmartOneClient::SmartOneClient(QObject *parent)
 
 void SmartOneClient::probeFiscalService()
 {
+    // Sondarea în curs va raporta oricum, și mai devreme decât una pornită acum.
+    if (m_fiscalProbeInFlight)
+        return;
+    m_fiscalProbeInFlight = true;
+
     QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(QString(kFiscalBase) + "/check-shift")));
 
     QTimer::singleShot(kProbeTimeoutMs, reply, [reply]() {
@@ -100,12 +114,17 @@ void SmartOneClient::probeFiscalService()
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         const bool missing = serviceMissing(reply);
         reply->deleteLater();
+        m_fiscalProbeInFlight = false;
         emit fiscalServiceProbed(!missing);
     });
 }
 
 void SmartOneClient::probePosService()
 {
+    if (m_posProbeInFlight)
+        return;
+    m_posProbeInFlight = true;
+
     // GET pe rădăcină, nu pe /check: ne interesează exclusiv dacă cineva ascultă
     // pe port, iar /check ar întreba despre o plată anume. Un 404 e un răspuns
     // perfect bun aici - dovedește că bridge-ul e acolo.
@@ -119,6 +138,7 @@ void SmartOneClient::probePosService()
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         const bool missing = serviceMissing(reply);
         reply->deleteLater();
+        m_posProbeInFlight = false;
         emit posServiceProbed(!missing);
     });
 }
@@ -139,7 +159,7 @@ void SmartOneClient::ensureShiftOpen(const std::function<void()> &onReady)
         if (serviceMissing(reply)) {
             reply->deleteLater();
             emit fiscalServiceProbed(false);
-            emit fiscalPrintFailed(tr("The fiscal service is not available on this terminal. "
+            emit fiscalSaleNotSent(tr("The fiscal service is not available on this terminal. "
                                       "The receipt can only be issued on a SmartOne terminal "
                                       "with fiscal memory."));
             return;
@@ -181,6 +201,11 @@ void SmartOneClient::openShift(const std::function<void()> &onOpened)
 
     QNetworkReply *reply = m_network->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
 
+    QTimer::singleShot(kOpenShiftTimeoutMs, reply, [reply]() {
+        if (reply->isRunning())
+            reply->abort();
+    });
+
     connect(reply, &QNetworkReply::finished, this, [reply, onOpened]() {
         const QByteArray response = reply->readAll();
         reply->deleteLater();
@@ -211,6 +236,11 @@ void SmartOneClient::startCardPayment(int payId, double amount)
     // android/AndroidManifest.xml, altfel chelnerul rămâne blocat în app-ul băncii.
     body[QStringLiteral("package_name")] = QStringLiteral("org.qtproject.UnaWaiter");
 
+    // Singurul apel lăsat ANUME fără termen de abandon. Aici o expirare ar fi
+    // periculoasă, nu utilă: am raporta "n-a plecat" pentru o cerere care poate
+    // a ajuns, exact în timp ce app-ul băncii debitează cardul. Și nici nu e
+    // nevoie - dacă cererea atârnă, starea rămâne AwaitingPos, iar revenirea în
+    // prim-plan cheamă /check și află rezultatul adevărat de la terminal.
     QNetworkReply *reply = m_network->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
@@ -403,8 +433,31 @@ void SmartOneClient::fiscalSaleAndPrint(int payId,
         // unei plăți întrerupte: bonul a fost deja emis, deci îl tratăm ca
         // succes și mergem la tipărire, nu re-emitem.
         if (httpStatus == 409) {
-            const QString doc = m_lastDocumentNumber.trimmed().isEmpty()
-                ? QString::number(payId) : m_lastDocumentNumber;
+            // Numărul REAL al documentului se caută întâi în corpul răspunsului.
+            // `m_lastDocumentNumber` e doar memorie de proces: după o repornire
+            // (exact cazul în care ajungem la 409) e gol, iar vechea rezervă
+            // scria `payId` - CONTORUL NOSTRU INTERN - drept număr de document
+            // fiscal. Ajungea așa în uw_fiscal_receipts: o valoare mică, care nu
+            // corespunde niciunui document din memoria fiscală (documentele
+            // reale sunt în ordinul miilor) și nu poate fi urmărită.
+            QString doc = QJsonDocument::fromJson(response)
+                .object().value(QStringLiteral("data")).toObject()
+                .value(QStringLiteral("document_number")).toString().trimmed();
+
+            if (doc.isEmpty())
+                doc = m_lastDocumentNumber.trimmed();
+
+            if (doc.isEmpty()) {
+                // Rezerva rămâne, pentru că `isCommitted()` se sprijină pe un
+                // număr nevid: fără el, recuperarea ar crede că vânzarea nu s-a
+                // comis și ar retrimite /sale la nesfârșit, primind mereu 409.
+                // ⚠️ De verificat pe terminal ce întoarce SmartOne în corpul lui
+                // 409 - dacă dă numărul, ramura asta nu se mai atinge niciodată.
+                doc = QString::number(payId);
+                qWarning("[SmartOne] 409 fara document_number: folosim payId %d "
+                         "ca marcaj - numarul fiscal real ramane necunoscut", payId);
+            }
+
             m_lastDocumentNumber = doc;
 
             if (!printOnConflict) {
@@ -489,6 +542,11 @@ void SmartOneClient::sendPrintCheck(const QJsonObject &body, bool allowRetry)
     req.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
 
     QNetworkReply *reply = m_network->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
+
+    QTimer::singleShot(kPrintCheckTimeoutMs, reply, [reply]() {
+        if (reply->isRunning())
+            reply->abort();
+    });
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, body, allowRetry]() {
         const bool netError = (reply->error() != QNetworkReply::NoError);

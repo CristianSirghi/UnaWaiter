@@ -161,6 +161,64 @@ ApplicationWindow {
         })
     }
 
+    // ===================== Bon netipărit (SmartOne) =====================
+    // Ascultătorul ăsta trebuie să stea AICI, nu în OrderPage. Pagina se închide
+    // pe `paymentSucceeded` (comanda închisă în Oracle), iar tipărirea pleacă
+    // abia la 1,5s după comiterea documentului - deci Oracle câștigă cursa
+    // aproape de fiecare dată, pagina e deja distrusă (`stackView.pop` pe un
+    // item creat dintr-un Component) și semnalul nu mai avea cine să-l asculte.
+    // Rezultatul: un bon netipărit trecea complet neobservat - clientul pleca
+    // fără bon, iar chelnerul credea că totul a fost în regulă.
+    Connections {
+        target: paymentController
+
+        function onPrintNeedsReprint(documentNumber, reason) {
+            reprintDialog.reason = reason
+            // Reținem numărul documentului: dialogul poate rămâne deschis peste
+            // o plată nouă, iar starea controller-ului nu-l mai are atunci.
+            reprintDialog.documentNumber = documentNumber
+            reprintDialog.open()
+        }
+
+        // Recuperare pornită singură (după o cădere sau după revenirea
+        // serviciului) care n-a reușit. Nu i-a cerut-o nimeni și de obicei
+        // nicio pagină nu e deschisă pe comanda aia, deci o arătăm aici,
+        // numind comanda - altfel eșecul ar fi trecut complet neobservat.
+        function onBackgroundPaymentFailed(nrComand, reason) {
+            backgroundPayDialog.reason = reason
+            backgroundPayDialog.nrComand = nrComand
+            backgroundPayDialog.open()
+        }
+    }
+
+    Components.ConfirmDialog {
+        id: backgroundPayDialog
+
+        property string reason: ""
+        property int nrComand: 0
+
+        title: qsTr("Unfinished payment")
+        message: qsTr("A payment started earlier could not be completed (order %1): %2")
+            .arg(backgroundPayDialog.nrComand).arg(backgroundPayDialog.reason)
+        confirmText: qsTr("OK")
+        infoOnly: true
+    }
+
+    // Vânzarea E finalizată, doar hârtia a lipsit. Se oferă RETIPĂRIREA, nu
+    // reluarea plății: o a doua emitere ar scoate un al doilea bon fiscal.
+    Components.ConfirmDialog {
+        id: reprintDialog
+
+        property string reason: ""
+        property string documentNumber: ""
+
+        title: qsTr("Receipt not printed")
+        message: qsTr("The payment went through, but the receipt didn't print: %1").arg(reprintDialog.reason)
+        confirmText: qsTr("Print again")
+        cancelText: qsTr("Skip")
+        onConfirmed: paymentController.reprint(reprintDialog.documentNumber)
+    }
+
     Connections {
         target: AppSettings
         function onLanguageChanged() {

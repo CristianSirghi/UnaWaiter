@@ -81,8 +81,12 @@ public:
                                 const QString &employeeName,
                                 const QString &oficiant);
 
-    // Re-tipărește ultimul bon emis (rola s-a terminat etc.).
-    Q_INVOKABLE void reprint();
+    // Re-tipărește un bon deja emis (rola s-a terminat etc.). Numărul vine de
+    // la apelant, nu din starea curentă: dialogul de retipărire trăiește în
+    // main.qml și poate rămâne deschis peste alte plăți, timp în care
+    // `m_pending` se schimbă - fără parametru s-ar tipări alt document.
+    // Gol = ultimul document al plății curente.
+    Q_INVOKABLE void reprint(const QString &documentNumber);
 
     // De chemat când aplicația revine în prim-plan: dacă așteptam rezultatul
     // POS-ului, îl verificăm acum.
@@ -107,7 +111,17 @@ signals:
     void posAvailableChanged();
     // Comanda e închisă în Oracle: plata s-a încheiat cu succes.
     void paymentSucceeded(int nrComand);
-    void paymentFailed(const QString &reason);
+    // Eșecul unei plăți CERUTE ACUM de chelner. Poartă numărul comenzii pentru
+    // că ecranul trebuie să arate dialogul doar pentru comanda lui - altfel o
+    // recuperare de fundal pentru altă masă scotea o eroare peste comanda
+    // deschisă, fără nicio legătură cu ea.
+    void paymentFailed(int nrComand, const QString &reason);
+    // Eșecul unei recuperări pornite singură (după o cădere sau după revenirea
+    // serviciului). Nu-l cere nimeni și nu-i corespunde nicio pagină deschisă,
+    // deci îl arată main.qml, numind comanda ca să se înțeleagă despre ce e
+    // vorba. Canal separat, ca să nu fie nici ascuns, nici confundat cu plata
+    // pe care chelnerul tocmai o încearcă.
+    void backgroundPaymentFailed(int nrComand, const QString &reason);
     // Bonul e emis, dar tipărirea a eșuat. Vânzarea E finalizată - interfața
     // oferă re-tipărirea, nu reluarea plății.
     void printNeedsReprint(const QString &documentNumber, const QString &reason);
@@ -137,6 +151,9 @@ private:
     void closeOrderInOracle();
     void finishWithSuccess();
     void failAndKeepPending(const QString &reason);
+    // Trimite eșecul pe canalul potrivit: `background` = recuperare pornită
+    // singură, deci nu are pagină care s-o aștepte.
+    void emitFailure(int nrComand, const QString &reason, bool background);
 
     void onDocumentCommitted(const QString &documentNumber);
     void onDocumentAlreadyExists(const QString &documentNumber);
@@ -146,6 +163,11 @@ private:
     void onCardDeclined(const QString &reason);
     void onCardNotReady();
     void onCardSaleDispatched(bool success, const QString &response);
+    void onFiscalSaleNotSent(const QString &reason);
+    // Închide o plată despre care ȘTIM că n-a atins terminalul: șterge fișierul
+    // de recuperare (dar niciodată în timpul unei recuperări - acolo el poate
+    // descrie o încercare anterioară care chiar a ajuns) și raportează eșecul.
+    void failWithoutPending(const QString &reason);
     void onFiscalServiceProbed(bool available);
     void onPosServiceProbed(bool available);
     void onOrderPaid(int nrComand, int payType);
@@ -166,6 +188,17 @@ private:
     // Suntem într-o reluare după cădere: schimbă ce facem la 409 și ne ferește
     // să arătăm dialoguri de eroare pentru o plată care de fapt reușise.
     bool m_recovering = false;
+    // POS-ul a confirmat debitarea cardului pentru plata curentă. NU se
+    // persistă intenționat: contează doar cât ține procesul, iar după o
+    // repornire suntem oricum în recuperare, unde fișierul nu se șterge nicicum.
+    // Fără el, un serviciu fiscal picat DUPĂ debitare ducea la ștergerea
+    // fișierului - bani luați de bancă, fără bon, fără urmă și cu risc de dublă
+    // debitare dacă chelnerul relua plata.
+    bool m_cardCharged = false;
+    // Retipărim un document care NU e al plății din `m_pending` (dialogul a
+    // rămas deschis peste o plată ulterioară). Atunci reușita tipăririi nu are
+    // voie să șteargă fișierul de recuperare - el aparține altei plăți.
+    bool m_reprintOnly = false;
 };
 
 #endif // PAYMENTCONTROLLER_H

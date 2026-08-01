@@ -479,7 +479,8 @@ void DataService::payOrder(const QString &nrComand,
                            int payType,
                            double pay,
                            const QString &docFiscal,
-                           const QString &oficiant)
+                           const QString &oficiant,
+                           double amount)
 {
     QVariantMap fields;
     fields.insert(QStringLiteral("nrComand"), nrComand);
@@ -488,6 +489,10 @@ void DataService::payOrder(const QString &nrComand,
     // trimitem `pay` doar pentru numerar (unde e suma primită de la client).
     if (payType == 1)
         fields.insert(QStringLiteral("pay"), QString::number(pay, 'f', 2));
+    // Se trimite pentru AMBELE metode: bonul are un total indiferent cum s-a
+    // plătit, iar el trebuie să corespundă comenzii.
+    if (amount > 0.0)
+        fields.insert(QStringLiteral("amount"), QString::number(amount, 'f', 2));
     if (!docFiscal.isEmpty())
         fields.insert(QStringLiteral("docFiscal"), docFiscal);
     if (!oficiant.isEmpty())

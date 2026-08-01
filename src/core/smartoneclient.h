@@ -100,6 +100,12 @@ signals:
     void fiscalPrintSuccessful();
     void fiscalPrintFailed(const QString &reason);
 
+    // Cererea de vânzare NU a plecat de pe dispozitiv (refuz de conexiune pe
+    // /check-shift). Semnal separat de fiscalPrintFailed anume pentru că e
+    // singura situație în care apelantul ȘTIE SIGUR că nu s-a comis nimic -
+    // orice altă eroare lasă loc de îndoială și obligă la păstrarea plății.
+    void fiscalSaleNotSent(const QString &reason);
+
     // Serviciul fiscal a răspuns (true) sau nici măcar nu ascultă pe loopback
     // (false). Emis atât de probeFiscalService, cât și de ensureShiftOpen -
     // orice atingere a serviciului e o ocazie de a afla adevărul.
@@ -118,6 +124,11 @@ private:
 
     QNetworkAccessManager *m_network = nullptr;
     QString m_lastDocumentNumber;
+    // O singură sondare odată, per serviciu. Sondăm des (pornire, revenire în
+    // prim-plan, deschiderea meniului comenzii), iar două cereri suprapuse pot
+    // răspunde în ordine inversă - cea veche ar suprascrie rezultatul celei noi.
+    bool m_fiscalProbeInFlight = false;
+    bool m_posProbeInFlight = false;
 };
 
 #endif // SMARTONECLIENT_H

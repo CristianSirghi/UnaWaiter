@@ -167,11 +167,17 @@ public:
     // payType: 1 = Numerar (`pay` = suma primită), 2 = Card (`pay` ignorat).
     // Backendul e idempotent: o comandă deja achitată întoarce succes, nu
     // eroare, ca o reluare după o pică de rețea să nu blocheze chelnerul.
+    // `amount` = totalul TIPĂRIT pe bon, diferit de `pay`: la numerar `pay` e
+    // suma primită de la client (poate depăși totalul), `amount` e ce scrie pe
+    // bon. Oracle îl compară cu totalul comenzii și refuză plata dacă diferă -
+    // bonul e document legal, n-are voie să nu corespundă comenzii. Zero sau
+    // negativ = nu se trimite, iar verificarea din Oracle doarme.
     Q_INVOKABLE void payOrder(const QString &nrComand,
                               int payType,
                               double pay,
                               const QString &docFiscal,
-                              const QString &oficiant);
+                              const QString &oficiant,
+                              double amount = 0.0);
 
 signals:
     void baseUrlChanged();

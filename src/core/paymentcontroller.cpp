@@ -64,6 +64,8 @@ PaymentController::PaymentController(DataService *dataService, QObject *parent)
             this, &PaymentController::onCardNotReady);
     connect(m_client, &SmartOneClient::cardSaleDispatched,
             this, &PaymentController::onCardSaleDispatched);
+    connect(m_client, &SmartOneClient::fiscalSaleNotSent,
+            this, &PaymentController::onFiscalSaleNotSent);
     connect(m_client, &SmartOneClient::fiscalServiceProbed,
             this, &PaymentController::onFiscalServiceProbed);
     connect(m_client, &SmartOneClient::posServiceProbed,
@@ -110,25 +112,41 @@ void PaymentController::onPosServiceProbed(bool available)
     if (m_posStatus == wanted)
         return;
 
+    const bool becameAvailable = available && (m_posStatus != ServiceAvailable);
+
     const bool wasAvailable = posAvailable();
     m_posStatus = wanted;
     if (wasAvailable != posAvailable())
         emit posAvailableChanged();
+
+    // Simetric cu partea fiscală: o plată cu cardul rămasă în aer se reia când
+    // POS-ul revine, pentru că verificarea ei merge la :8888. Numai pe
+    // TRANZIȚIE, ca sondările repetate să nu reîncerce la nesfârșit.
+    if (becameAvailable && m_state == Idle)
+        recoverIfPending();
 }
 
 void PaymentController::onFiscalServiceProbed(bool available)
 {
     const ServiceStatus wanted = available ? ServiceAvailable : ServiceUnavailable;
-    if (m_fiscalStatus != wanted) {
-        const bool wasAvailable = fiscalAvailable();
-        m_fiscalStatus = wanted;
-        if (wasAvailable != fiscalAvailable())
-            emit fiscalAvailableChanged();
-    }
+    if (m_fiscalStatus == wanted)
+        return;
 
-    // Serviciul tocmai a devenit accesibil (a fost pornit după aplicație, sau
-    // asta e prima sondare): abia acum are rost să reluăm o plată rămasă în aer.
-    if (available && m_state == Idle)
+    // TRANZIȚIA spre disponibil declanșează reluarea, nu simplul fapt că
+    // serviciul răspunde. Altfel, de când sondăm și la deschiderea meniului
+    // comenzii, o recuperare care eșuează repetat ar scoate un dialog de eroare
+    // de fiecare dată când chelnerul deschide meniul - deranj pur, pentru că
+    // răspunsul e același ca acum zece secunde.
+    const bool becameAvailable = available && (m_fiscalStatus != ServiceAvailable);
+
+    const bool wasAvailable = fiscalAvailable();
+    m_fiscalStatus = wanted;
+    if (wasAvailable != fiscalAvailable())
+        emit fiscalAvailableChanged();
+
+    // Prima sondare reușită, sau serviciul tocmai a fost pornit după aplicație:
+    // abia acum are rost să reluăm o plată rămasă în aer.
+    if (becameAvailable && m_state == Idle)
         recoverIfPending();
 }
 
@@ -161,13 +179,15 @@ bool PaymentController::preparePending(int nrComand,
     // fără nimic de apăsat. Devine ușor de atins de când sondarea poate porni
     // o recuperare exact când chelnerul deschide meniul comenzii.
     if (busy()) {
-        emit paymentFailed(tr("A payment is already in progress on this device. "
+        emit paymentFailed(nrComand,
+                           tr("A payment is already in progress on this device. "
                               "Wait for it to finish, then try again."));
         return false;
     }
 
     if (nrComand <= 0 || lines.isEmpty()) {
-        emit paymentFailed(tr("This order cannot be paid: it is missing from the system "
+        emit paymentFailed(nrComand,
+                           tr("This order cannot be paid: it is missing from the system "
                               "or has no lines."));
         return false;
     }
@@ -176,7 +196,8 @@ bool PaymentController::preparePending(int nrComand,
     // nu există bon, iar fără bon nu se încasează. Ne oprim ÎNAINTE de a scrie
     // fișierul de recuperare, ca să nu rămână o plată fantomă pe disc.
     if (m_fiscalStatus == ServiceUnavailable) {
-        emit paymentFailed(tr("This terminal has no fiscal memory - the payment can only be "
+        emit paymentFailed(nrComand,
+                           tr("This terminal has no fiscal memory - the payment can only be "
                               "taken on a SmartOne terminal."));
         return false;
     }
@@ -184,6 +205,8 @@ bool PaymentController::preparePending(int nrComand,
     m_employeeName = employeeName;
     m_oficiant = oficiant;
     m_recovering = false;
+    m_cardCharged = false;
+    m_reprintOnly = false;
     m_cardCheckRetries = 0;
     m_oracleRetries = 0;
 
@@ -246,7 +269,7 @@ void PaymentController::payCardPos(int nrComand,
     // nevoie și de POS. Verificat înainte de preparePending, ca o metodă
     // indisponibilă să nu lase starea pregătită degeaba.
     if (m_posStatus == ServiceUnavailable) {
-        emit paymentFailed(tr("The built-in card terminal is not available on this device."));
+        emit paymentFailed(nrComand, tr("The built-in card terminal is not available on this device."));
         return;
     }
 
@@ -265,6 +288,10 @@ void PaymentController::payCardPos(int nrComand,
 
 void PaymentController::beginFiscal(bool printOnConflict)
 {
+    // Vânzare normală: tipărirea care urmează e a plății din `m_pending`, deci
+    // reușita ei ARE voie să șteargă fișierul. Pus aici, nu doar în
+    // preparePending, pentru că o recuperare ajunge direct în beginFiscal.
+    m_reprintOnly = false;
     m_pending.phase = QStringLiteral("fiscal");
     PendingFiscalStore::save(m_pending);
     setState(AwaitingFiscal);
@@ -327,18 +354,34 @@ void PaymentController::closeOrderInOracle()
     }
 
     setState(ClosingOrder);
+    // `total`, nu `paid`: pe bon e tipărit totalul comenzii, în timp ce `paid`
+    // e cât a dat clientul la numerar (poate fi mai mult, restul se dă manual).
+    // Oracle compară exact valoarea asta cu totalul comenzii.
     m_dataService->payOrder(QString::number(m_pending.nrComand),
                             oraclePayType(),
                             m_pending.paid,
                             m_pending.documentNumber,
-                            m_oficiant);
+                            m_oficiant,
+                            m_pending.total);
 }
 
 void PaymentController::onOrderPaid(int nrComand, int payType)
 {
     Q_UNUSED(payType)
 
-    if (m_state != ClosingOrder || nrComand != m_pending.nrComand)
+    // NU se cere `m_state == ClosingOrder`. Închiderea în Oracle și tipărirea
+    // sunt independente, iar tipărirea poate eșua ÎNAINTE ca Oracle să răspundă
+    // (lipsa hârtiei se raportează instant, iar Oracle merge prin internet).
+    // `onPrintFailed` cobora atunci starea în Idle, iar răspunsul Oracle care
+    // sosea după era ignorat: `oraclePaid` rămânea fals, `paymentSucceeded` nu
+    // se mai emitea niciodată, ecranul rămânea blocat pe "se achită" și masa
+    // apărea ocupată deși comanda era închisă în Oracle. Iar dacă retipărirea
+    // reușea, `onPrintSuccessful` ștergea și fișierul de recuperare - adică
+    // dispărea și plasa care ar fi reparat totul la următoarea repornire.
+    //
+    // O confirmare de plată e o veste bună oricând sosește; singurele condiții
+    // care contează sunt să fie pentru comanda noastră și să n-o fi primit deja.
+    if (nrComand != m_pending.nrComand || m_pending.oraclePaid)
         return;
 
     m_oracleRetries = 0;
@@ -358,8 +401,21 @@ void PaymentController::onOrderPaid(int nrComand, int payType)
 
 void PaymentController::onRequestFailed(const QString &command, const QString &error)
 {
-    if (command != QLatin1String("pay_order") || m_state != ClosingOrder)
+    if (command != QLatin1String("pay_order"))
         return;
+
+    // Perechea situației din onOrderPaid: tipărirea poate fi eșuat prima și să
+    // fi coborât deja starea în Idle. Nu reîncercăm de-aici - un temporizator
+    // care readuce ClosingOrder ar călca peste o plată pornită între timp - dar
+    // nici nu tăcem: fără raportare, ecranul rămânea blocat pe "se achită",
+    // fără dialog și fără nimic de apăsat. Fișierul rămâne, deci recuperarea
+    // reia închiderea comenzii mai târziu.
+    if (m_state != ClosingOrder) {
+        if (m_state == Idle)
+            failAndKeepPending(tr("The receipt was issued, but the order could not be closed: %1\n"
+                                  "It will be retried automatically when the app restarts.").arg(error));
+        return;
+    }
 
     if (m_oracleRetries < kMaxOracleRetries) {
         ++m_oracleRetries;
@@ -380,8 +436,12 @@ void PaymentController::onRequestFailed(const QString &command, const QString &e
 void PaymentController::onPrintSuccessful()
 {
     // SINGURUL loc care șterge fișierul de recuperare, și numai după
-    // confirmarea pozitivă a tipăririi.
-    PendingFiscalStore::remove();
+    // confirmarea pozitivă a tipăririi. Excepție: o retipărire cerută pentru
+    // documentul altei plăți - acolo fișierul de pe disc nu e al ei.
+    if (!m_reprintOnly)
+        PendingFiscalStore::remove();
+
+    m_reprintOnly = false;
     setState(Idle);
     m_recovering = false;
     emit printConfirmed();
@@ -389,6 +449,9 @@ void PaymentController::onPrintSuccessful()
 
 void PaymentController::onPrintFailed(const QString &reason)
 {
+    // Operațiunea de tipărire s-a încheiat, oricare ar fi fost ea.
+    m_reprintOnly = false;
+
     if (m_pending.isCommitted()) {
         // Vânzarea e finalizată; doar hârtia lipsește. Nu ștergem pending-ul.
         setState(Idle);
@@ -406,6 +469,10 @@ void PaymentController::onCardConfirmed(const QJsonObject &data)
     if (m_state != AwaitingPos)
         return;
 
+    // Din clipa asta banca A LUAT banii. Orice eșec de aici încolo trebuie să
+    // lase urmă pe disc, oricât de sigur am fi că nimic nu s-a trimis mai
+    // departe - vezi failWithoutPending.
+    m_cardCharged = true;
     m_cardCheckRetries = 0;
     beginFiscal(!m_recovering);
 }
@@ -417,11 +484,14 @@ void PaymentController::onCardDeclined(const QString &reason)
 
     // Refuz definitiv: nu s-au luat bani și nu s-a emis niciun bon, deci
     // fișierul de recuperare nu mai are ce recupera.
+    const bool background = m_recovering;
     PendingFiscalStore::remove();
     m_cardCheckRetries = 0;
     setState(Idle);
     m_recovering = false;
-    emit paymentFailed(reason.isEmpty() ? tr("The card payment was declined.") : reason);
+    emitFailure(m_pending.nrComand,
+                reason.isEmpty() ? tr("The card payment was declined.") : reason,
+                background);
 }
 
 void PaymentController::onCardNotReady()
@@ -454,29 +524,103 @@ void PaymentController::onCardSaleDispatched(bool success, const QString &respon
     // Fără tratarea asta rămâneam în AwaitingPos la nesfârșit: app-ul băncii nu
     // s-a deschis, deci nu urmează nicio revenire în prim-plan care să ne
     // trezească, iar chelnerul rămânea cu ecranul blocat pe "se achită".
-    //
-    // Păstrăm fișierul de recuperare: dacă cererea a apucat totuși să ajungă la
-    // terminal, o verificare ulterioară trebuie să poată afla rezultatul.
     m_cardCheckRetries = 0;
-    failAndKeepPending(response.trimmed().isEmpty()
+
+    const QString reason = response.trimmed().isEmpty()
         ? tr("The card terminal could not be reached.")
-        : tr("The card terminal could not be reached: %1").arg(response.trimmed()));
+        : tr("The card terminal could not be reached: %1").arg(response.trimmed());
+
+    // `posServiceProbed(false)` s-a emis chiar înaintea acestui semnal, deci un
+    // status "indisponibil" înseamnă aici refuz de conexiune: cererea n-a plecat
+    // și nu s-au putut lua bani. Orice alt eșec lasă loc de îndoială, deci acolo
+    // păstrăm fișierul, ca o verificare ulterioară să poată afla rezultatul.
+    if (m_posStatus == ServiceUnavailable)
+        failWithoutPending(reason);
+    else
+        failAndKeepPending(reason);
+}
+
+void PaymentController::onFiscalSaleNotSent(const QString &reason)
+{
+    if (m_state != AwaitingFiscal)
+        return;
+
+    failWithoutPending(reason);
+}
+
+void PaymentController::emitFailure(int nrComand, const QString &reason, bool background)
+{
+    if (background)
+        emit backgroundPaymentFailed(nrComand, reason);
+    else
+        emit paymentFailed(nrComand, reason);
+}
+
+void PaymentController::failWithoutPending(const QString &reason)
+{
+    // Cererea n-a plecat de pe dispozitiv, deci nu există niciun document de
+    // recuperat. La o plată NOUĂ fișierul descrie exclusiv încercarea asta, deci
+    // se poate șterge fără risc. Dacă l-am păstra, ar rămâne pe disc ca o plată
+    // "în așteptare" și s-ar duce singur la capăt când bridge-ul revine - adică
+    // un bon emis și o comandă închisă fără ca cineva să fi cerut asta, la mult
+    // timp după ce chelnerul a văzut eroarea și a considerat plata ratată.
+    //
+    // Într-o RECUPERARE nu-l atingem: acolo fișierul poate descrie o încercare
+    // anterioară care chiar a ajuns la terminal, iar ștergerea ar pierde exact
+    // urma pe care regula de aur ne cere s-o păstrăm.
+    //
+    // Și nici după ce POS-ul a confirmat debitarea: acolo "cererea n-a plecat"
+    // se referă DOAR la pasul fiscal, dar banii sunt deja luați de bancă.
+    // Ștergerea ar lăsa plata fără nicio urmă - fără bon, cu masa deschisă, și
+    // cu o a doua debitare dacă chelnerul relua. Fișierul rămâne, iar
+    // recuperarea emite bonul când serviciul fiscal revine.
+    const bool background = m_recovering;
+
+    if (!m_recovering && !m_cardCharged)
+        PendingFiscalStore::remove();
+
+    setState(Idle);
+    m_recovering = false;
+    emitFailure(m_pending.nrComand, reason, background);
 }
 
 void PaymentController::failAndKeepPending(const QString &reason)
 {
+    const bool background = m_recovering;
     setState(Idle);
-    emit paymentFailed(reason);
+    // Recuperarea s-a terminat aici, oricât de prost. Steagul trebuie coborât,
+    // altfel rămânea ridicat peste starea Idle și falsifica decizii ulterioare
+    // (pe ce canal raportăm un eșec, ce facem la un 409).
+    m_recovering = false;
+    emitFailure(m_pending.nrComand, reason, background);
 }
 
-void PaymentController::reprint()
+void PaymentController::reprint(const QString &documentNumber)
 {
-    if (m_pending.documentNumber.trimmed().isEmpty()) {
-        emit paymentFailed(tr("There is no receipt to reprint."));
+    // Dialogul de retipărire poate sta deschis peste o plată nouă. Fără garda
+    // asta, un tap pe "Tipărește din nou" trecea starea în AwaitingFiscal peste
+    // plata în curs și rupea mașina de stări.
+    if (busy()) {
+        emit paymentFailed(m_pending.nrComand,
+                           tr("A payment is already in progress on this device. "
+                              "Wait for it to finish, then try again."));
         return;
     }
+
+    const QString current = m_pending.documentNumber.trimmed();
+    const QString doc = documentNumber.trimmed().isEmpty() ? current : documentNumber.trimmed();
+
+    if (doc.isEmpty()) {
+        emit paymentFailed(m_pending.nrComand, tr("There is no receipt to reprint."));
+        return;
+    }
+
+    // Dacă tipărim documentul ALTEI plăți, reușita nu are voie să șteargă
+    // fișierul de recuperare al plății curente (vezi onPrintSuccessful).
+    m_reprintOnly = (doc != current);
+
     setState(AwaitingFiscal);
-    m_client->reprintDocument(m_pending.documentNumber);
+    m_client->reprintDocument(doc);
 }
 
 void PaymentController::appResumed()
@@ -486,14 +630,17 @@ void PaymentController::appResumed()
         return;
     }
 
-    // Sondarea reia singură recuperarea dacă serviciul răspunde (vezi
-    // onFiscalServiceProbed), deci nu mai chemăm recoverIfPending direct:
-    // altfel, pe un terminal fără SmartOne, fiecare revenire în prim-plan
-    // scotea un dialog de eroare pentru o plată care oricum nu se poate face.
-    if (m_state == Idle) {
-        probeFiscalService();
-        probePosService();
-    }
+    if (m_state != Idle)
+        return;
+
+    probeFiscalService();
+    probePosService();
+
+    // Reluarea la revenirea în prim-plan rămâne, ca înainte: e momentul în care
+    // aflăm că procesul a fost omorât în mijlocul unei plăți. Sondarea de mai
+    // sus acoperă cazul complementar (serviciul a revenit), iar recoverIfPending
+    // se apără singură de disponibilitate și de o recuperare deja pornită.
+    recoverIfPending();
 }
 
 void PaymentController::recoverIfPending()
@@ -526,21 +673,30 @@ void PaymentController::recoverIfPending()
         return;
     }
 
-    // Tot ce urmează are nevoie de SmartOne. Dacă nu răspunde, ne oprim fără să
-    // ștergem nimic: plata poate fi reală, doar terminalul e mut acum, iar
-    // reluarea se face la prima sondare reușită. Fără oprirea asta, fiecare
-    // revenire în prim-plan scotea un dialog de eroare pentru o plată care
-    // oricum nu se poate duce la capăt aici.
-    if (m_fiscalStatus == ServiceUnavailable) {
-        m_recovering = false;
-        return;
-    }
+    // Restul depinde de SmartOne, dar de bridge-uri DIFERITE - fiecare ramură
+    // își verifică propriul serviciu. Când lipsește, ne oprim fără să ștergem
+    // nimic: plata poate fi reală, doar terminalul e mut acum, iar reluarea se
+    // face când sondarea îl găsește din nou. Fără opririle astea, o recuperare
+    // imposibilă scotea un dialog de eroare la fiecare încercare.
 
     // Așteptam rezultatul terminalului de card când s-a oprit aplicația.
     if (m_pending.isCardPhase()) {
+        // Verificarea merge la :8888, nu la serviciul fiscal - un terminal cu
+        // fiscalul viu și POS-ul picat ar fi intrat aici doar ca să aștepte
+        // degeaba trei reîncercări și să scoată o eroare.
+        if (m_posStatus == ServiceUnavailable) {
+            m_recovering = false;
+            return;
+        }
+
         m_cardCheckRetries = 0;
         setState(AwaitingPos);
         m_client->checkCardPayment(m_pending.payId);
+        return;
+    }
+
+    if (m_fiscalStatus == ServiceUnavailable) {
+        m_recovering = false;
         return;
     }
 
