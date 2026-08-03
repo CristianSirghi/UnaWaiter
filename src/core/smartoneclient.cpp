@@ -64,39 +64,32 @@ int toBani(double amount)
 // TVA: literele din UAMenu (VMDB_COMENZD.CODTVA) sunt exact codurile așteptate
 // de SmartOne, deci nu e nevoie de traducere - doar de procent.
 //
-// COTELE SUNT ALE ACESTUI DEPLOYMENT, verificate în baza de producție
-// (2026-08-03). Sursa e `Unirest_Util.vat_percent_by_letter` / `sum_tva` —
-// aceleași funcții pe care le folosește pachetul `BON`, adică TIPARUL DE BON AL
-// UAMenu. A=20, B=8, C=10.
+// A=20, B=8, C=6. Verificate în baza de producție 2026-08-03 ȘI pe hârtie.
 //
-// ⚠️ BAZA SE CONTRAZICE PE EA ÎNSĂȘI LA LITERA C. Alegerea de aici nu e
-// evidentă, așa că nu o schimba fără să citești tot:
+// ⚠️ CE TIPĂREȘTE BONUL NU DEPINDE DE VALORILE ASTEA. Aparatul fiscal SmartOne
+// are propriul tabel de taxe programat și îl folosește pe al lui. Dovedit
+// definitiv, nu dedus: cu aplicația trimițând C=10.00% (vezi log-ul
+// `[SmartOne][TVA]` de mai jos, `tva=436 bani` pe o comandă de 48 lei), bonul a
+// ieșit tipărit cu **6%**. Valorile de aici sunt deci ce DECLARĂM, nu ce se
+// tipărește - dar tocmai de-aceea trebuie să fie corecte, nu la întâmplare.
 //
-//   | unde                      | C   | dovadă pe producție              |
-//   |---------------------------|-----|----------------------------------|
-//   | antet comandă TVA_C       |  6% | 8426 din 8426 comenzi            |
-//   | linie SUMTVA (sum_tva)    | 10% | 17191 din 28205 linii            |
-//   | bonul tipărit de UAMenu   | 10% | BON -> vat_percent_by_letter     |
-//   | aparatul fiscal SmartOne  | 10% | 5.09 pe 56 lei = 56*0.1/1.1      |
+// De ce 6% pentru C: e ce tipărește aparatul ȘI ce înregistrează UAMenu în
+// Oracle (`TVA_C` = 6% din brut pe 8426 din 8426 comenzi achitate de pe
+// producție, și pe comenzile încă deschise). Cele două sunt de acord.
 //
-// Am ales 10% pentru că `taxForCode` alimentează un BON FISCAL, iar bonul
-// nostru trebuie să declare ce declară bonul de la casă - altfel apar diferențe
-// între comenzile din app și închiderea de la casă în rapoartele X/Z.
+// ⚠️ CE NU E DE ACORD, și e problema CLIENTULUI, nu a noastră: imprimanta
+// fiscală **Tremol** de la casă tipărește pentru aceeași literă **10%**, pentru
+// că UAMenu îi trimite `Unirest_Util.vat_percent_by_letter('C') = 10` prin
+// pachetul `BON`. Adică același restaurant emite bonuri cu 6% (din aplicație) și
+// cu 10% (de la casă), pe același produs. UAMenu contabilizează la 6% dar
+// tipărește 10% - se contrazice pe el însuși.
 //
-// Contra-argumentul (antetul zice 6%) NU e susținut: view-ul `VMDB_COMENZ_CALC_TVA`
-// de unde vine 6% e un view de RECONCILIERE (are coloana `delta_tva_c`), nu
-// sursa, și n-a mai fost modificat din 2016 - în timp ce `Unirest_Util`/`BON`
-// au fost atinse în aprilie 2026. Nu există niciun parametru de configurare
-// pentru B/C (doar `VATValueA`, care nici măcar nu e setat în `envunirest`).
+// Cele două aparate sunt pur și simplu programate diferit. De ridicat la
+// Sandu/Daniela: rapoartele X/Z ale celor două nu au cum să se reconcilieze.
 //
-// DOVADA CĂ APARATUL ARE PROPRIUL TABEL: codul vechi trimitea C=8%, aparatul a
-// tipărit 10%. Deci `taxAmount`-ul nostru e ignorat, iar tabelul aparatului e
-// deja pe 10%. Nu e nimic de reconfigurat pe terminal - noi eram nealiniați.
-//
-// ⚠️ RĂMÂNE DE LĂMURIT CU CLIENTUL (Sandu/Daniela): care e cota LEGALĂ, 6% sau
-// 10%? Dacă e 6%, UAMenu tipărește greșit de mult timp. Dacă e 10%, `TVA_C` din
-// antet e greșit pe toate comenzile. Oricum ar fi, e o problemă a lor și se
-// repară în `Unirest_Util` + aparat + ce scrie `TVA_C`, nu doar aici.
+// NU lua cota din `Unirest_Util.vat_percent_by_letter`: pare sursa oficială, dar
+// întoarce 10 - valoarea care contrazice și aparatul, și contabilitatea. S-a
+// încercat (vezi `TVA_PRC` mai jos) și s-a retras exact din motivul ăsta.
 //
 // Valorile dinainte (B=12%, C=8%) veneau din UNARetail - care e RETAIL, nu
 // restaurant. Arătau plauzibil și au trecut nedetectate până la un bon real.
@@ -117,7 +110,7 @@ bool taxForCode(const QString &code, QString *letter, int *prcX100, double *rate
     } else if (c == QLatin1String("B")) {
         *letter = QStringLiteral("B"); *prcX100 = 800;  *rate = 0.08;
     } else if (c == QLatin1String("C")) {
-        *letter = QStringLiteral("C"); *prcX100 = 1000; *rate = 0.10;
+        *letter = QStringLiteral("C"); *prcX100 = 600;  *rate = 0.06;
     } else if (c == QLatin1String("A")) {
         *letter = QStringLiteral("A"); *prcX100 = 2000; *rate = 0.20;
     } else {
@@ -408,19 +401,22 @@ QJsonObject SmartOneClient::buildSalePayload(int payId,
         const bool knownLetter =
             taxForCode(line.value(QStringLiteral("CODTVA")).toString(), &letter, &prcX100, &rate);
 
-        // COTA VINE DIN ORACLE, nu din tabelul de mai sus. `get_order_lines`
-        // întoarce `TVA_PRC` din `Unirest_Util.vat_percent_by_letter` - exact
-        // funcția pe care o folosește pachetul `BON` când tipărește bonul
-        // UAMenu. Așa nu mai există nicio constantă fiscală în aplicație: dacă
-        // se schimbă cota, o luăm de la sine, fără rebuild.
+        // Dacă backend-ul trimite cota (`TVA_PRC`), o preferăm celei din cod -
+        // o constantă fiscală compilată în APK e exact ce n-ar trebui să existe.
         //
-        // `taxForCode` rămâne doar REZERVĂ, pentru un backend mai vechi care nu
-        // trimite încă coloana. Cât timp e nevoie de ea, valorile ei trebuie
-        // ținute la zi - de-aceea comentariul lung de acolo rămâne relevant.
+        // ⚠️ AZI COLOANA NU E TRIMISĂ, INTENȚIONAT. Fusese scrisă în
+        // `get_order_lines` ca `Unirest_Util.vat_percent_by_letter(codtva)` și
+        // RETRASĂ înainte de compilare: funcția aia întoarce 10 pentru C, adică
+        // valoarea care contrazice și aparatul (tipărește 6), și contabilitatea
+        // UAMenu (`TVA_C` = 6). O valoare greșită luată din bază e mai rea decât
+        // una corectă din cod, pentru că arată autoritară.
+        //
+        // Codul rămâne aici pentru ziua în care există o sursă în care se poate
+        // avea încredere. **Înainte s-o reactivezi, verifică ce întoarce.**
         //
         // Zero e o cotă VALIDĂ (litera '0'), deci se verifică steagul de
-        // conversie, nu valoarea: un `dbPrc == 0` din test ar fi aruncat tăcut
-        // exact singurul caz în care coloana chiar spune "fără TVA".
+        // conversie, nu valoarea: un `dbPrc == 0` aruncat tăcut ar fi exact
+        // singurul caz în care coloana chiar spune "fără TVA".
         bool prcOk = false;
         const double dbPrc = line.value(QStringLiteral("TVA_PRC")).toDouble(&prcOk);
         if (knownLetter && prcOk && dbPrc >= 0.0 && dbPrc <= 100.0) {
@@ -430,6 +426,20 @@ QJsonObject SmartOneClient::buildSalePayload(int payId,
 
         const int amountBani = toBani(lineTotal);
         const int taxBani = taxFromInclusive(amountBani, rate);
+
+        // Ce declarăm noi pentru TVA, vizibil în logcat. Nu e depanare
+        // temporară: fără el nu se poate deosebi "aparatul tipărește ce-i
+        // trimitem" de "aparatul are tabelul lui" decât ghicind - iar
+        // presupunerea greșită aici înseamnă bonuri cu altă cotă decât comanda.
+        // Cu linia asta, un singur bon real răspunde definitiv: compari ce scrie
+        // aici cu ce e tipărit pe hârtie.
+        qInfo("[SmartOne][TVA] cod=%s litera=%s cota=%d.%02d%% sursa=%s "
+              "suma=%d bani tva=%d bani",
+              qPrintable(line.value(QStringLiteral("CODTVA")).toString()),
+              qPrintable(letter),
+              prcX100 / 100, prcX100 % 100,
+              (knownLetter && prcOk) ? "ORACLE" : "rezerva-din-cod",
+              amountBani, taxBani);
 
         QJsonObject tax;
         tax[QStringLiteral("taxName")] = QStringLiteral("TVA ") + letter;

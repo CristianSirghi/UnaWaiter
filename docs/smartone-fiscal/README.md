@@ -143,49 +143,53 @@ moștenește de la ultima comandă închisă din aceeași bază, în loc să-l h
 `VMDB_COMENZD.CODTVA` folosește exact literele așteptate de SmartOne, deci nu e
 nevoie de traducere.
 
-**Cota NU e hardcodată în aplicație — vine din Oracle.** `get_order_lines`
-întoarce coloana `TVA_PRC`, calculată cu `Unirest_Util.vat_percent_by_letter`,
-adică exact funcția folosită de pachetul `BON` când tipărește bonul UAMenu. Dacă
-se schimbă cota, o luăm de la sine, fără rebuild.
+Cotele trimise (`taxForCode`): **A=20, B=8, C=6**. Prețurile au TVA-ul **INCLUS**,
+deci taxa e `sumă × r/(1+r)`, nu `sumă × r` — aici nu există niciun dezacord,
+aceeași formulă e peste tot.
 
-Tabelul din `taxForCode` (A=20, B=8, C=10) rămâne doar **rezervă**, pentru un
-backend mai vechi care nu trimite încă coloana — deci trebuie ținut la zi cât
-timp e nevoie de el. Se folosește doar când litera e una cunoscută: pe o literă
-nerecunoscută nu se lipește cota din Oracle peste ea, ca să nu iasă perechi
-inventate gen „TVA A" cu 0%.
+### ⚠️ Ce tipărește bonul NU depinde de valorile astea
 
-**Prețurile au TVA-ul INCLUS**: taxa e `sumă × r/(1+r)`, nu `sumă × r`. Aici nu
-există niciun dezacord — aceeași formulă e peste tot, inclusiv în aparat.
+Aparatul fiscal SmartOne are **propriul tabel de taxe** și îl folosește pe al
+lui. Dovedit, nu dedus: cu aplicația trimițând `C = 10.00%` — vizibil în log —
+bonul a ieșit tipărit cu **6%**.
 
-### ⚠️ Baza se contrazice pe ea însăși la litera C
+```
+[SmartOne][TVA] cod=C litera=C cota=10.00% sursa=rezerva-din-cod suma=4800 bani tva=436 bani
+```
+```bash
+adb logcat -s UnaWaiter:* | grep "SmartOne..TVA"
+```
 
-Verificat pe producție 2026-08-03:
+Linia asta rămâne permanent în `buildSalePayload`. Fără ea, singurul mod de a ști
+ce declarăm pe un bon fiscal e să ghicim — iar ghicitul a costat trei schimbări
+de cotă într-o zi.
 
-| unde | C | dovadă |
-|---|---|---|
-| antet comandă `TVA_C` | **6%** | 8426 din 8426 comenzi |
-| linie `SUMTVA` (`sum_tva`) | **10%** | 17191 din 28205 linii |
-| bonul tipărit de UAMenu | **10%** | `BON` → `vat_percent_by_letter` |
-| aparatul fiscal SmartOne | **10%** | 5.09 pe 56 lei = `56×0.1/1.1` |
+Valorile de mai sus sunt deci ce **declarăm**, nu ce se tipărește. Tocmai
+de-aceea trebuie să fie corecte: `C = 6%` e ce tipărește aparatul **și** ce
+înregistrează UAMenu în Oracle (`TVA_C` = 6% din brut pe 8426 din 8426 comenzi
+achitate de producție, și pe comenzile încă deschise).
 
-Am ales **10%**, pentru că `taxForCode` alimentează un bon fiscal, iar bonul
-nostru trebuie să declare ce declară bonul de la casă — altfel apar diferențe în
-rapoartele X/Z (punctul 11 al Danielei).
+### ⚠️ Contradicția clientului: două aparate, două cote
 
-Cei 6% vin din `VMDB_COMENZ_CALC_TVA`, care **nu e sursa**: e un view de
-*reconciliere* (are coloana `delta_tva_c`) și n-a fost modificat din 2016, în
-timp ce `Unirest_Util`/`BON` au fost atinse în aprilie 2026. Nu există niciun
-parametru de configurare pentru B/C — doar `VATValueA`, care nici măcar nu e
-setat în contextul `envunirest`.
+Imprimanta fiscală **Tremol** de la casă tipărește pentru aceeași literă **10%**,
+pentru că UAMenu îi trimite `Unirest_Util.vat_percent_by_letter('C') = 10` prin
+pachetul `BON`. Adică **același restaurant emite bonuri cu 6% (din aplicație) și
+cu 10% (de la casă), pe același produs** — iar UAMenu contabilizează la 6% dar
+tipărește 10%.
 
-**Aparatul are propriul tabel și îl folosește pe al lui**: codul vechi trimitea
-C=8%, aparatul a tipărit 10%. Deci `taxAmount`-ul nostru e ignorat, iar tabelul
-terminalului e deja aliniat cu UAMenu. Nu e nimic de reconfigurat acolo.
+Cele două aparate sunt programate diferit. **De ridicat la Sandu/Daniela**:
+rapoartele X/Z ale celor două nu au cum să se reconcilieze. Întrebarea concretă:
+*„de ce bonul de la casă scrie 10% dacă aceeași comandă e înregistrată în bază cu
+6%?"*
 
-> **Rămâne de lămurit cu clientul (Sandu/Daniela): care e cota LEGALĂ, 6% sau
-> 10%?** Dacă e 6%, UAMenu tipărește greșit de mult timp. Dacă e 10%, `TVA_C` din
-> antet e greșit pe toate comenzile. Oricum ar fi, e o problemă a lor și se
-> repară în `Unirest_Util` + aparat + ce scrie `TVA_C` — nu doar la noi.
+> **Nu lua cota din `Unirest_Util.vat_percent_by_letter`.** Pare sursa oficială,
+> dar întoarce 10 — valoarea contrazisă și de aparat, și de contabilitate. S-a
+> încercat pe 2026-08-03 (coloana `TVA_PRC` în `get_order_lines`) și s-a retras
+> înainte de compilare. O valoare greșită luată din bază e mai rea decât una
+> corectă din cod, pentru că arată autoritară.
+>
+> C++ știe deja să citească `TVA_PRC` dacă apare — deci când există o sursă de
+> încredere, se adaugă doar coloana și merge de la sine.
 
 `CODTVA` ajunge pe linie **fără ca `add_order_line` să-l scrie** — îl completează
 trigger-ul `INSTEAD OF` al view-ului, copiindu-l din `vms_univers`. Verificat pe
