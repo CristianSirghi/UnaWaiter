@@ -330,12 +330,12 @@
     </message>
     <message>
         <location filename="../qml/pages/OrderPage.qml" line="+38"/>
-        <location line="+1860"/>
+        <location line="+1938"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="-673"/>
+        <location line="-707"/>
         <location line="+536"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
@@ -346,19 +346,19 @@
         <translation>Table %1 was just taken by %2 - pick another table.</translation>
     </message>
     <message>
-        <location line="-715"/>
-        <location line="+1859"/>
+        <location line="-759"/>
+        <location line="+1937"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
     <message>
-        <location line="-1677"/>
+        <location line="-1740"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>This order has nothing to pay for.</translation>
     </message>
     <message>
-        <location line="+270"/>
+        <location line="+299"/>
         <location line="+485"/>
         <source>Product %1</source>
         <translation>Product %1</translation>
@@ -458,24 +458,29 @@
     </message>
     <message>
         <location line="+1"/>
-        <location line="+15"/>
+        <location line="+21"/>
         <source>Retry</source>
         <translation>Retry</translation>
     </message>
     <message>
-        <location line="-3"/>
+        <location line="-9"/>
         <source>Couldn&apos;t load the existing order:
 %1</source>
         <translation>Couldn&apos;t load the existing order:
 %1</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+7"/>
+        <source>Preparing the payment…</source>
+        <translation>Preparing the payment…</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Loading order…</source>
         <translation>Loading order…</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+35"/>
         <source>Delete order?</source>
         <translation>Delete order?</translation>
     </message>
@@ -598,7 +603,7 @@
         <translation>Move</translation>
     </message>
     <message>
-        <location line="-171"/>
+        <location line="-205"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Send order · %1 · %2 MDL</translation>
     </message>
@@ -735,12 +740,12 @@
     <name>PaymentController</name>
     <message>
         <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
-        <location line="+446"/>
+        <location line="+469"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>A payment is already in progress on this device. Wait for it to finish, then try again.</translation>
     </message>
     <message>
-        <location line="-439"/>
+        <location line="-462"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>This order cannot be paid: it is missing from the system or has no lines.</translation>
     </message>
@@ -750,17 +755,17 @@
         <translation>This terminal has no fiscal memory - the payment can only be taken on a SmartOne terminal.</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+84"/>
         <source>The built-in card terminal is not available on this device.</source>
         <translation>The built-in card terminal is not available on this device.</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+88"/>
         <source>The data service is not available.</source>
         <translation>The data service is not available.</translation>
     </message>
     <message>
-        <location line="+64"/>
+        <location line="+65"/>
         <location line="+17"/>
         <source>The receipt was issued, but the order could not be closed: %1
 It will be retried automatically when the app restarts.</source>
@@ -768,7 +773,7 @@ It will be retried automatically when the app restarts.</source>
 It will be retried automatically when the app restarts.</translation>
     </message>
     <message>
-        <location line="+77"/>
+        <location line="+85"/>
         <source>The card payment was declined.</source>
         <translation>The card payment was declined.</translation>
     </message>
@@ -796,6 +801,85 @@ It will be retried automatically when the app restarts.</translation>
         <location line="+9"/>
         <source>There is no receipt to reprint.</source>
         <translation>There is no receipt to reprint.</translation>
+    </message>
+</context>
+<context>
+    <name>PaymentProgressOverlay</name>
+    <message>
+        <location filename="../qml/components/controls/PaymentProgressOverlay.qml" line="+69"/>
+        <source>Confirm on the card terminal</source>
+        <translation>Confirm on the card terminal</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Issuing the fiscal receipt</source>
+        <translation>Issuing the fiscal receipt</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Printing the receipt</source>
+        <translation>Printing the receipt</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Closing the order</source>
+        <translation>Closing the order</translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <location line="+212"/>
+        <source>Printing the receipt…</source>
+        <translation>Printing the receipt…</translation>
+    </message>
+    <message>
+        <location line="-210"/>
+        <source>Waiting for the card…</source>
+        <translation>Waiting for the card…</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Taking the payment…</source>
+        <translation>Taking the payment…</translation>
+    </message>
+    <message>
+        <location line="+94"/>
+        <source>Don&apos;t close the app.</source>
+        <translation>Don&apos;t close the app.</translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Paid · %1 MDL</source>
+        <translation>Paid · %1 MDL</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Fiscal receipt no. %1</source>
+        <translation>Fiscal receipt no. %1</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>CHANGE TO GIVE</source>
+        <translation>CHANGE TO GIVE</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>%1 MDL</source>
+        <translation>%1 MDL</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Receipt printed.</source>
+        <translation>Receipt printed.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Change given</source>
+        <translation>Change given</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Print again</source>
+        <translation>Print again</translation>
     </message>
 </context>
 <context>

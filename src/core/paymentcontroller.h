@@ -48,12 +48,38 @@ class PaymentController : public QObject
     // că nu depind de el.
     Q_PROPERTY(bool posAvailable READ posAvailable NOTIFY posAvailableChanged)
 
+    // --- Progresul plății curente, pentru ecranul de așteptare ---
+    //
+    // Patru pași, expuși ca stări separate în loc de o singură "fază", pentru că
+    // ULTIMII DOI SE PETREC ÎN PARALEL: după ce documentul e comis, tipărirea
+    // pleacă spre imprimantă iar închiderea comenzii pleacă spre Oracle, fără
+    // să se aștepte una pe alta (vezi onOrderPaid). O valoare unică de fază ar
+    // fi trebuit să mintă despre unul din ele.
+    //
+    // Sunt proprietăți ale CONTROLLER-ului, deci descriu plata în curs pe acest
+    // dispozitiv; nu se pot suprapune două (preparePending refuză când busy(),
+    // recoverIfPending la fel).
+    Q_PROPERTY(bool payingWithCardPos READ payingWithCardPos NOTIFY progressChanged)
+    Q_PROPERTY(bool cardConfirmed READ cardConfirmed NOTIFY progressChanged)
+    Q_PROPERTY(bool receiptIssued READ receiptIssued NOTIFY progressChanged)
+    Q_PROPERTY(bool receiptPrinted READ receiptPrinted NOTIFY progressChanged)
+    Q_PROPERTY(bool orderClosed READ orderClosed NOTIFY progressChanged)
+    // Numărul documentului fiscal al plății curente - gol până la comitere.
+    Q_PROPERTY(QString documentNumber READ documentNumber NOTIFY progressChanged)
+
 public:
     explicit PaymentController(DataService *dataService, QObject *parent = nullptr);
 
     bool busy() const { return m_state != Idle; }
     bool fiscalAvailable() const { return m_fiscalStatus != ServiceUnavailable; }
     bool posAvailable() const { return m_posStatus != ServiceUnavailable; }
+
+    bool payingWithCardPos() const { return m_usesCardPos; }
+    bool cardConfirmed() const { return m_cardCharged; }
+    bool receiptIssued() const { return m_pending.isCommitted(); }
+    bool receiptPrinted() const { return m_printed; }
+    bool orderClosed() const { return m_pending.oraclePaid; }
+    QString documentNumber() const { return m_pending.documentNumber; }
     int nextPayId() const;
     void setNextPayId(int value);
 
@@ -112,6 +138,10 @@ signals:
     void nextPayIdChanged();
     void fiscalAvailableChanged();
     void posAvailableChanged();
+    // Un pas al plății curente și-a schimbat starea. Un singur semnal pentru
+    // toate cele șase proprietăți de progres: se schimbă în grup, iar ecranul
+    // le citește oricum pe toate.
+    void progressChanged();
     // Comanda e închisă în Oracle: plata s-a încheiat cu succes.
     void paymentSucceeded(int nrComand);
     // Eșecul unei plăți CERUTE ACUM de chelner. Poartă numărul comenzii pentru
@@ -204,6 +234,15 @@ private:
     // fișierului - bani luați de bancă, fără bon, fără urmă și cu risc de dublă
     // debitare dacă chelnerul relua plata.
     bool m_cardCharged = false;
+    // Plata curentă trece prin POS-ul integrat, deci ecranul de așteptare are un
+    // pas în plus ("confirmă pe terminal"). Ținut separat de `m_pending.phase`,
+    // care se mută pe "fiscal" imediat ce cardul a fost confirmat - pasul
+    // trebuie să rămână vizibil, bifat, până la capătul plății.
+    bool m_usesCardPos = false;
+    // Bonul plății curente a fost tipărit. Nu se persistă: fișierul de
+    // recuperare se șterge oricum exact în momentul în care asta devine
+    // adevărat, deci n-ar avea cine să-l citească înapoi.
+    bool m_printed = false;
     // Retipărim un document care NU e al plății din `m_pending` (dialogul a
     // rămas deschis peste o plată ulterioară). Atunci reușita tipăririi nu are
     // voie să șteargă fișierul de recuperare - el aparține altei plăți.

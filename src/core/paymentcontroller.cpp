@@ -206,6 +206,8 @@ bool PaymentController::preparePending(int nrComand,
     m_oficiant = oficiant;
     m_recovering = false;
     m_cardCharged = false;
+    m_usesCardPos = false;
+    m_printed = false;
     m_reprintOnly = false;
     m_cardCheckRetries = 0;
     m_oracleRetries = 0;
@@ -229,6 +231,10 @@ bool PaymentController::preparePending(int nrComand,
     m_pending.oficiant = oficiant;
     m_pending.employeeName = employeeName;
     m_pending.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    // Pașii pornesc toți nebifați. Fără asta, ecranul de așteptare s-ar deschide
+    // cu bifele plății PRECEDENTE (m_pending trăiește până la plata următoare).
+    emit progressChanged();
     return true;
 }
 
@@ -287,6 +293,8 @@ void PaymentController::payCardPos(int nrComand,
     // Android omoară procesul cât timp e în față app-ul băncii, la repornire
     // trebuie să putem emite bonul fără să mai știm nimic din sesiunea veche.
     m_pending.phase = QStringLiteral("card");
+    m_usesCardPos = true;
+    emit progressChanged();
     PendingFiscalStore::save(m_pending);
     setState(AwaitingPos);
     m_client->startCardPayment(m_pending.payId, total);
@@ -325,6 +333,7 @@ void PaymentController::beginFiscal(bool printOnConflict)
 void PaymentController::onDocumentCommitted(const QString &documentNumber)
 {
     m_pending.documentNumber = documentNumber;
+    emit progressChanged();
     PendingFiscalStore::save(m_pending);
     // Numărul e consumat abia acum, când chiar există un document fiscal -
     // dacă am avansa la trimitere, o vânzare eșuată ar lăsa o gaură în serie.
@@ -339,6 +348,11 @@ void PaymentController::onDocumentAlreadyExists(const QString &documentNumber)
     // Reluare: totul fusese dus la capăt înainte de cădere. Nu retipărim (ar
     // ieși un al doilea bon pe hârtie) și nu deranjăm chelnerul cu dialoguri.
     m_pending.documentNumber = documentNumber;
+    // Documentul exista deja, deci și tipărirea lui s-a făcut la încercarea
+    // dinainte - altfel n-am fi ajuns pe ramura asta. Pentru ecranul de
+    // așteptare pasul e încheiat, nu în curs.
+    m_printed = true;
+    emit progressChanged();
     PendingFiscalStore::save(m_pending);
     advancePayId(m_pending.payId);
 
@@ -393,6 +407,7 @@ void PaymentController::onOrderPaid(int nrComand, int payType)
 
     m_oracleRetries = 0;
     m_pending.oraclePaid = true;
+    emit progressChanged();
     PendingFiscalStore::save(m_pending);
 
     emit paymentSucceeded(m_pending.nrComand);
@@ -442,11 +457,18 @@ void PaymentController::onRequestFailed(const QString &command, const QString &e
 
 void PaymentController::onPrintSuccessful()
 {
+    // Aceeași excepție ca la ștergerea fișierului, din același motiv: hârtia
+    // care tocmai a ieșit e a ALTEI plăți, deci nu bifează pasul plății curente.
+    const bool documentOfAnotherPayment = m_reprintOnly;
+
     // SINGURUL loc care șterge fișierul de recuperare, și numai după
     // confirmarea pozitivă a tipăririi. Excepție: o retipărire cerută pentru
     // documentul altei plăți - acolo fișierul de pe disc nu e al ei.
-    if (!m_reprintOnly)
+    if (!documentOfAnotherPayment) {
         PendingFiscalStore::remove();
+        m_printed = true;
+        emit progressChanged();
+    }
 
     m_reprintOnly = false;
     setState(Idle);
@@ -496,6 +518,7 @@ void PaymentController::onCardConfirmed(const QJsonObject &data)
     // lase urmă pe disc, oricât de sigur am fi că nimic nu s-a trimis mai
     // departe - vezi failWithoutPending.
     m_cardCharged = true;
+    emit progressChanged();
     m_cardCheckRetries = 0;
     beginFiscal(!m_recovering);
 }
@@ -695,6 +718,15 @@ void PaymentController::recoverIfPending()
     // Sesiunea veche a dispărut odată cu procesul; luăm chelnerul din fișier.
     m_oficiant = saved.oficiant;
     m_employeeName = saved.employeeName;
+    // Progresul reluat pornește de la ce arată fișierul: documentul și plata în
+    // Oracle vin din `m_pending`, restul nu s-au întâmplat (încă) în procesul
+    // ăsta. Nicio pagină nu ascultă - recuperarea e de fundal - dar proprietățile
+    // trebuie să rămână adevărate, ca următoarea plată să nu pornească de la
+    // bifele acesteia.
+    m_printed = false;
+    m_cardCharged = false;
+    m_usesCardPos = saved.isCardPhase();
+    emit progressChanged();
 
     // Bonul e emis, dar comanda n-a apucat să fie închisă: reluăm DOAR partea
     // Oracle. A retrimite /sale ar fi inutil (și ar da oricum 409).

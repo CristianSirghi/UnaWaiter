@@ -64,8 +64,11 @@ pg_mobile_web_waiter.pay_order   [Oracle]
    │  STATE=3, PAY_TYPE, PAY / SUMA_TERMINAL, CEK=1, NRDOC, DATA1
    │  + rând în uw_fiscal_receipts (nr_comand ↔ document fiscal)
    ▼
-paymentSucceeded → ecranul se închide, masa se eliberează
+paymentSucceeded → confirmarea, apoi ecranul se închide și masa se eliberează
 ```
+
+Din momentul apăsării pe „Achită" până la confirmare, tot ecranul e acoperit de
+`PaymentProgressOverlay` — vezi [Ce vede chelnerul](#ce-vede-chelnerul).
 
 ### De ce fiscal ÎNTÂI, Oracle DUPĂ
 
@@ -73,6 +76,48 @@ Bonul e artefactul legal și e protejat de duplicare (SmartOne răspunde `409` l
 un document deja existent). Închiderea comenzii e contabilitate internă, care se
 poate relua în siguranță. Invers, comanda ar dispărea din listă ca „achitată"
 fără ca clientul să aibă bon.
+
+---
+
+## Ce vede chelnerul
+
+Lanțul de mai sus durează realist 4–8 secunde la numerar (și mult mai mult la
+card, unde se așteaptă un om). Înainte, singurul semn era textul butonului de
+jos — „Se achită…" — pentru patru operațiuni diferite: terminal de card,
+memorie fiscală, imprimantă, Oracle. Când se blochează, **contează foarte mult
+care din ele**, pentru că fiecare cere altceva de la chelner.
+
+`PaymentProgressOverlay` acoperă tot ecranul cât ține plata și arată pașii, cu
+o imprimantă desenată în centru care scoate hârtie **doar în timpul tipăririi
+reale**:
+
+| Pas | Bifat de |
+|---|---|
+| Confirmă pe terminalul de card *(doar la POS integrat)* | `cardConfirmed` |
+| Se emite bonul fiscal | `receiptIssued` (document comis) |
+| Se tipărește bonul | `receiptPrinted` |
+| Se închide comanda | `orderClosed` (`pay_order` a răspuns) |
+
+**Ultimii doi pași nu sunt o secvență.** Amândoi pornesc când documentul e comis
+și se termină independent, pe drumuri diferite (imprimanta locală vs. Oracle
+prin internet) — de-aceea `PaymentController` expune o stare per pas în loc de o
+singură „fază curentă", care ar fi trebuit să mintă despre unul din ei.
+
+La final, o confirmare cu numărul bonului și — la numerar cu rest — **restul de
+dat, în cel mai vizibil bloc de pe ecran**. Până acum restul apărea doar în
+dialogul de dinaintea plății, adică fix înainte să fie nevoie de el. Confirmarea
+se închide singură după ~2,8s; **dacă e rest de dat, așteaptă apăsarea**, ca suma
+să fie citită.
+
+Overlay-ul e un `Popup` pe `Overlay.overlay`, nu un strat în pagină, deci
+acoperă și antetul. Împreună cu opritorul din `requestBack()`, asta închide o
+gaură reală: back-ul în timpul plății scotea pagina de sub `paymentSucceeded`
+(ascultat DOAR în OrderPage), iar `OrdersStore.removeOrder` nu se mai chema —
+masa rămânea ocupată local deși comanda era închisă în Oracle.
+
+Desenul e din `Rectangle`-uri simple, fără `Canvas` sau `QtQuick.Shapes`: pe
+build-ul ăsta (Qt 5.15.2, Android) acelea s-au dovedit nesigure, iar o animație
+de așteptare e ultimul loc unde vrei un ecran negru.
 
 ---
 
@@ -165,6 +210,8 @@ corespundă comenzii.
 | `src/core/paymentcontroller.{h,cpp}` | mașina de stări, expusă în QML ca `paymentController` |
 | `src/core/pendingfiscalstore.{h,cpp}` | recuperarea pe disc |
 | `qml/components/controls/PaymentSheet.qml` | alegerea metodei + suma primită/rest |
+| `qml/components/controls/PaymentProgressOverlay.qml` | pașii plății + confirmarea cu restul |
+| `qml/components/controls/PrinterAnimation.qml` | imprimanta desenată (hârtie + zimți) |
 | `qml/components/controls/OrderActionSheet.qml` | meniul hamburger (Achită / Șterge) |
 | `sql/uw_fiscal_receipts.sql` *(la Kristian, în `Desktop\foishor_test\sql\`)* | tabelul de bonuri |
 

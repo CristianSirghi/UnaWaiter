@@ -330,12 +330,12 @@
     </message>
     <message>
         <location filename="../qml/pages/OrderPage.qml" line="+38"/>
-        <location line="+1860"/>
+        <location line="+1938"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
     </message>
     <message>
-        <location line="-673"/>
+        <location line="-707"/>
         <location line="+536"/>
         <source>%1 MDL</source>
         <translation>%1 MDL</translation>
@@ -346,19 +346,19 @@
         <translation>Стол %1 только что заняла(-л) %2 - выберите другой стол.</translation>
     </message>
     <message>
-        <location line="-715"/>
-        <location line="+1859"/>
+        <location line="-759"/>
+        <location line="+1937"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
     <message>
-        <location line="-1677"/>
+        <location line="-1740"/>
         <location line="+10"/>
         <source>This order has nothing to pay for.</source>
         <translation>В заказе нечего оплачивать.</translation>
     </message>
     <message>
-        <location line="+270"/>
+        <location line="+299"/>
         <location line="+485"/>
         <source>Product %1</source>
         <translation>Товар %1</translation>
@@ -458,24 +458,29 @@
     </message>
     <message>
         <location line="+1"/>
-        <location line="+15"/>
+        <location line="+21"/>
         <source>Retry</source>
         <translation>Повторить</translation>
     </message>
     <message>
-        <location line="-3"/>
+        <location line="-9"/>
         <source>Couldn&apos;t load the existing order:
 %1</source>
         <translation>Не удалось загрузить существующий заказ:
 %1</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+7"/>
+        <source>Preparing the payment…</source>
+        <translation>Подготовка оплаты…</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Loading order…</source>
         <translation>Загрузка заказа…</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+35"/>
         <source>Delete order?</source>
         <translation>Удалить заказ?</translation>
     </message>
@@ -598,7 +603,7 @@
         <translation>Перенести</translation>
     </message>
     <message>
-        <location line="-171"/>
+        <location line="-205"/>
         <source>Send order · %1 · %2 MDL</source>
         <translation>Отправить заказ · %1 · %2 MDL</translation>
     </message>
@@ -735,12 +740,12 @@
     <name>PaymentController</name>
     <message>
         <location filename="../src/core/paymentcontroller.cpp" line="+183"/>
-        <location line="+446"/>
+        <location line="+469"/>
         <source>A payment is already in progress on this device. Wait for it to finish, then try again.</source>
         <translation>На этом устройстве уже выполняется оплата. Дождитесь её завершения и повторите попытку.</translation>
     </message>
     <message>
-        <location line="-439"/>
+        <location line="-462"/>
         <source>This order cannot be paid: it is missing from the system or has no lines.</source>
         <translation>Этот заказ нельзя оплатить: он отсутствует в системе или не содержит позиций.</translation>
     </message>
@@ -750,17 +755,17 @@
         <translation>У этого терминала нет фискальной памяти - оплату можно принять только на терминале SmartOne.</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+84"/>
         <source>The built-in card terminal is not available on this device.</source>
         <translation>Встроенный карточный терминал недоступен на этом устройстве.</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+88"/>
         <source>The data service is not available.</source>
         <translation>Сервис данных недоступен.</translation>
     </message>
     <message>
-        <location line="+64"/>
+        <location line="+65"/>
         <location line="+17"/>
         <source>The receipt was issued, but the order could not be closed: %1
 It will be retried automatically when the app restarts.</source>
@@ -768,7 +773,7 @@ It will be retried automatically when the app restarts.</source>
 Попытка повторится автоматически при перезапуске приложения.</translation>
     </message>
     <message>
-        <location line="+77"/>
+        <location line="+85"/>
         <source>The card payment was declined.</source>
         <translation>Оплата картой отклонена.</translation>
     </message>
@@ -796,6 +801,85 @@ It will be retried automatically when the app restarts.</source>
         <location line="+9"/>
         <source>There is no receipt to reprint.</source>
         <translation>Нет чека для повторной печати.</translation>
+    </message>
+</context>
+<context>
+    <name>PaymentProgressOverlay</name>
+    <message>
+        <location filename="../qml/components/controls/PaymentProgressOverlay.qml" line="+69"/>
+        <source>Confirm on the card terminal</source>
+        <translation>Подтвердите на терминале</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Issuing the fiscal receipt</source>
+        <translation>Выдаётся фискальный чек</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Printing the receipt</source>
+        <translation>Печать чека</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Closing the order</source>
+        <translation>Закрытие заказа</translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <location line="+212"/>
+        <source>Printing the receipt…</source>
+        <translation>Печатается чек…</translation>
+    </message>
+    <message>
+        <location line="-210"/>
+        <source>Waiting for the card…</source>
+        <translation>Ожидание карты…</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Taking the payment…</source>
+        <translation>Идёт оплата…</translation>
+    </message>
+    <message>
+        <location line="+94"/>
+        <source>Don&apos;t close the app.</source>
+        <translation>Не закрывайте приложение.</translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Paid · %1 MDL</source>
+        <translation>Оплачено · %1 MDL</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Fiscal receipt no. %1</source>
+        <translation>Фискальный чек № %1</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>CHANGE TO GIVE</source>
+        <translation>СДАЧА</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>%1 MDL</source>
+        <translation>%1 MDL</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Receipt printed.</source>
+        <translation>Чек напечатан.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Change given</source>
+        <translation>Сдача выдана</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Print again</source>
+        <translation>Напечатать снова</translation>
     </message>
 </context>
 <context>

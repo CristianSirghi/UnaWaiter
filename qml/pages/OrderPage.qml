@@ -164,6 +164,17 @@ Page {
     // Oracle a confirmat închiderea (pay_order). Tipărirea e un pas distinct,
     // care poate veni înainte sau după - vezi finishPaymentIfDone().
     property bool orderClosedByPayment: false
+    // Plata s-a încheiat și ecranul arată confirmarea. Pagina NU se mai închide
+    // singură în acest moment: chelnerul trebuie să apuce să vadă numărul
+    // bonului și, mai ales, restul de dat.
+    property bool paymentDone: false
+    // Instantanee luate la momentul succesului, pentru cartonașul de confirmare.
+    // Numărul documentului e copiat din controller, nu legat de el: cât stă
+    // confirmarea pe ecran, o recuperare de fundal i-ar putea muta proprietățile
+    // pe altă comandă.
+    property string paidDocumentNumber: ""
+    property real paidTotal: 0
+    property real paidChangeDue: 0
     // Așteptăm liniile cerute special pentru bon (nu cele de la deschiderea
     // ecranului) - vezi startPayment().
     property bool awaitingPayLines: false
@@ -189,6 +200,10 @@ Page {
 
     function showPayError(message) {
         root.paying = false
+        // Ecranul de progres pleacă odată cu `paying`; steagul trebuie coborât
+        // cu el, altfel o a doua încercare ar porni direct cu confirmarea pe
+        // ecran, peste pașii care abia încep.
+        root.paymentDone = false
         root.payError = message
         payErrorDialog.open()
     }
@@ -233,6 +248,12 @@ Page {
 
         root.paying = true
         root.orderClosedByPayment = false
+        root.paymentDone = false
+        root.paidDocumentNumber = ""
+        root.paidTotal = total
+        // Aceeași regulă ca în PaymentSheet și în preparePending: rest numai la
+        // numerar și numai dacă s-a tastat o sumă primită mai mare decât totalul.
+        root.paidChangeDue = (method === "cash" && received > total) ? (received - total) : 0
 
         var oficiant = String(AppSettings.waiterOficiant)
         if (method === "cardPos")
@@ -243,13 +264,28 @@ Page {
             paymentController.payCash(root.sentNrComand, lines, total, received, AppSettings.waiterName, oficiant)
     }
 
-    // Ecranul se închide DOAR după ce comanda e chiar închisă în Oracle. Bonul
+    // Confirmarea apare DOAR după ce comanda e chiar închisă în Oracle. Bonul
     // poate fi deja tipărit, dar cât timp comanda e deschisă masa rămâne
-    // ocupată - a ne întoarce la listă spunând "gata" ar fi o minciună.
+    // ocupată - a spune "gata" ar fi o minciună.
+    //
+    // Tipărirea NU e așteptată aici, la fel ca înainte: ea se raportează pe
+    // cartonaș ca stare live, iar un eșec de după închiderea ecranului ajunge la
+    // dialogul de retipărire din main.qml. A o aștepta ar însemna un ecran care
+    // rămâne blocat dacă imprimanta tace.
     function finishPaymentIfDone() {
-        if (!root.orderClosedByPayment)
+        if (!root.orderClosedByPayment || root.paymentDone)
+            return
+        root.paymentDone = true
+        root.paidDocumentNumber = paymentController.documentNumber
+    }
+
+    // Chelnerul a terminat cu confirmarea (a apăsat, sau au trecut cele câteva
+    // secunde). Abia acum masa se eliberează local și ne întoarcem la listă.
+    function closeAfterPayment() {
+        if (!root.paying)
             return
         root.paying = false
+        root.paymentDone = false
         OrdersStore.removeOrder(root.originalZone, root.originalTableNumber)
         root.done()
     }
@@ -328,6 +364,14 @@ Page {
     // lucru se pierdea tăcut - chelnerul adăuga 10 produse, atingea back din
     // reflex și rămânea cu ecranul gol, fără nicio întrebare.
     function requestBack() {
+        // În timpul achitării nu se iese. Plata merge mai departe în C++, dar
+        // `paymentSucceeded` e ascultat DOAR aici: cu pagina scoasă de sub ea,
+        // `OrdersStore.removeOrder` nu se mai chema niciodată și masa rămânea
+        // ocupată local, deși comanda era închisă în Oracle. Ecranul de progres
+        // acoperă butonul din antet, dar back-ul fizic Android ajunge tot aici.
+        if (root.paying)
+            return
+
         // `visible`, nu `opened`: `opened` e încă fals cât rulează animația de
         // deschidere, deci un back rapid de două ori ar redeschide dialogul.
         if (discardDialog.visible)
@@ -1881,9 +1925,43 @@ Page {
         errorText: (root.menuReady && root.linesLoadError !== "")
             ? qsTr("Couldn't load the existing order:\n%1").arg(root.linesLoadError)
             : ""
-        loadingText: qsTr("Loading order…")
+        // Aceeași cerere (get_order_lines), două motive diferite: la deschiderea
+        // ecranului se încarcă o comandă, iar înainte de achitare se re-citește
+        // ce anume se plătește. Chelnerul tocmai a apăsat "Achită" - un
+        // "Se încarcă comanda…" acolo părea că i s-a ignorat apăsarea.
+        loadingText: root.awaitingPayLines
+            ? qsTr("Preparing the payment…")
+            : qsTr("Loading order…")
         retryText: qsTr("Retry")
         onRetryRequested: root.reloadOrderLines()
+    }
+
+    // Ecranul de așteptare al achitării: pașii bonului fiscal, apoi confirmarea
+    // cu restul de dat. Acoperă tot (e un Popup pe Overlay.overlay), deci ține
+    // și loc de barieră cât timp banii sunt în joc.
+    Components.PaymentProgressOverlay {
+        active: root.paying
+        succeeded: root.paymentDone
+
+        usesCardPos: paymentController.payingWithCardPos
+        cardConfirmed: paymentController.cardConfirmed
+        receiptIssued: paymentController.receiptIssued
+        receiptPrinted: paymentController.receiptPrinted
+        orderClosed: paymentController.orderClosed
+
+        documentNumber: root.paidDocumentNumber
+        total: root.paidTotal
+        changeDue: root.paidChangeDue
+
+        onDismissed: root.closeAfterPayment()
+
+        // Retipărirea pleacă și închidem imediat: rezultatul îl raportează
+        // main.qml pe `reprintFinished`, care are deja dialogul lui. Tratat și
+        // aici, ar ieși două mesaje pentru aceeași apăsare.
+        onReprintRequested: {
+            paymentController.reprint(root.paidDocumentNumber)
+            root.closeAfterPayment()
+        }
     }
 
     Components.ConfirmDialog {

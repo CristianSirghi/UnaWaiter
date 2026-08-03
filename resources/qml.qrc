@@ -38,6 +38,8 @@
         <file alias="components/controls/AddonSheet.qml">../qml/components/controls/AddonSheet.qml</file>
         <file alias="components/controls/OrderActionSheet.qml">../qml/components/controls/OrderActionSheet.qml</file>
         <file alias="components/controls/PaymentSheet.qml">../qml/components/controls/PaymentSheet.qml</file>
+        <file alias="components/controls/PaymentProgressOverlay.qml">../qml/components/controls/PaymentProgressOverlay.qml</file>
+        <file alias="components/controls/PrinterAnimation.qml">../qml/components/controls/PrinterAnimation.qml</file>
         <file alias="components/controls/TextInputField.qml">../qml/components/controls/TextInputField.qml</file>
         <file alias="components/controls/ChangeTablePicker.qml">../qml/components/controls/ChangeTablePicker.qml</file>
         <file alias="components/controls/LoadingOverlay.qml">../qml/components/controls/LoadingOverlay.qml</file>
