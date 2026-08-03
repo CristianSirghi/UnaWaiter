@@ -162,12 +162,32 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+155"/>
+        <location filename="../src/core/dataservice.cpp" line="+98"/>
+        <source>UnaWaiter is not activated at this restaurant yet.</source>
+        <translation>UnaWaiter ещё не активирован в этом ресторане.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Can&apos;t reach this restaurant&apos;s system. Try again, or pick another restaurant.</source>
+        <translation>Не удаётся связаться с системой этого ресторана. Повторите попытку или выберите другой ресторан.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>This restaurant is no longer available. Pick another one in Settings.</source>
+        <translation>Этот ресторан больше недоступен. Выберите другой в Настройках.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>No restaurant selected. Pick one in Settings.</source>
+        <translation>Ресторан не выбран. Выберите его в Настройках.</translation>
+    </message>
+    <message>
+        <location line="+78"/>
         <source>Invalid response from server: %1</source>
         <translation>Некорректный ответ от сервера: %1</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+40"/>
         <source>No restaurant selected.</source>
         <translation>Ресторан не выбран.</translation>
     </message>
@@ -827,12 +847,12 @@ It will be retried automatically when the app restarts.</source>
     </message>
     <message>
         <location line="+70"/>
-        <location line="+212"/>
+        <location line="+213"/>
         <source>Printing the receipt…</source>
         <translation>Печатается чек…</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-211"/>
         <source>Waiting for the card…</source>
         <translation>Ожидание карты…</translation>
     </message>
@@ -842,7 +862,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Идёт оплата…</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+95"/>
         <source>Don&apos;t close the app.</source>
         <translation>Не закрывайте приложение.</translation>
     </message>
@@ -877,7 +897,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Сдача выдана</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+33"/>
         <source>Print again</source>
         <translation>Напечатать снова</translation>
     </message>
@@ -1284,12 +1304,12 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>SmartOneClient</name>
     <message>
-        <location filename="../src/core/smartoneclient.cpp" line="+162"/>
+        <location filename="../src/core/smartoneclient.cpp" line="+216"/>
         <source>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</source>
         <translation>Фискальная служба недоступна на этом терминале. Чек можно выдать только на терминале SmartOne с фискальной памятью.</translation>
     </message>
     <message>
-        <location line="+320"/>
+        <location line="+365"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>Оплата подтверждена, но фискальный сервис не ответил при выдаче чека. НЕ повторяйте оплату — чек нужно перевыпустить.</translation>
     </message>

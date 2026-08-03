@@ -79,6 +79,38 @@ void DataService::checkConnection()
 // {"status":"ok"}). Actualizează DOAR `online`, în funcție de dacă am reușit
 // să contactăm serverul - nu atinge busy și nu emite requestFailed, ca să nu
 // polueze UI-ul cu erori la fiecare tick.
+// Traduce codurile de eroare ale backendului în text pentru chelner.
+//
+// DOAR cele care privesc RESTAURANTUL. Codurile de logare
+// (`invalid_credentials`, `pin_already_set`, `not_a_waiter`) și
+// `registry_unavailable` sunt comparate ca ȘIRURI BRUTE în LoginPage și
+// SelectRestaurantPage — traduse aici, comparațiile alea ar cădea tăcut și
+// chelnerul ar primi mesajul greșit la PIN greșit. De aceea lista e scurtă și
+// orice altceva trece nemodificat.
+//
+// Aici, și nu în pagini, pentru că un restaurant nepregătit poate lovi ORICE
+// comandă — e verificat înainte de fiecare, în pâlnia comună din PHP.
+QString DataService::friendlyBackendError(const QString &code)
+{
+    if (code == QLatin1String("restaurant_not_ready")) {
+        // Se întâmplă la lansarea pe rând: primul restaurant e instalat,
+        // celelalte încă nu. Înainte, chelnerul primea "ORA-06550 ... PLS-00201".
+        return tr("UnaWaiter is not activated at this restaurant yet.");
+    }
+    if (code == QLatin1String("restaurant_unreachable")) {
+        return tr("Can't reach this restaurant's system. Try again, or pick "
+                  "another restaurant.");
+    }
+    if (code == QLatin1String("unknown_restaurant")) {
+        return tr("This restaurant is no longer available. Pick another one in "
+                  "Settings.");
+    }
+    if (code == QLatin1String("no_restaurant")) {
+        return tr("No restaurant selected. Pick one in Settings.");
+    }
+    return code;
+}
+
 void DataService::sendPing()
 {
     if (m_pinging)
@@ -162,7 +194,8 @@ QVariant DataService::parseReply(QNetworkReply *reply, const QString &command, b
     if (value.type() == QVariant::Map) {
         const QVariantMap map = value.toMap();
         if (map.contains(QStringLiteral("error"))) {
-            emit requestFailed(command, map.value(QStringLiteral("error")).toString());
+            emit requestFailed(command,
+                               friendlyBackendError(map.value(QStringLiteral("error")).toString()));
             return QVariant();
         }
     }

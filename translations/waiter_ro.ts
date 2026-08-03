@@ -162,12 +162,32 @@
 <context>
     <name>DataService</name>
     <message>
-        <location filename="../src/core/dataservice.cpp" line="+155"/>
+        <location filename="../src/core/dataservice.cpp" line="+98"/>
+        <source>UnaWaiter is not activated at this restaurant yet.</source>
+        <translation>UnaWaiter nu este inca activat la acest restaurant.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Can&apos;t reach this restaurant&apos;s system. Try again, or pick another restaurant.</source>
+        <translation>Nu pot contacta sistemul acestui restaurant. Incearca din nou sau alege alt restaurant.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>This restaurant is no longer available. Pick another one in Settings.</source>
+        <translation>Acest restaurant nu mai este disponibil. Alege altul in Setari.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>No restaurant selected. Pick one in Settings.</source>
+        <translation>Niciun restaurant ales. Alege unul in Setari.</translation>
+    </message>
+    <message>
+        <location line="+78"/>
         <source>Invalid response from server: %1</source>
         <translation>Răspuns invalid de la server: %1</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+40"/>
         <source>No restaurant selected.</source>
         <translation>Niciun restaurant selectat.</translation>
     </message>
@@ -827,12 +847,12 @@ Se va reîncerca automat la repornirea aplicației.</translation>
     </message>
     <message>
         <location line="+70"/>
-        <location line="+212"/>
+        <location line="+213"/>
         <source>Printing the receipt…</source>
         <translation>Se tipărește bonul…</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-211"/>
         <source>Waiting for the card…</source>
         <translation>Se așteaptă cardul…</translation>
     </message>
@@ -842,7 +862,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Se încasează…</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+95"/>
         <source>Don&apos;t close the app.</source>
         <translation>Nu închide aplicația.</translation>
     </message>
@@ -877,7 +897,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Am dat restul</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+33"/>
         <source>Print again</source>
         <translation>Tipărește din nou</translation>
     </message>
@@ -1284,12 +1304,12 @@ Se va reîncerca automat la repornirea aplicației.</translation>
 <context>
     <name>SmartOneClient</name>
     <message>
-        <location filename="../src/core/smartoneclient.cpp" line="+162"/>
+        <location filename="../src/core/smartoneclient.cpp" line="+216"/>
         <source>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</source>
         <translation>Serviciul fiscal nu este disponibil pe acest terminal. Bonul poate fi emis doar pe un terminal SmartOne cu memorie fiscala.</translation>
     </message>
     <message>
-        <location line="+320"/>
+        <location line="+365"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>Plata a fost confirmată, dar serviciul fiscal nu a răspuns la emiterea bonului. NU repetați plata - bonul trebuie reemis.</translation>
     </message>

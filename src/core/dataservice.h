@@ -248,6 +248,12 @@ private:
     // *ok pe false.
     QVariant parseReply(QNetworkReply *reply, const QString &command, bool *ok);
 
+    // Traduce codurile de eroare ale backendului care privesc RESTAURANTUL
+    // (restaurant_not_ready / _unreachable / unknown_ / no_restaurant).
+    // Orice alt cod trece nemodificat - codurile de logare sunt comparate ca
+    // șiruri brute în LoginPage, iar traducerea lor ar rupe comparațiile.
+    static QString friendlyBackendError(const QString &code);
+
     void setOnline(bool online);
     // Sondă de conexiune: GET la comanda "ping", actualizează DOAR `online`
     // (nu atinge busy, nu emite requestFailed). Rulează periodic (m_pingTimer)
