@@ -138,8 +138,58 @@ UAMenu o afișează ca „Дата транз"), și `NRDOC`.
 moștenește de la ultima comandă închisă din aceeași bază, în loc să-l hardcodeze.
 *De confirmat cu Daniela/Sandu dacă se schimbă la deschiderea unei ture noi.*
 
-**TVA se mapează 1:1**: `VMDB_COMENZD.CODTVA` folosește exact literele așteptate
-de SmartOne (`A`=20%, `C`=8%). Fără traducere.
+## TVA — citește tot înainte să schimbi o cotă
+
+`VMDB_COMENZD.CODTVA` folosește exact literele așteptate de SmartOne, deci nu e
+nevoie de traducere.
+
+**Cota NU e hardcodată în aplicație — vine din Oracle.** `get_order_lines`
+întoarce coloana `TVA_PRC`, calculată cu `Unirest_Util.vat_percent_by_letter`,
+adică exact funcția folosită de pachetul `BON` când tipărește bonul UAMenu. Dacă
+se schimbă cota, o luăm de la sine, fără rebuild.
+
+Tabelul din `taxForCode` (A=20, B=8, C=10) rămâne doar **rezervă**, pentru un
+backend mai vechi care nu trimite încă coloana — deci trebuie ținut la zi cât
+timp e nevoie de el. Se folosește doar când litera e una cunoscută: pe o literă
+nerecunoscută nu se lipește cota din Oracle peste ea, ca să nu iasă perechi
+inventate gen „TVA A" cu 0%.
+
+**Prețurile au TVA-ul INCLUS**: taxa e `sumă × r/(1+r)`, nu `sumă × r`. Aici nu
+există niciun dezacord — aceeași formulă e peste tot, inclusiv în aparat.
+
+### ⚠️ Baza se contrazice pe ea însăși la litera C
+
+Verificat pe producție 2026-08-03:
+
+| unde | C | dovadă |
+|---|---|---|
+| antet comandă `TVA_C` | **6%** | 8426 din 8426 comenzi |
+| linie `SUMTVA` (`sum_tva`) | **10%** | 17191 din 28205 linii |
+| bonul tipărit de UAMenu | **10%** | `BON` → `vat_percent_by_letter` |
+| aparatul fiscal SmartOne | **10%** | 5.09 pe 56 lei = `56×0.1/1.1` |
+
+Am ales **10%**, pentru că `taxForCode` alimentează un bon fiscal, iar bonul
+nostru trebuie să declare ce declară bonul de la casă — altfel apar diferențe în
+rapoartele X/Z (punctul 11 al Danielei).
+
+Cei 6% vin din `VMDB_COMENZ_CALC_TVA`, care **nu e sursa**: e un view de
+*reconciliere* (are coloana `delta_tva_c`) și n-a fost modificat din 2016, în
+timp ce `Unirest_Util`/`BON` au fost atinse în aprilie 2026. Nu există niciun
+parametru de configurare pentru B/C — doar `VATValueA`, care nici măcar nu e
+setat în contextul `envunirest`.
+
+**Aparatul are propriul tabel și îl folosește pe al lui**: codul vechi trimitea
+C=8%, aparatul a tipărit 10%. Deci `taxAmount`-ul nostru e ignorat, iar tabelul
+terminalului e deja aliniat cu UAMenu. Nu e nimic de reconfigurat acolo.
+
+> **Rămâne de lămurit cu clientul (Sandu/Daniela): care e cota LEGALĂ, 6% sau
+> 10%?** Dacă e 6%, UAMenu tipărește greșit de mult timp. Dacă e 10%, `TVA_C` din
+> antet e greșit pe toate comenzile. Oricum ar fi, e o problemă a lor și se
+> repară în `Unirest_Util` + aparat + ce scrie `TVA_C` — nu doar la noi.
+
+`CODTVA` ajunge pe linie **fără ca `add_order_line` să-l scrie** — îl completează
+trigger-ul `INSTEAD OF` al view-ului, copiindu-l din `vms_univers`. Verificat pe
+liniile comenzilor create de aplicație: coincide cu produsul, mereu.
 
 ---
 

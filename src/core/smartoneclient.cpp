@@ -62,22 +62,83 @@ int toBani(double amount)
 }
 
 // TVA: literele din UAMenu (VMDB_COMENZD.CODTVA) sunt exact codurile așteptate
-// de SmartOne, deci nu e nevoie de traducere - doar de procent. Pe producție
-// apar 'C' (8%, mâncare) și 'A' (20%).
-void taxForCode(const QString &code, QString *letter, int *prcX100, double *rate)
+// de SmartOne, deci nu e nevoie de traducere - doar de procent.
+//
+// COTELE SUNT ALE ACESTUI DEPLOYMENT, verificate în baza de producție
+// (2026-08-03). Sursa e `Unirest_Util.vat_percent_by_letter` / `sum_tva` —
+// aceleași funcții pe care le folosește pachetul `BON`, adică TIPARUL DE BON AL
+// UAMenu. A=20, B=8, C=10.
+//
+// ⚠️ BAZA SE CONTRAZICE PE EA ÎNSĂȘI LA LITERA C. Alegerea de aici nu e
+// evidentă, așa că nu o schimba fără să citești tot:
+//
+//   | unde                      | C   | dovadă pe producție              |
+//   |---------------------------|-----|----------------------------------|
+//   | antet comandă TVA_C       |  6% | 8426 din 8426 comenzi            |
+//   | linie SUMTVA (sum_tva)    | 10% | 17191 din 28205 linii            |
+//   | bonul tipărit de UAMenu   | 10% | BON -> vat_percent_by_letter     |
+//   | aparatul fiscal SmartOne  | 10% | 5.09 pe 56 lei = 56*0.1/1.1      |
+//
+// Am ales 10% pentru că `taxForCode` alimentează un BON FISCAL, iar bonul
+// nostru trebuie să declare ce declară bonul de la casă - altfel apar diferențe
+// între comenzile din app și închiderea de la casă în rapoartele X/Z.
+//
+// Contra-argumentul (antetul zice 6%) NU e susținut: view-ul `VMDB_COMENZ_CALC_TVA`
+// de unde vine 6% e un view de RECONCILIERE (are coloana `delta_tva_c`), nu
+// sursa, și n-a mai fost modificat din 2016 - în timp ce `Unirest_Util`/`BON`
+// au fost atinse în aprilie 2026. Nu există niciun parametru de configurare
+// pentru B/C (doar `VATValueA`, care nici măcar nu e setat în `envunirest`).
+//
+// DOVADA CĂ APARATUL ARE PROPRIUL TABEL: codul vechi trimitea C=8%, aparatul a
+// tipărit 10%. Deci `taxAmount`-ul nostru e ignorat, iar tabelul aparatului e
+// deja pe 10%. Nu e nimic de reconfigurat pe terminal - noi eram nealiniați.
+//
+// ⚠️ RĂMÂNE DE LĂMURIT CU CLIENTUL (Sandu/Daniela): care e cota LEGALĂ, 6% sau
+// 10%? Dacă e 6%, UAMenu tipărește greșit de mult timp. Dacă e 10%, `TVA_C` din
+// antet e greșit pe toate comenzile. Oricum ar fi, e o problemă a lor și se
+// repară în `Unirest_Util` + aparat + ce scrie `TVA_C`, nu doar aici.
+//
+// Valorile dinainte (B=12%, C=8%) veneau din UNARetail - care e RETAIL, nu
+// restaurant. Arătau plauzibil și au trecut nedetectate până la un bon real.
+// Nu lua constante de business dintr-un alt proiect fără să le verifici în baza
+// deployment-ului curent.
+//
+// 'B' nu apare deloc pe producție (0 produse, 0 linii). '0' există pe 3
+// „produse" care sunt de fapt furnizori, niciodată vândute.
+// Întoarce `false` dacă litera nu e una cunoscută și s-a căzut pe cota standard.
+// Apelantul are nevoie de distincția asta: pe o literă nerecunoscută n-are voie
+// să lipească peste ea cota venită din Oracle, altfel ar ieși perechi
+// inventate, gen "TVA A" cu 0%.
+bool taxForCode(const QString &code, QString *letter, int *prcX100, double *rate)
 {
     const QString c = code.trimmed().toUpper();
     if (c == QLatin1String("0")) {
         *letter = QStringLiteral("0"); *prcX100 = 0;    *rate = 0.00;
     } else if (c == QLatin1String("B")) {
-        *letter = QStringLiteral("B"); *prcX100 = 1200; *rate = 0.12;
+        *letter = QStringLiteral("B"); *prcX100 = 800;  *rate = 0.08;
     } else if (c == QLatin1String("C")) {
-        *letter = QStringLiteral("C"); *prcX100 = 800;  *rate = 0.08;
-    } else {
-        // 'A' și orice necunoscut -> cota standard. Mai bine să declarăm prea
-        // mult TVA decât prea puțin dacă apare un cod nou în meniu.
+        *letter = QStringLiteral("C"); *prcX100 = 1000; *rate = 0.10;
+    } else if (c == QLatin1String("A")) {
         *letter = QStringLiteral("A"); *prcX100 = 2000; *rate = 0.20;
+    } else {
+        // Cod necunoscut -> cota standard. Mai bine să declarăm prea mult TVA
+        // decât prea puțin dacă apare un cod nou în meniu.
+        *letter = QStringLiteral("A"); *prcX100 = 2000; *rate = 0.20;
+        return false;
     }
+    return true;
+}
+
+// Partea de TVA dintr-o sumă care îl conține DEJA.
+//
+// În UAMenu prețurile sunt cu TVA inclus, deci taxa nu e `sumă × cotă`, ci
+// `sumă × r/(1+r)`. Spre deosebire de cote, aici NU există nicio contradicție:
+// aceeași formulă e în `Unirest_Util.sum_tva`, în view-ul de reconciliere, și e
+// și ce a tipărit aparatul (5.09 pe 56 lei = 56*0.1/1.1, nu 56*0.1 = 5.60).
+// Cu înmulțirea simplă, pe 100 lei la 10% ar ieși 10.00 în loc de 9.09.
+int taxFromInclusive(int amountBani, double rate)
+{
+    return static_cast<int>(qRound(amountBani * rate / (1.0 + rate)));
 }
 
 QString paymentName(const QString &payType)
@@ -344,10 +405,31 @@ QJsonObject SmartOneClient::buildSalePayload(int payId,
         QString letter;
         int prcX100 = 0;
         double rate = 0.0;
-        taxForCode(line.value(QStringLiteral("CODTVA")).toString(), &letter, &prcX100, &rate);
+        const bool knownLetter =
+            taxForCode(line.value(QStringLiteral("CODTVA")).toString(), &letter, &prcX100, &rate);
+
+        // COTA VINE DIN ORACLE, nu din tabelul de mai sus. `get_order_lines`
+        // întoarce `TVA_PRC` din `Unirest_Util.vat_percent_by_letter` - exact
+        // funcția pe care o folosește pachetul `BON` când tipărește bonul
+        // UAMenu. Așa nu mai există nicio constantă fiscală în aplicație: dacă
+        // se schimbă cota, o luăm de la sine, fără rebuild.
+        //
+        // `taxForCode` rămâne doar REZERVĂ, pentru un backend mai vechi care nu
+        // trimite încă coloana. Cât timp e nevoie de ea, valorile ei trebuie
+        // ținute la zi - de-aceea comentariul lung de acolo rămâne relevant.
+        //
+        // Zero e o cotă VALIDĂ (litera '0'), deci se verifică steagul de
+        // conversie, nu valoarea: un `dbPrc == 0` din test ar fi aruncat tăcut
+        // exact singurul caz în care coloana chiar spune "fără TVA".
+        bool prcOk = false;
+        const double dbPrc = line.value(QStringLiteral("TVA_PRC")).toDouble(&prcOk);
+        if (knownLetter && prcOk && dbPrc >= 0.0 && dbPrc <= 100.0) {
+            prcX100 = static_cast<int>(qRound(dbPrc * 100.0));
+            rate = dbPrc / 100.0;
+        }
 
         const int amountBani = toBani(lineTotal);
-        const int taxBani = static_cast<int>(qRound(amountBani * rate));
+        const int taxBani = taxFromInclusive(amountBani, rate);
 
         QJsonObject tax;
         tax[QStringLiteral("taxName")] = QStringLiteral("TVA ") + letter;
@@ -370,6 +452,13 @@ QJsonObject SmartOneClient::buildSalePayload(int payId,
         item[QStringLiteral("taxes")] = taxes;
         items.append(item);
 
+        // Sumarul global aduna taxele DEJA ROTUNJITE ale liniilor, deci poate
+        // sa iasa cu un ban fata de cum ar calcula Oracle (care rotunjeste o
+        // singura data, pe totalul cotei). Lasat ASA INTENTIONAT: varianta
+        // "corecta" ar face suma taxelor pe linii sa nu mai fie egala cu blocul
+        // global, iar daca aparatul verifica exact asta, bonul ar fi respins -
+        // si n-avem cum sa testam pe terminal de aici. Se schimba doar cu un
+        // aparat real in fata.
         if (!taxSummary.contains(letter)) {
             taxSummary.insert(letter, tax);
         } else {
