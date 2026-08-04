@@ -73,9 +73,18 @@ personal și meniul). Sunt materialized views cu refresh manual, iar la Miron Co
 ultimul e din 1 iulie. Un chelner angajat după acea dată nu apare în aplicație și
 nu se poate loga, fără niciun mesaj care să explice de ce.
 
-Fișierele `.bat` își setează singure `NLS_LANG` (`AMERICAN_AMERICA.AL32UTF8`). La
-pașii rulați direct din `sqlplus` — 2 și 3, pe back-office — setați-l în consolă
-înainte, altfel diacriticele și chirilicele din denumiri ies stricate.
+### Codificarea
+
+Scripturile sunt **UTF-8 fără BOM**. Fișierele `.bat` își setează singure
+`NLS_LANG=AMERICAN_AMERICA.AL32UTF8`; pentru pașii 2 și 3, rulați direct din
+`sqlplus`, setați-o în consolă înainte.
+
+Dar corectitudinea **datelor** nu depinde de asta: toate șirurile chirilice care
+chiar ajung în bază sunt scrise cu `UNISTR`, deci fișierele sunt ASCII pur în
+locurile alea. E vorba de `Общая` (numele grupului de proprietăți din
+Configurator), titlurile celor două forme și denumirile ruse ale zonelor. Chiar
+dacă clientul e în altă codificare, datele nu se strică — cel mult arată urât
+mesajele din consolă.
 
 ## Pașii, în ordine
 
@@ -122,8 +131,17 @@ Creează „Chelneri UnaWaiter" și „Amplasare mese". `obj_id`-urile se aleg a
 (`MAX+1`), deci nu pot intra în coliziune cu obiecte existente, iar dacă formele
 există deja scriptul refuză cu `ORA-20080` în loc să suprascrie ceva.
 
-**După instalare: repornire `UniacCLNT.exe` și deschiderea fiecărei forme** —
-prima deschidere generează coloanele grilei.
+**După instalare, trei pași, în ordine:**
+
+1. repornire `UniacCLNT.exe`;
+2. deschideți fiecare formă **și închideți-o o dată** — prima deschidere e cea
+   care generează coloanele grilelor;
+3. rulați `fix_grid_cols.sql` (din același folder).
+
+Pasul 3 **nu e opțional**: clientul salvează, la închiderea formei, o listă de
+coloane goală, iar la următoarea deschidere se încrede în ea — grila apare fără
+capete de coloană și pare goală. Ștergerea rândului nu ajută, se rescrie la fel
+la următoarea închidere; scriptul scrie lista corectă.
 
 ### 4. Partea de aplicație și server
 

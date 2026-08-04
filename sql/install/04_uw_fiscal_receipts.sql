@@ -15,13 +15,20 @@
 -- >>> la o instalare nouă — se descoperă abia la prima plată cu „RRN manual".
 
 CREATE TABLE uw_fiscal_receipts (
-    nr_comand       NUMBER PRIMARY KEY,        -- comanda achitată (TMDB_COMENZ.COD)
+    nr_comand       NUMBER,                    -- comanda achitată (TMDB_COMENZ.COD)
     document_number VARCHAR2(50),              -- numărul întors de SmartOne la /sale
     pay_type        NUMBER(2) NOT NULL,        -- 1 = Numerar, 2 = Card
     amount          NUMBER(12,2),              -- totalul comenzii la momentul achitării
     oficiant        NUMBER,                    -- chelnerul care a încasat (vms_univers.cod)
     printed_at      DATE DEFAULT SYSDATE NOT NULL,
-    rrn             VARCHAR2(20)               -- referința bancară la plata „RRN Manual"
+    rrn             VARCHAR2(20),              -- referința bancară la plata „RRN Manual"
+    -- Cheia primară e declarată SEPARAT și cu NUME, nu inline ca
+    -- `nr_comand NUMBER PRIMARY KEY`. Inline, Oracle genereaza `SYS_Cnnnnn` si
+    -- pentru constrangere, SI pentru indexul ei unic - iar la prima incalcare
+    -- mesajul e "нарушено ограничение SYS_C0012345", din care nimeni nu deduce
+    -- despre ce e vorba. Toate celelalte constrangeri din pachet sunt deja
+    -- numite; asta era singura scapata.
+    CONSTRAINT uw_fiscal_receipts_pk PRIMARY KEY (nr_comand)
 );
 
 -- document_number rămâne NULLABLE intenționat: un NOT NULL ar face plata să eșueze

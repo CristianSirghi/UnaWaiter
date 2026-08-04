@@ -28,7 +28,13 @@ CREATE TABLE uw_waiters (
     pin       VARCHAR2(4),              -- NULL = alocat restaurantului, neînrolat încă
     active    NUMBER(1) DEFAULT 1 NOT NULL,
     CONSTRAINT uw_waiters_pk PRIMARY KEY (cod_univ, oficiant),
-    CONSTRAINT uw_waiters_pin_ck CHECK (pin IS NULL OR REGEXP_LIKE(pin, '^[0-9]{4}$')),
+    -- Exact 4 cifre. Scris cu LENGTH + TRANSLATE, nu cu REGEXP_LIKE: cerinta
+    -- clientului e sa nu folosim regexp_* in constrangeri (standardul lor pentru
+    -- instalari noi e Oracle 21c XE). Vezi explicatia detaliata din
+    -- 01_uw_zones.sql, inclusiv capcana [a-z] dependenta de NLS_SORT.
+    -- '#' e ancora: al treilea argument al lui TRANSLATE nu poate fi gol.
+    CONSTRAINT uw_waiters_pin_ck CHECK (pin IS NULL
+      OR (LENGTH(pin) = 4 AND TRANSLATE(pin, '#0123456789', '#') IS NULL)),
     CONSTRAINT uw_waiters_active_ck CHECK (active IN (0,1))
 );
 

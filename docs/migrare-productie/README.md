@@ -124,8 +124,10 @@ Conexiune: `unirest/unirest@<gazdă>:1521/xe`
 | 6 | Forma „Amplasare mese" | **obj_id NOU** (vezi §3.2) |
 | 7 | Secțiunea `WEB_WAITER` cu `AUTOUPDATE_LINK` | doar dacă rămânem pe varianta Oracle a auto-update-ului (vezi §3.1) |
 
-Sursă: `sql/backoffice_uw_all.sql` (view-uri + triggere),
-`sql/backoffice_forma_chelneri.sql` și `sql/backoffice_forma_unificata.sql` (forme).
+Sursă: [`sql/backoffice/vuw_all/`](../../sql/backoffice/vuw_all/) (view-uri +
+triggere, generate pentru lista de filiale) și
+[`sql/backoffice/forme/`](../../sql/backoffice/forme/) (formele, cu `obj_id`
+alese automat).
 
 ### 2.3 PHP
 
@@ -426,8 +428,10 @@ Ordinea contează:
 
 ### Pasul 2 — back-office-ul de producție
 
-1. `backoffice_uw_all.sql`, cu cele 3 branșe active (§3.3).
-2. Formele, cu `obj_id` noi (§3.2).
+1. `sql/backoffice/vuw_all/00_install_vuw_all.sql`, cu lista de filiale ca
+   argument — `11` la pilot, `11,13,17` când sunt toate trei (§3.3).
+   **Nu** `backoffice_uw_all.sql`: ăla e varianta veche, mono-filială.
+2. `sql/backoffice/forme/install_forme.sql` — `obj_id`-urile se aleg singure (§3.2).
 3. Repornește `UniacCLNT.exe` și deschide fiecare formă — **prima deschidere
    generează coloanele**, vezi capcana #4 din `../back-office/forme.md`.
 4. Nimic de făcut pentru chelneri: `UW_WAITERS` se umple singură, la prima

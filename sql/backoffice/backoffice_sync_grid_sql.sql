@@ -15,7 +15,7 @@
 -- si-a salvat unul, cache-ul castiga.
 --
 -- ALTERNATIVA ar fi `delete from a$lob where obj_id = …`, dar atunci se pierd si
--- coloanele reparate si reapare grila fara capete (vezi backoffice_fix_grid_cols.sql).
+-- coloanele reparate si reapare grila fara capete (vezi forme/fix_grid_cols.sql).
 -- De aceea sincronizam in loc sa stergem.
 --
 -- >>> RULEAZA-L CU FORMA INCHISA.

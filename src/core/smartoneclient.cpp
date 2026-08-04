@@ -367,9 +367,18 @@ QJsonObject SmartOneClient::buildSalePayload(int payId,
 {
     QJsonObject root;
     root[QStringLiteral("date")] = QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"));
-    // docNumber = numărul comenzii: cheie de idempotență naturală. La o reluare
-    // după cădere trimitem exact același număr, iar SmartOne răspunde 409
-    // ("document deja existent") în loc să emită un al doilea bon.
+    // docNumber = payId, contorul nostru intern (QSettings fiscal/nextPayId),
+    // NU numărul comenzii: acela a fost încercat și terminalul îl refuză
+    // ("Invalid docNumber '382766'"), validându-l față de propria secvență.
+    // Idempotența se păstrează prin pending_fiscal.json, care ține payId-ul: o
+    // reluare după cădere retrimite exact același număr, iar SmartOne răspunde
+    // 409 ("document deja existent") în loc să emită un al doilea bon.
+    //
+    // Nu confunda cu numărul întors de /sale (data.document_number, în mii) —
+    // ăla e documentul din memoria fiscală, cheia pentru /print_check. Iar pe
+    // hârtie aparatul tipărește un al TREILEA număr ("BON # 24"), nedocumentat
+    // în contract; dacă ai nevoie de corespondența cu hârtia, întâi află care
+    // din ele e (verificat 2026-08-04: 2555 în memoria fiscală ≠ BON # 24).
     root[QStringLiteral("docNumber")] = QString::number(payId);
     root[QStringLiteral("employeeName")] = employeeName.trimmed().isEmpty()
         ? QStringLiteral("Chelner") : employeeName.trimmed();

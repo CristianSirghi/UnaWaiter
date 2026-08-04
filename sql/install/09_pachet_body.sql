@@ -11,6 +11,28 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
   -- si redistribuire de APK.
   c_takeaway_mark CONSTANT VARCHAR2(20) := 'La pachet';
 
+  -- Marcajul PLATII DIN APLICATIE, scris tot in COMENT, de pay_order. Ce se vede
+  -- deja in UAMenu e DOAR cu ce s-a platit (TIPPLATA: numerar/card); nu se vede
+  -- ca banii s-au luat pe terminalul chelnerului si nu la casa. COMENT e singurul
+  -- camp din ecranul comenzii unde incape informatia asta.
+  --
+  -- Marcajul nu are nevoie de nicio conditie: pay_order e chemata NUMAI de
+  -- aplicatie, platile facute la casa trec prin drumul propriu al UAMenu si nu
+  -- ajung niciodata aici.
+  --
+  -- NU se tipareste pe bonul clientului: bonul fiscal se emite si se tipareste
+  -- INAINTE de apelul asta (fiscal intai, Oracle dupa - vezi docs/smartone-fiscal).
+  --
+  -- FARA numarul bonului. S-a incercat pe 2026-08-04 (p_doc_fiscal, adica
+  -- document_number intors de /sale) si s-a scos: pe hartie aparatul tipareste
+  -- ALT numar - "BON # 24" fata de documentul 2555 din memoria fiscala - deci
+  -- numarul din comentariu nu potrivea comanda cu bonul, ci sugera o
+  -- neconcordanta acolo unde nu era niciuna. Nici contorul nostru intern
+  -- (fiscal/nextPayId) nu e o inlocuire buna: nu s-a confirmat ca el e numarul
+  -- de pe hartie, si se poate rescrie din Admin la reinstalare, rupand tacut
+  -- corespondenta. Numarul real ramane in uw_fiscal_receipts.document_number.
+  c_paid_mark CONSTANT VARCHAR2(30) := 'Achitat prin SmartOne';
+
   -- Restaurantul (filiala) caruia ii apartine baza asta. UAMenu tine identitatea
   -- filialei in contextul de sesiune 'envunirest'.GlobalDep: clientul POS il pune
   -- la login din vms_pos_by_div (dupa numarul casei din cantina.ini), iar intr-o
@@ -23,11 +45,17 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
   -- deci gresit pentru Riscani si M.cel Batrin. Cand aplicatia va alege explicit
   -- restaurantul, codul filialei trebuie sa vina ca parametru de la client, iar
   -- functia asta ramane doar rezerva.
+  -- Handler INGUST, nu WHEN OTHERS: singurul esec real e o valoare nenumerica in
+  -- context, iar aia se manifesta ca VALUE_ERROR (verificat pe baza clientului
+  -- 2026-08-04: TO_NUMBER('abc') ridica VALUE_ERROR, iar un namespace inexistent
+  -- intoarce NULL fara nicio exceptie). Orice altceva - lipsa de memorie, o
+  -- problema de sesiune - trebuie sa iasa afara, nu sa se transforme tacut in
+  -- "restaurantul nu e ales".
   FUNCTION current_cod_univ RETURN NUMBER IS
   BEGIN
     RETURN TO_NUMBER(SYS_CONTEXT('envunirest', 'GlobalDep'));
   EXCEPTION
-    WHEN OTHERS THEN
+    WHEN VALUE_ERROR THEN
       RETURN NULL;
   END current_cod_univ;
 
@@ -55,11 +83,16 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
       SELECT denumirea INTO v_name
         FROM vms_univers
        WHERE cod = p_cod_univ AND gr1 = 'FL' AND tip = 'O';
+    -- Cele doua cazuri se disting prin `reason`, nu prin `error`: clientul
+    -- compara literal pe codul de eroare (dataservice.cpp), deci un cod nou ar
+    -- cere un APK nou. Asa, aplicatia ramane neschimbata, dar din raspuns se
+    -- vede care din cele doua a tras - "nu exista filiala" e altceva decat
+    -- "exista mai multe cu acelasi cod", si se repara diferit.
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        RETURN '{"error":"unknown_restaurant"}';
+        RETURN '{"error":"unknown_restaurant","reason":"not_found"}';
       WHEN TOO_MANY_ROWS THEN
-        RETURN '{"error":"unknown_restaurant"}';
+        RETURN '{"error":"unknown_restaurant","reason":"ambiguous"}';
     END;
 
     unirest_util.global_dep(p_cod_univ);
@@ -81,14 +114,19 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
   -- (PK_X_Z_REPORT). Verificat 2026-07-29: pe test tura curenta e 20, pe cele 3
   -- productii 10 - deschise o data si nemaiinchise (prod: din 2016), de aceea
   -- MAX(nrdoc) e sigur si nu hardcodam nimic.
+  -- FARA bloc EXCEPTION, intentionat. `SELECT MAX(...)` intoarce intotdeauna
+  -- exact un rand (NULL daca tabela e goala), deci NO_DATA_FOUND nu poate sa
+  -- apara. Un `WHEN OTHERS THEN RETURN NULL` de aici ar prinde doar erori REALE
+  -- - tabela lipsa, drepturi retrase, probleme de sesiune - si le-ar transforma
+  -- tacut in `nrdoc = NULL`. Iar o comanda cu NRDOC null dispare complet din
+  -- documentul din back-office (vezi comentariul de mai sus): exact bugul
+  -- reparat in iulie 2026 s-ar reintoarce, de data asta invizibil. Erorile
+  -- trebuie sa iasa afara.
   FUNCTION current_nrdoc RETURN NUMBER IS
     v_nrdoc NUMBER;
   BEGIN
     SELECT MAX(nrdoc) INTO v_nrdoc FROM tmdb_sold;
     RETURN v_nrdoc;
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN NULL;
   END current_nrdoc;
 
   -- Casierul turei, in forma in care il tine TMDB_COMENZ: coloana PERSON
@@ -114,8 +152,15 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
       JOIN tmdb_sold s ON s.casir_id = c.cod
      WHERE s.nrdoc = v_nrdoc;
     RETURN v_dep;
+  -- Doua cazuri ASTEPTATE, tratate explicit; restul ies afara. NULL e o valoare
+  -- valida pentru barmen (coloana e nullable), deci nu e nimic de reparat cand
+  -- nu gasim casierul - dar trebuie sa fie o decizie, nu un efect al lui OTHERS.
+  --   NO_DATA_FOUND  - tura n-are casier legat, sau v_nrdoc e NULL
+  --   TOO_MANY_ROWS  - acelasi nrdoc apare de mai multe ori in tmdb_sold
   EXCEPTION
-    WHEN OTHERS THEN
+    WHEN NO_DATA_FOUND THEN
+      RETURN NULL;
+    WHEN TOO_MANY_ROWS THEN
       RETURN NULL;
   END current_barmen;
 
@@ -641,6 +686,7 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
     v_doc_known   uw_fiscal_receipts.document_number%TYPE;
     v_has_receipt NUMBER;
     v_first       BOOLEAN;
+    v_coment      vmdb_comenz_restaurant.coment%TYPE;
   BEGIN
     IF p_pay_type NOT IN (1, 2) THEN
       RAISE_APPLICATION_ERROR(-20054,
@@ -664,7 +710,7 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
     END IF;
 
     BEGIN
-      SELECT state, NVL(clccostt, 0) INTO v_state, v_cost
+      SELECT state, NVL(clccostt, 0), coment INTO v_state, v_cost, v_coment
         FROM vmdb_comenz_restaurant
        WHERE nr_comand = p_nr_comand;
 
@@ -722,15 +768,27 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
         -- "nu ajung bani pentru achitare" din TRG_VMDB_COMENZ_RESTAURANT.
         -- DATA1 = data tranzactiei ("Дата транз" in UAMenu). Fara ea comanda
         -- arata incompleta si lipseste din rapoartele pe interval orar.
+        -- Marcajul platii din aplicatie (vezi c_paid_mark). CONCATENAT, niciodata
+        -- suprascris: o comanda la pachet are deja marcajul ei aici, iar peste el
+        -- poate exista si un comentariu real, scris de cineva in UAMenu - nici
+        -- unul, nici altul n-au voie sa dispara fiindca s-a incasat masa.
+        -- Se scrie o SINGURA data: reluarile intra pe ramura v_state = 3 de mai
+        -- jos, care nu atinge randul comenzii.
+        v_coment := SUBSTR(
+          CASE WHEN v_coment IS NULL THEN NULL ELSE v_coment || ' | ' END
+          || c_paid_mark, 1, 500);
+
         IF p_pay_type = 1 THEN
           UPDATE vmdb_comenz_restaurant
              SET state = 3, tipplata = 1, pay = NVL(p_pay, v_cost),
-                 cek = 1, nrdoc = NVL(nrdoc, v_nrdoc), data1 = SYSDATE
+                 cek = 1, nrdoc = NVL(nrdoc, v_nrdoc), data1 = SYSDATE,
+                 coment = v_coment
            WHERE nr_comand = p_nr_comand;
         ELSE
           UPDATE vmdb_comenz_restaurant
              SET state = 3, tipplata = 2, pay = 0, suma_terminal = v_cost,
-                 cek = 1, nrdoc = NVL(nrdoc, v_nrdoc), data1 = SYSDATE
+                 cek = 1, nrdoc = NVL(nrdoc, v_nrdoc), data1 = SYSDATE,
+                 coment = v_coment
            WHERE nr_comand = p_nr_comand;
         END IF;
 

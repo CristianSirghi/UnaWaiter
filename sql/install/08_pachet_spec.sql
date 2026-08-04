@@ -109,6 +109,10 @@ CREATE OR REPLACE PACKAGE pg_mobile_web_waiter AS
   -- succes. Bonul fiscal se emite INAINTE de acest apel, deci banii sunt deja
   -- incasati; daca reteaua pica intre bon si inchiderea comenzii, aplicatia
   -- trebuie sa poata relua apelul in siguranta.
+  --
+  -- Adauga in COMENT marcajul platii din aplicatie (vezi c_paid_mark din body),
+  -- concatenat la ce era acolo. Pe bonul clientului NU apare - bonul e deja
+  -- tiparit cand se ajunge aici.
   FUNCTION pay_order(
     p_nr_comand  IN NUMBER,
     p_pay_type   IN NUMBER,

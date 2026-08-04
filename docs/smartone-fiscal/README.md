@@ -211,6 +211,24 @@ a fost comis.
 Idempotența nu se pierde: `payId` e salvat în `pending_fiscal.json`, deci o
 reluare după cădere retrimite exact același număr → `409` în loc de un al doilea bon.
 
+### ⚠️ Trei numere diferite — nu le confunda
+
+Verificat pe test, 2026-08-04, pe aceeași plată:
+
+| Număr | De unde | Exemplu | Bun la |
+|---|---|---|---|
+| `docNumber` trimis la `/sale` | contorul nostru (`fiscal/nextPayId`) | mic | idempotență la reluare |
+| `data.document_number` din răspuns | memoria fiscală a aparatului | `2555` | `/print_check`, `uw_fiscal_receipts` |
+| ce se tipărește pe hârtie | numerotarea proprie a aparatului | `BON # 24` | ce vede clientul |
+
+Al treilea **nu apare nicăieri în contractul SmartOne** și nu-l primim în niciun
+răspuns — deci nu-l putem lega programatic de o comandă.
+
+De-aceea marcajul scris de `pay_order` în `COMENT` e doar `'Achitat prin
+SmartOne'`, **fără număr**: prima versiune punea `document_number` acolo, iar în
+UAMenu ieșea „bon 2555" lângă o hârtie pe care scria „BON # 24" — adică sugera o
+neconcordanță care nu exista.
+
 Se editează din **Setări → Admin → „Terminal fiscal"**. E nevoie de reglaj când:
 
 - se instalează pe un terminal care are deja documente emise;

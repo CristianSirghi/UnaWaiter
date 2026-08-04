@@ -29,8 +29,40 @@ CREATE TABLE uw_zones (
 -- (OrdersStore.keyFor = zone||'-'||table_no) și în harta de ocupare
 -- (zone||'_'||desk). Litere mici, cifre și underscore — fără spații, diacritice
 -- sau majuscule, care ar face cheile fragile la orice normalizare.
+-- Scris cu LENGTH + TRANSLATE, NU cu REGEXP_LIKE. Doua motive, ambele reale:
+--
+-- 1) DEPENDENTA DE NLS. Sub un NLS_SORT lingvistic, potrivirea implicita a lui
+--    REGEXP_LIKE devine CASE-INSENSITIVE - ca si cum ar fi dat parametrul 'i'.
+--    Baza clientului are NLS_SORT=RUSSIAN, deci varianta cu regexp accepta
+--    majuscule, exact ce spune comentariul de mai sus ca nu trebuie sa accepte.
+--    Era un bug tacut, nu doar o problema de portabilitate.
+--
+--    Masurat pe 2026-08-04, pe baza lor:
+--      NLS_SORT=RUSSIAN, implicit -> REGEXP_LIKE('Hall','^[a-z]...') = TRUE
+--      NLS_SORT=RUSSIAN, cu 'c'   -> FALSE
+--      NLS_SORT=BINARY,  implicit -> FALSE
+--
+--    Deci cu regexp existau doua reparatii corecte: parametrul 'c' explicit,
+--    sau clasa POSIX [[:lower:]] in loc de interval. Ambele functioneaza; am
+--    ales TRANSLATE pentru motivul 2 de mai jos.
+--    (Multumiri DBA-ului clientului, care a aratat ca 'i' e mecanismul real -
+--    prima explicatie pe care o scrisesem aici, cu ordinea lingvistica a
+--    intervalului, era gresita.)
+-- 2) PORTABILITATE. Standardul clientului pentru instalari noi si pentru
+--    inlocuirea unei case stricate este Oracle 21c XE; cerinta lor explicita
+--    este sa nu folosim regexp_* in constrangeri.
+--
+-- Cum functioneaza TRANSLATE aici: caracterele din al doilea argument care n-au
+-- corespondent in al treilea sunt STERSE. Deci daca dupa stergerea tuturor
+-- caracterelor permise nu mai ramane nimic (rezultat NULL), sirul continea doar
+-- caractere permise. '#' e ancora: al treilea argument nu poate fi gol, iar '#'
+-- nu e un caracter permis, deci nu poate masca o valoare invalida.
 ALTER TABLE uw_zones ADD CONSTRAINT uw_zones_code_ck
-  CHECK (REGEXP_LIKE(zone_code, '^[a-z][a-z0-9_]{0,19}$'));
+  CHECK (LENGTH(zone_code) BETWEEN 1 AND 20
+     AND TRANSLATE(SUBSTR(zone_code, 1, 1),
+                   '#abcdefghijklmnopqrstuvwxyz', '#') IS NULL
+     AND TRANSLATE(zone_code,
+                   '#abcdefghijklmnopqrstuvwxyz0123456789_', '#') IS NULL);
 
 -- 'takeaway' e REZERVAT: aplicația îl folosește ca zonă VIRTUALĂ pentru comenzile
 -- la pachet (main.qml trimite zone:"takeaway", OrderPage.isTakeaway se uită după

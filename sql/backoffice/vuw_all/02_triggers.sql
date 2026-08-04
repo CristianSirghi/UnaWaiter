@@ -34,7 +34,10 @@ begin
   end;
 
   if inserting or updating then
-    if :new.pin is not null and not regexp_like(:new.pin, '^[0-9]{4}$') then
+    -- LENGTH + TRANSLATE, nu regexp: aceeasi forma ca in constrangerea de pe
+    -- uw_waiters, ca validarea din forma si cea din tabela sa nu se contrazica.
+    if :new.pin is not null
+       and not (length(:new.pin) = 4 and translate(:new.pin, '#0123456789', '#') is null) then
       raise_application_error(-20021, 'PIN-ul trebuie sa aiba exact 4 cifre (sau sa fie gol)');
     end if;
   end if;
@@ -45,6 +48,16 @@ begin
       into v_n using :new.oficiant;
     if v_n = 0 then
       raise_application_error(-20022, 'Codul '||:new.oficiant||' nu e chelner la filiala '||v_cod);
+    end if;
+    -- Duplicatul se prinde AICI, nu de cheia primara: altfel managerul primeste
+    -- "нарушено ограничение уникальности (....UW_WAITERS_PK)", corect dar de
+    -- neinteles. Ramura de UPDATE avea deja verificari citibile; la INSERT lipseau.
+    execute immediate
+      'select count(*) from uw_waiters@'||v_link||' where cod_univ = :1 and oficiant = :2'
+      into v_n using v_cod, :new.oficiant;
+    if v_n > 0 then
+      raise_application_error(-20023,
+	'Chelnerul '||:new.oficiant||' e deja adaugat la filiala '||v_cod);
     end if;
     execute immediate
       'insert into uw_waiters@'||v_link||' (cod_univ, oficiant, pin, active) values (:1,:2,:3,:4)'
@@ -76,7 +89,19 @@ begin
 
   if inserting then
     -- Codul intra in cheile locale din telefon, deci forma lui nu e cosmetica.
-    if not regexp_like(:new.zone_code, '^[a-z][a-z0-9_]{0,19}$') then
+    --
+    -- LENGTH + TRANSLATE, nu regexp, si asta NU e doar stil: sub un NLS_SORT
+    -- lingvistic potrivirea implicita a lui REGEXP_LIKE devine CASE-INSENSITIVE
+    -- (ca si cum ar fi dat 'i'), iar baza are NLS_SORT=RUSSIAN - deci
+    -- `regexp_like('Hall','^[a-z]...')` intoarce TRUE. Forma ar fi acceptat
+    -- 'Hall', iar insertul de pe front ar fi picat cu ORA-02290 pe constrangerea
+    -- uw_zones_code_ck: eroare bruta, in loc de mesajul citibil de mai jos.
+    -- Expresia e identica cu cea din 01_uw_zones.sql - vezi acolo masuratorile.
+    if not (length(:new.zone_code) between 1 and 20
+            and translate(substr(:new.zone_code, 1, 1),
+                          '#abcdefghijklmnopqrstuvwxyz', '#') is null
+            and translate(:new.zone_code,
+                          '#abcdefghijklmnopqrstuvwxyz0123456789_', '#') is null) then
       raise_application_error(-20031,
 	'Codul zonei: litere mici, cifre si _, incepand cu o litera (ex: hall, etaj2, vip)');
     end if;
@@ -86,6 +111,14 @@ begin
     end if;
     if :new.name_ro is null then
       raise_application_error(-20033, 'Denumirea in romana e obligatorie');
+    end if;
+    -- Duplicat prins aici, nu de cheia primara (vezi nota de la chelneri).
+    execute immediate
+      'select count(*) from uw_zones@'||v_link||' where cod_univ = :1 and zone_code = :2'
+      into v_n using v_cod, :new.zone_code;
+    if v_n > 0 then
+      raise_application_error(-20036,
+	'Zona "'||:new.zone_code||'" exista deja la filiala '||v_cod);
     end if;
 
     execute immediate
@@ -137,6 +170,7 @@ declare
   v_link varchar2(128);
   v_cod  number := nvl(:new.cod_univ, :old.cod_univ);
   v_n	 number;
+  v_zona varchar2(20);
 begin
   begin
     select db_link into v_link from ybmb_dif_cassa where cod_univ = v_cod and secondary = 0;
@@ -159,6 +193,21 @@ begin
   end if;
 
   if inserting then
+    -- Cheia primara e (cod_univ, table_no), deci o masa nu poate exista de doua
+    -- ori la acelasi restaurant NICI MACAR in zone diferite - iar asta nu e
+    -- evident din formular, unde zona se vede si numarul pare "al zonei".
+    -- Fara verificarea de aici iesea "нарушено ограничение уникальности
+    -- (....UW_TABLES_PK)": corect, dar managerul nu are ce face cu el.
+    -- Spunem si ZONA in care e deja, ca sa aiba unde sa se uite.
+    execute immediate
+      'select max(zone) from uw_tables@'||v_link||' where cod_univ = :1 and table_no = :2'
+      into v_zona using v_cod, :new.table_no;
+    if v_zona is not null then
+      raise_application_error(-20045,
+	'Masa '||:new.table_no||' exista deja la filiala '||v_cod||
+	', in zona "'||v_zona||'". Un numar de masa e unic pe tot restaurantul.');
+    end if;
+
     execute immediate
       'insert into uw_tables@'||v_link||
       ' (cod_univ, table_no, zone, display_order, active) values (:1,:2,:3,:4,:5)'

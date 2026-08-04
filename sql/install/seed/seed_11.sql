@@ -32,10 +32,10 @@
 
 -- ------------------------------------------------------------------ ZONELE ---
 INSERT INTO uw_zones (cod_univ, zone_code, name_ro, name_ru, name_en, display_order)
-  VALUES (11, 'hall', 'Sala', 'Зал', 'Hall', 1);
+  VALUES (11, 'hall', 'Sala', unistr('\0417\0430\043B'), 'Hall', 1);
 
 INSERT INTO uw_zones (cod_univ, zone_code, name_ro, name_ru, name_en, display_order)
-  VALUES (11, 'terrace', 'Terasa', 'Терраса', 'Terrace', 2);
+  VALUES (11, 'terrace', 'Terasa', unistr('\0422\0435\0440\0440\0430\0441\0430'), 'Terrace', 2);
 
 -- ------------------------------------------------------------------- MESELE ---
 -- Sala: 1–15
