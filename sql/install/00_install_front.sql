@@ -62,6 +62,26 @@ PROMPT --- 05 uw_fiscal_incidents:
 PROMPT --- seed: zonele si mesele filialei &cod_univ:
 @@seed/seed_&cod_univ..sql
 
+-- ⚠️ SP2-0310 (fisier de seed inexistent) NU declanseaza WHENEVER SQLERROR:
+-- sqlplus tipareste eroarea, MERGE MAI DEPARTE si iese cu cod 0. Verificat pe
+-- 2026-08-04. Fara blocul asta, o filiala fara seed se instala fara zone si
+-- fara mese, iar esecul aparea abia la 99_verify ca "zone definite: PICAT" -
+-- din care nimeni nu deduce ca lipsea un fisier de la mijloc.
+DECLARE
+  v_zone NUMBER;
+  v_mese NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_zone FROM uw_zones  WHERE cod_univ = &cod_univ;
+  SELECT COUNT(*) INTO v_mese FROM uw_tables WHERE cod_univ = &cod_univ;
+  IF v_zone = 0 OR v_mese = 0 THEN
+    RAISE_APPLICATION_ERROR(-20092,
+      'Lipseste sau e gol seed/seed_&cod_univ..sql (zone=' || v_zone ||
+      ', mese=' || v_mese || '). Cere clientului numerele reale de mese si ' ||
+      'impartirea pe zone, apoi scrie fisierul dupa modelul seed_11.sql.');
+  END IF;
+END;
+/
+
 PROMPT --- 06 chei straine (DUPA seed):
 @@06_chei_straine.sql
 

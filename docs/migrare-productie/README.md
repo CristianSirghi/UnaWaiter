@@ -430,6 +430,9 @@ Ordinea contează:
 2. Formele, cu `obj_id` noi (§3.2).
 3. Repornește `UniacCLNT.exe` și deschide fiecare formă — **prima deschidere
    generează coloanele**, vezi capcana #4 din `../back-office/forme.md`.
+4. Nimic de făcut pentru chelneri: `UW_WAITERS` se umple singură, la prima
+   logare a fiecăruia (`set_pin`). Vezi §6.2 pentru ce înseamnă asta și de ce
+   n-am strâns șurubul.
 
 ### Pasul 3 — PHP
 
@@ -499,7 +502,44 @@ toate definițiile de view-uri — și **nu filtrează nimeni pe el**; apare doa
 purtare de coloană. Deci e inofensiv azi. Dacă cineva face vreodată un raport pe
 `NRSET`, comenzile noastre ies din el.
 
-### 6.2 Lista de chelneri: 101 nume la fiecare restaurant
+### 6.2 ⏸️ ANALIZAT ȘI AMÂNAT 2026-08-04 — lista de chelneri e a întregului lanț
+
+**Starea de acum: nefiltrată, intenționat.** `get_waiters` întoarce tot payroll-ul
+(101 pe producție) și `set_pin` creează rândul singur, deci oricine se poate
+auto-înrola la orice filială. Poarta a fost **construită, testată și apoi retrasă**
+în aceeași zi, prin decizia lui Kristian.
+
+**De ce s-a retras — și motivul e important, nu de comoditate:** filtrarea are sens
+doar dacă baza știe cine unde lucrează. Investigația de mai jos (§6.2b) arată că
+**nu știe**. Toate cele patru surse candidate sunt fie incomplete, fie contradictorii,
+fie ambele. O poartă construită peste date greșite blochează oameni reali fără să
+oprească pe nimeni. Mai bine o listă lungă și onestă decât una scurtă și greșită.
+
+**Ce s-a construit și merge, dacă se reia** (totul e în istoricul git al zilei
+2026-08-04, plus §6.2b de mai jos pentru date):
+
+1. `get_waiters` pornind din `UW_WAITERS` (`cod_univ` + `active = 1`), cu
+   `vms_univers` doar ca sursă a numelui; payroll-ul rămâne în condiție, ca cine
+   pleacă din firmă să dispară singur.
+2. `set_pin` care cere rând preexistent → eroare nouă `not_assigned`, fără `INSERT`.
+3. Un **seed** care umple `UW_WAITERS` la instalare din istoricul de comenzi
+   (`TMDB_COMENZ` e locală fiecărui front) ∪ `DEP_SECTIA = cod_univ`. Măsurat pe
+   producție: **11 → 9 nume, 13 → 5, 17 → 5**. Cu garduri: refuz dacă payroll-ul e
+   gol (`-20090`), refuz dacă `cod_univ` nu se potrivește cu mesele deja instalate
+   (`-20091`), avertisment dacă copia de personal e mai veche de 7 zile.
+
+**Condiția pe care ar trebui s-o îndeplinească clientul înainte de reluare:** să
+completeze corect fie `DEP_SECTIA`, fie `UM`, pentru chelnerii activi — și să
+scoată din listă cei 82 de eliberați. Până atunci, orice filtrare e ghicit.
+
+> ⚠️ Dacă se reia, ține minte: `CREATE OR REPLACE` pe pachet e reversibil, dar
+> **pe producție `UW_WAITERS` e goală după instalare** — cu poarta activă, asta
+> înseamnă că nu se poate loga nimeni până nu rulează seed-ul sau nu completează
+> managerul forma. Ordinea contează la lansare.
+
+Descrierea situației, valabilă și acum:
+
+---
 
 `get_waiters` nu filtrează pe `cod_univ` — întoarce tot payroll-ul
 (`VSLRPRM_CALCD_R_502`), care e **identic pe toate fronturile: 101 chelneri**.
@@ -517,10 +557,93 @@ purtare de coloană. Deci e inofensiv azi. Dacă cineva face vreodată un raport
 > că „lista de personal filtrează ~41 de intrări de test": cifra aia a fost măsurată
 > pe înlocuitor, nu pe mecanismul real.
 
-Mai mult, `set_pin` verifică doar „e chelner real", nu „aparține restaurantului
-ăstuia" — deci **oricine din cei 101 se poate auto-înrola la orice filială**. Dacă
-înrolarea trebuie controlată, poarta e forma din back-office, iar `set_pin` ar trebui
-să ceară un rând preexistent în `uw_waiters`.
+Mai mult, `set_pin` verifica doar „e chelner real", nu „aparține restaurantului
+ăstuia" — deci **oricine din cei 101 se putea auto-înrola la orice filială**.
+
+> Nota despre validarea pe test rămâne valabilă și după fix: numărul de nume din
+> listă depinde acum de câte rânduri are `UW_WAITERS`, nu de payroll, deci se poate
+> verifica pe test. Ce **nu** se poate verifica pe test rămâne conținutul real al
+> lui `VSLRPRM_CALCD_R_502` — filtrul de payroll a rămas în ambele funcții, deci un
+> chelner alocat corect dar absent din vederea de producție tot nu s-ar putea loga.
+
+### 6.2b Două din trei restaurante nu lucrează deloc pe chelneri
+
+Descoperit pe 2026-08-04, căutând o sursă automată pentru apartenența chelnerilor.
+`TMDB_COMENZ.OFICIANT` pe fiecare front, ultimele 60 de zile:
+
+| front | cine ia comenzile |
+|---|---|
+| 11 Miron Costin | **8 chelneri reali** (Xenia 1147, Ana 1068, Diana 1021, Marina 740, Steluta 108, Zabrian Olesea 85, Golban Alexandru 47, Lena 12) + conturi generice `3` (2174) și `5` (1834) |
+| 13 Columna | cont generic `3` — **5252 comenzi**; un singur chelner real, cu **o** comandă |
+| 17 M. cel Bătrîn | cont generic `2` — **6188 comenzi**; un singur chelner real, cu **o** comandă |
+
+Conturile generice nu există în `VMS_UNIVERS` cu nume și nu sunt în payroll.
+
+**Și cei 101 „chelneri" din personal sunt de fapt trei grupuri** (verificat pe
+master, `TSLRPRM_CALCD@cloudbd`, funcția 10, valabili azi):
+
+| `DEP_SECTIA` | câți | ce sunt |
+|---|---|---|
+| `4118` | **82** | **„Persoane eliberate"** (`TMS_UNIVERS` cod 4118) — concediați. Rămân în listă doar fiindcă `DATAEND = 3000-12-31` |
+| `NULL` | **8** | Ana, Diana, Diana_2, Lena, Marina, Olga, Steluta, Xenia — conturi de POS cu prenume, **exact cine ține Miron Costin** |
+| `11/13/17` | **11** | angajați reali, înregistrați corect (11→3, 13→4, 17→4) |
+
+Adică oamenii care iau efectiv 1000+ comenzi pe lună au `DEP_SECTIA` **NULL**, iar
+Zabrian Olesea (85 de comenzi în 60 de zile) e trecută **eliberată din 2023-09-30**.
+Singurul dintre ei completat corect e Golban Alexandru, cu 47 de comenzi.
+
+**Concluzie: personalul lor NU poate spune cine unde lucrează.** Nu e că lipsește
+câmpul — există și e completat greșit. **Ăsta e motivul pentru care poarta din
+§6.2 a fost retrasă**, iar dacă se reia, niciuna dintre surse nu e suficientă
+singură: trebuie reuniune (comenzi ∪ repartiție). Verificate și respinse ca
+alternative:
+`INTREPRINDEREA_R_2103` (NULL peste tot), `NRSET` (2 peste tot), `SHTAT_ID` (o
+singură valoare distinctă pe toți cei 282 de angajați).
+
+#### `VMS_UNIVERS.UM` — a treia sursă, verificată și NEfolosită la selecție
+
+Kristian a observat în UAMenu (forma „Дополнительные официанты") că `UM` ține
+denumirea scurtă a restaurantului: `MCostin`, `Columna`, `MBatrin`, `Megapolis`,
+`ARusso`. Pare cea mai bună sursă — e completată pentru **93 din 101**, față de 11
+la `DEP_SECTIA`. **Nu este.** Două motive, ambele măsurate pe master:
+
+1. **Nu aduce niciun om nou.** Din cei 93, **82 sunt eliberați**. Filtrând
+   eliberații, rămân exact aceiași 11 pe care îi dă și `DEP_SECTIA`, plus cele 8
+   conturi de POS (care n-au `UM` deloc). Acoperirea de 93 e iluzorie.
+2. **E mai puțin exactă.** Față de realitate (cine unde a luat comenzi):
+
+   | om | `UM` | `DEP_SECTIA` | unde lucrează |
+   |---|---|---|---|
+   | Buiucli Ruslana | Columna ✅ | 13 ✅ | Columna |
+   | Zabrian Olesea | MCostin ✅ | eliberată | Miron Costin |
+   | Golban Alexandru | MBatrin ❌ | 11 ✅ | Miron Costin |
+   | Ceban Maria | ARusso ❌ | eliberată | M. cel Bătrîn |
+
+   `DEP_SECTIA` nimerește 2/2 acolo unde spune ceva; `UM` 2/4. Ceban Maria e
+   trecută la ARusso, filială care nici măcar n-are db link.
+
+Cele două se contrazic pentru **5 din cei 11** chiar pe master, deci nu e vechime
+de replicare. Dacă se reia vreodată, `UM` merită tipărit ca **verificare
+încrucișată** — un `UM=MBatrin` pe lista lui Miron Costin sare în ochi — dar nu
+mapat automat la `cod_univ`: ar fi o convenție hardcodată a clientului. Atenție și
+la `'MBatrin '` cu spațiu la final, una dintre cele 93 de valori — orice mapare
+automată trebuie să facă `TRIM`.
+
+**Lecția generală:** acoperirea mare a unei coloane nu înseamnă nimic până nu
+verifici **ce** acoperă. `UM` părea de 9× mai bun decât `DEP_SECTIA` și nu aducea
+niciun om în plus.
+
+**Consecințe, dincolo de lista de logare:**
+
+1. **Punctul 10 al Danielei** („dacă achitarea e la SmartOne, să se fixeze
+   chelnerul care a luat banii") e azi **imposibil de îndeplinit la Columna și
+   M. cel Bătrîn** — în datele lor nu există noțiunea de chelner. Aplicația
+   noastră ar introduce-o pentru prima dată acolo.
+2. **Rapoartele lor se vor schimba** la lansare: comenzile trec de la un singur
+   cont la chelneri individuali. De anunțat înainte, nu după.
+3. Orice încercare de a deduce lista de chelneri din istoricul de comenzi
+   funcționează doar la Miron Costin. La celelalte două nu există istoric per
+   chelner — vezi §6.2.
 
 ### 6.3 Dicționarele de pe producție sunt vechi, și inegal
 
