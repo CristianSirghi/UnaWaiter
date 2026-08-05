@@ -67,17 +67,78 @@
 <context>
     <name>AdminPage</name>
     <message>
-        <location filename="../qml/pages/AdminPage.qml" line="+19"/>
+        <location filename="../qml/pages/AdminPage.qml" line="+23"/>
+        <source>Printer selected: %1</source>
+        <translation>Printer selected: %1</translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Administration</source>
         <translation>Administration</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+33"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
     <message>
         <location line="+20"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Printer</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>No printer selected</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Printer IP</source>
+        <translation>Printer IP</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Search printers</source>
+        <translation>Search printers</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Testing...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Print test receipt</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Printing...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Test receipt sent.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Failed to send data to printer.</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Fiscal terminal</source>
         <translation>Fiscal terminal</translation>
     </message>
@@ -126,14 +187,6 @@
         <location line="+45"/>
         <source>Tables are not available right now.</source>
         <translation>Tables are not available right now.</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Hall</translation>
-    </message>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terrace</translation>
     </message>
     <message>
         <location line="+122"/>
@@ -340,14 +393,6 @@
 </context>
 <context>
     <name>OrderPage</name>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terrace</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Hall</translation>
-    </message>
     <message>
         <location filename="../qml/pages/OrderPage.qml" line="+38"/>
         <location line="+1938"/>
@@ -562,22 +607,6 @@
         <translation>Payment failed</translation>
     </message>
     <message>
-        <source>Receipt not printed</source>
-        <translation type="vanished">Receipt not printed</translation>
-    </message>
-    <message>
-        <source>The payment went through, but the receipt didn&apos;t print: %1</source>
-        <translation type="vanished">The payment went through, but the receipt didn&apos;t print: %1</translation>
-    </message>
-    <message>
-        <source>Print again</source>
-        <translation type="vanished">Print again</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="vanished">Skip</translation>
-    </message>
-    <message>
         <location line="+11"/>
         <source>This terminal has no fiscal memory - pay on a SmartOne terminal.</source>
         <translation>This terminal has no fiscal memory - pay on a SmartOne terminal.</translation>
@@ -649,10 +678,6 @@
         <location line="+0"/>
         <source>Unknown</source>
         <translation>Unknown</translation>
-    </message>
-    <message>
-        <source>This terminal has no fiscal memory - print on a SmartOne terminal.</source>
-        <translation type="vanished">This terminal has no fiscal memory - print on a SmartOne terminal.</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -745,10 +770,6 @@
         <location line="+0"/>
         <source>Print receipt again</source>
         <translation>Print receipt again</translation>
-    </message>
-    <message>
-        <source>This order was closed at the register, so the app has no receipt to reprint.</source>
-        <translation type="vanished">This order was closed at the register, so the app has no receipt to reprint.</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -936,14 +957,6 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Opens the bank app on this terminal</translation>
     </message>
     <message>
-        <source>Card (separate terminal)</source>
-        <translation type="vanished">Card (separate terminal)</translation>
-    </message>
-    <message>
-        <source>Card already charged elsewhere</source>
-        <translation type="vanished">Card already charged elsewhere</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Manual RRN</source>
         <translation>Manual RRN</translation>
@@ -992,6 +1005,128 @@ It will be retried automatically when the app restarts.</translation>
         <location line="+23"/>
         <source>Pay and print receipt · %1 MDL</source>
         <translation>Pay and print receipt · %1 MDL</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterDiscoveryDialog</name>
+    <message>
+        <location filename="../qml/components/controls/PrinterDiscoveryDialog.qml" line="+103"/>
+        <source>Find printer</source>
+        <translation>Find printer</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Network %1</source>
+        <translation>Network %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Local network</source>
+        <translation>Local network</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Scanning %1/%2</source>
+        <translation>Scanning %1/%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 printers found</source>
+        <translation>%1 printers found</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>SCANNING</source>
+        <translation>SCANNING</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>READY</source>
+        <translation>READY</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Raw TCP printer</source>
+        <translation>Raw TCP printer</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Scanning...</source>
+        <translation>Scanning...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No printers found</source>
+        <translation>No printers found</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Rescan</source>
+        <translation>Rescan</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Use</source>
+        <translation>Use</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterManager</name>
+    <message>
+        <location filename="../src/printing/printermanager.cpp" line="+77"/>
+        <source>Invalid printer port.</source>
+        <translation>Invalid printer port.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No local Wi-Fi network was found for scanning.</source>
+        <translation>No local Wi-Fi network was found for scanning.</translation>
+    </message>
+    <message>
+        <location line="+264"/>
+        <source>Raw printer candidate %1:%2</source>
+        <translation>Raw printer candidate %1:%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 %2:%3</source>
+        <translation>%1 %2:%3</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Printer IP address is not set.</source>
+        <translation>Printer IP address is not set.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Could not connect to printer %1:%2.</source>
+        <translation>Could not connect to printer %1:%2.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+10"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Failed to send data to printer.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>IP address is empty.</source>
+        <translation>IP address is empty.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Printer connected successfully.</source>
+        <translation>Printer connected successfully.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not connect to printer. Check IP and network.</source>
+        <translation>Could not connect to printer. Check IP and network.</translation>
     </message>
 </context>
 <context>
@@ -1111,14 +1246,6 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Table %1 already has your open order (#%2). Open it?</translation>
     </message>
     <message>
-        <source>Table %1 is already open by %2 (order #%3).</source>
-        <translation type="vanished">Table %1 is already open by %2 (order #%3).</translation>
-    </message>
-    <message>
-        <source>Table %1 is already open (order #%2).</source>
-        <translation type="vanished">Table %1 is already open (order #%2).</translation>
-    </message>
-    <message>
         <location line="+54"/>
         <source>Select table</source>
         <translation>Select table</translation>
@@ -1132,14 +1259,6 @@ It will be retried automatically when the app restarts.</translation>
         <location line="+17"/>
         <source>Occupied</source>
         <translation>Occupied</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Hall</translation>
-    </message>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terrace</translation>
     </message>
     <message>
         <location line="-93"/>
@@ -1182,10 +1301,6 @@ It will be retried automatically when the app restarts.</translation>
         <location line="+0"/>
         <source>Your open order</source>
         <translation>Your open order</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
     </message>
 </context>
 <context>
@@ -1287,8 +1402,8 @@ It will be retried automatically when the app restarts.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Server</source>
-        <translation>Server</translation>
+        <source>Server, printer</source>
+        <translation>Server, printer</translation>
     </message>
     <message>
         <location line="+45"/>
@@ -1309,7 +1424,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>The fiscal service is not available on this terminal. The receipt can only be issued on a SmartOne terminal with fiscal memory.</translation>
     </message>
     <message>
-        <location line="+365"/>
+        <location line="+374"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</translation>
     </message>
@@ -1358,27 +1473,15 @@ It will be retried automatically when the app restarts.</translation>
         <translation>All</translation>
     </message>
     <message>
-        <source>Hall</source>
-        <translation type="vanished">Hall</translation>
-    </message>
-    <message>
         <location line="-292"/>
         <location line="+81"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
     <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terrace</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Table %1</source>
         <translation>Table %1</translation>
-    </message>
-    <message>
-        <source>Unknown table</source>
-        <translation type="vanished">Unknown table</translation>
     </message>
     <message>
         <location line="+143"/>
@@ -1394,14 +1497,6 @@ It will be retried automatically when the app restarts.</translation>
         <location line="+1"/>
         <source>Sign out</source>
         <translation>Sign out</translation>
-    </message>
-    <message>
-        <source>Not editable here yet</source>
-        <translation type="vanished">Not editable here yet</translation>
-    </message>
-    <message>
-        <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
-        <translation type="vanished">This order was started by another waiter or on another device, so it can&apos;t be opened here.</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -1584,10 +1679,6 @@ It will be retried automatically when the app restarts.</translation>
         <location filename="../qml/pages/WelcomePage.qml" line="+76"/>
         <source>Welcome</source>
         <translation>Welcome</translation>
-    </message>
-    <message>
-        <source>Choose how you&apos;d like to start</source>
-        <translation type="vanished">Choose how you&apos;d like to start</translation>
     </message>
     <message>
         <location line="+17"/>

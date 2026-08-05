@@ -55,6 +55,17 @@ QtObject {
     property int restaurantCod: 0
     property string restaurantName: ""
 
+    // --- Imprimanta de bucătărie (LAN, raw TCP) ---
+    // Se alege o dată, din Administrare → Caută imprimante. Gol = nesetat,
+    // și atunci butoanele de test/tipărire sunt inactive.
+    //
+    // Setarea e PE TELEFON, nu pe chelner: fiecare dispozitiv își are propria
+    // imprimantă configurată. Dacă la un moment dat apare o a doua secție
+    // (bar), aici se adaugă a doua pereche ip/port, nu în altă parte.
+    property string printerIp: ""
+    property int printerPort: 9100
+    property string printerName: ""
+
     // Notă despre deconectare: NU golim nimic de-aici, intenționat.
     // waiterOficiant rămâne reținut, ca la următoarea logare chelnerul să sară
     // direct la PIN (decizia lui Kristian, 2026-07-25) - cine preia telefonul
@@ -74,6 +85,9 @@ QtObject {
         property alias serverUrl: root.serverUrl
         property alias restaurantCod: root.restaurantCod
         property alias restaurantName: root.restaurantName
+        property alias printerIp: root.printerIp
+        property alias printerPort: root.printerPort
+        property alias printerName: root.printerName
         property alias pinFailedAttempts: root.pinFailedAttempts
         property alias pinLockUntilMs: root.pinLockUntilMs
     }

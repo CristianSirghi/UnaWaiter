@@ -217,14 +217,12 @@ Page {
             }
 
             // Rand de navigare catre pagina Administrare (setari de sistem).
-            // Ascuns momentan (2026-07-23, la cererea lui Kristian): aplicatia
-            // ruleaza pentru un singur client, iar URL-ul backend-ului are
-            // valoare implicita hardcodata in AppSettings.serverUrl - nu e
-            // nevoie de UI pentru el. Pagina AdminPage si semnalul
-            // adminRequested raman pe loc, doar re-pui visible cand va fi
-            // nevoie (ex. mai multi clienti).
+            // A fost ascuns intre 2026-07-23 si 2026-08-05, cat timp singura
+            // setare de-acolo era URL-ul backend-ului (hardcodat, deci fara
+            // nevoie de UI). Re-afisat odata cu imprimanta de bucatarie: aceea
+            // se alege per telefon, deci chiar cere un ecran de configurare.
             Rectangle {
-                visible: false
+                visible: true
                 Layout.fillWidth: true
                 Layout.preferredHeight: 64
                 radius: 14
@@ -256,7 +254,7 @@ Page {
                         }
 
                         Label {
-                            text: qsTr("Server")
+                            text: qsTr("Server, printer")
                             font.pixelSize: 12 * Theme.fontScale
                             color: Theme.textSecondary
                         }

@@ -67,17 +67,78 @@
 <context>
     <name>AdminPage</name>
     <message>
-        <location filename="../qml/pages/AdminPage.qml" line="+19"/>
+        <location filename="../qml/pages/AdminPage.qml" line="+23"/>
+        <source>Printer selected: %1</source>
+        <translation>Imprimantă selectată: %1</translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Administration</source>
         <translation>Administrare</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+33"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
     <message>
         <location line="+20"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Imprimantă</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>Nicio imprimantă selectată</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Printer IP</source>
+        <translation>IP imprimantă</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Search printers</source>
+        <translation>Caută imprimante</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Se testează...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Tipărește bon de test</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Se tipărește...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Bonul de test a fost trimis.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Trimiterea datelor către imprimantă a eșuat.</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Fiscal terminal</source>
         <translation>Terminal fiscal</translation>
     </message>
@@ -126,14 +187,6 @@
         <location line="+45"/>
         <source>Tables are not available right now.</source>
         <translation>Mesele nu sunt disponibile momentan.</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Sala</translation>
-    </message>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terasă</translation>
     </message>
     <message>
         <location line="+122"/>
@@ -340,14 +393,6 @@
 </context>
 <context>
     <name>OrderPage</name>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terasă</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Sala</translation>
-    </message>
     <message>
         <location filename="../qml/pages/OrderPage.qml" line="+38"/>
         <location line="+1938"/>
@@ -562,22 +607,6 @@
         <translation>Achitarea a eșuat</translation>
     </message>
     <message>
-        <source>Receipt not printed</source>
-        <translation type="vanished">Bonul nu s-a tipărit</translation>
-    </message>
-    <message>
-        <source>The payment went through, but the receipt didn&apos;t print: %1</source>
-        <translation type="vanished">Plata a trecut, dar bonul nu s-a tipărit: %1</translation>
-    </message>
-    <message>
-        <source>Print again</source>
-        <translation type="vanished">Tipărește din nou</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="vanished">Renunță</translation>
-    </message>
-    <message>
         <location line="+11"/>
         <source>This terminal has no fiscal memory - pay on a SmartOne terminal.</source>
         <translation>Acest terminal nu are memorie fiscala - achitati pe un terminal SmartOne.</translation>
@@ -649,10 +678,6 @@
         <location line="+0"/>
         <source>Unknown</source>
         <translation>Necunoscut</translation>
-    </message>
-    <message>
-        <source>This terminal has no fiscal memory - print on a SmartOne terminal.</source>
-        <translation type="vanished">Acest terminal nu are memorie fiscală - tipăriți pe un terminal SmartOne.</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -745,10 +770,6 @@
         <location line="+0"/>
         <source>Print receipt again</source>
         <translation>Tipărește bonul din nou</translation>
-    </message>
-    <message>
-        <source>This order was closed at the register, so the app has no receipt to reprint.</source>
-        <translation type="vanished">Comanda a fost achitată la casă, deci aplicația nu are ce bon să retipărească.</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -936,14 +957,6 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Deschide aplicația băncii pe acest terminal</translation>
     </message>
     <message>
-        <source>Card (separate terminal)</source>
-        <translation type="vanished">Card (terminal separat)</translation>
-    </message>
-    <message>
-        <source>Card already charged elsewhere</source>
-        <translation type="vanished">Cardul a fost deja trecut pe alt terminal</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Manual RRN</source>
         <translation>RRN Manual</translation>
@@ -992,6 +1005,128 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <location line="+23"/>
         <source>Pay and print receipt · %1 MDL</source>
         <translation>Achită și tipărește bonul · %1 MDL</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterDiscoveryDialog</name>
+    <message>
+        <location filename="../qml/components/controls/PrinterDiscoveryDialog.qml" line="+103"/>
+        <source>Find printer</source>
+        <translation>Caută imprimantă</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Network %1</source>
+        <translation>Rețea %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Local network</source>
+        <translation>Rețea locală</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Scanning %1/%2</source>
+        <translation>Scanare %1/%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 printers found</source>
+        <translation>%1 imprimante găsite</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>SCANNING</source>
+        <translation>SCANARE</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>READY</source>
+        <translation>GATA</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Raw TCP printer</source>
+        <translation>Imprimantă TCP</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Scanning...</source>
+        <translation>Se scanează...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No printers found</source>
+        <translation>Nicio imprimantă găsită</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Cancel</source>
+        <translation>Anulează</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Rescan</source>
+        <translation>Rescanează</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Use</source>
+        <translation>Folosește</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterManager</name>
+    <message>
+        <location filename="../src/printing/printermanager.cpp" line="+77"/>
+        <source>Invalid printer port.</source>
+        <translation>Port de imprimantă invalid.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No local Wi-Fi network was found for scanning.</source>
+        <translation>Nu s-a găsit nicio rețea Wi-Fi locală pentru scanare.</translation>
+    </message>
+    <message>
+        <location line="+264"/>
+        <source>Raw printer candidate %1:%2</source>
+        <translation>Candidat imprimantă %1:%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 %2:%3</source>
+        <translation>%1 %2:%3</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Printer IP address is not set.</source>
+        <translation>Adresa IP a imprimantei nu este setată.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Could not connect to printer %1:%2.</source>
+        <translation>Nu s-a putut conecta la imprimanta %1:%2.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+10"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Trimiterea datelor către imprimantă a eșuat.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>IP address is empty.</source>
+        <translation>Adresa IP este goală.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Printer connected successfully.</source>
+        <translation>Imprimanta s-a conectat cu succes.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not connect to printer. Check IP and network.</source>
+        <translation>Nu s-a putut conecta la imprimantă. Verificați IP-ul și rețeaua.</translation>
     </message>
 </context>
 <context>
@@ -1111,14 +1246,6 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Masa %1 are deja comanda ta deschisă (#%2). O deschizi?</translation>
     </message>
     <message>
-        <source>Table %1 is already open by %2 (order #%3).</source>
-        <translation type="vanished">Masa %1 e deja ocupată de %2 (comanda #%3).</translation>
-    </message>
-    <message>
-        <source>Table %1 is already open (order #%2).</source>
-        <translation type="vanished">Masa %1 e deja ocupată (comanda #%2).</translation>
-    </message>
-    <message>
         <location line="+54"/>
         <source>Select table</source>
         <translation>Selectați masa</translation>
@@ -1132,14 +1259,6 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <location line="+17"/>
         <source>Occupied</source>
         <translation>Ocupată</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Sala</translation>
-    </message>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terasă</translation>
     </message>
     <message>
         <location line="-93"/>
@@ -1182,10 +1301,6 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <location line="+0"/>
         <source>Your open order</source>
         <translation>Comanda ta deschisă</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
     </message>
 </context>
 <context>
@@ -1287,8 +1402,8 @@ Se va reîncerca automat la repornirea aplicației.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Server</source>
-        <translation>Server</translation>
+        <source>Server, printer</source>
+        <translation>Server, imprimantă</translation>
     </message>
     <message>
         <location line="+45"/>
@@ -1309,7 +1424,7 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Serviciul fiscal nu este disponibil pe acest terminal. Bonul poate fi emis doar pe un terminal SmartOne cu memorie fiscala.</translation>
     </message>
     <message>
-        <location line="+365"/>
+        <location line="+374"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>Plata a fost confirmată, dar serviciul fiscal nu a răspuns la emiterea bonului. NU repetați plata - bonul trebuie reemis.</translation>
     </message>
@@ -1358,27 +1473,15 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <translation>Toate</translation>
     </message>
     <message>
-        <source>Hall</source>
-        <translation type="vanished">Sala</translation>
-    </message>
-    <message>
         <location line="-292"/>
         <location line="+81"/>
         <source>Takeaway</source>
         <translation>La pachet</translation>
     </message>
     <message>
-        <source>Terrace</source>
-        <translation type="vanished">Terasă</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Table %1</source>
         <translation>Masa %1</translation>
-    </message>
-    <message>
-        <source>Unknown table</source>
-        <translation type="vanished">Masă necunoscută</translation>
     </message>
     <message>
         <location line="+143"/>
@@ -1394,14 +1497,6 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <location line="+1"/>
         <source>Sign out</source>
         <translation>Deconectare</translation>
-    </message>
-    <message>
-        <source>Not editable here yet</source>
-        <translation type="vanished">Încă nu se poate edita aici</translation>
-    </message>
-    <message>
-        <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
-        <translation type="vanished">Această comandă a fost începută de alt chelner sau pe alt dispozitiv, deci nu poate fi deschisă aici.</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -1584,10 +1679,6 @@ Se va reîncerca automat la repornirea aplicației.</translation>
         <location filename="../qml/pages/WelcomePage.qml" line="+76"/>
         <source>Welcome</source>
         <translation>Bine ați venit</translation>
-    </message>
-    <message>
-        <source>Choose how you&apos;d like to start</source>
-        <translation type="vanished">Alegeți cum doriți să începeți</translation>
     </message>
     <message>
         <location line="+17"/>

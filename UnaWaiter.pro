@@ -4,7 +4,8 @@ CONFIG += release
 # Include paths for C++ headers
 INCLUDEPATH += \
     src \
-    src/core
+    src/core \
+    src/printing
 
 HEADERS += \
     src/core/translationmanager.h \
@@ -13,7 +14,8 @@ HEADERS += \
     src/core/updatemanager.h \
     src/core/pendingfiscalstore.h \
     src/core/smartoneclient.h \
-    src/core/paymentcontroller.h
+    src/core/paymentcontroller.h \
+    src/printing/printermanager.h
 
 SOURCES += \
     src/main.cpp \
@@ -22,7 +24,8 @@ SOURCES += \
     src/core/updatemanager.cpp \
     src/core/pendingfiscalstore.cpp \
     src/core/smartoneclient.cpp \
-    src/core/paymentcontroller.cpp
+    src/core/paymentcontroller.cpp \
+    src/printing/printermanager.cpp
 
 # Sursa unica a versiunii afisate (src/core/appversion.h) - de-acolo se
 # completeaza automat versionName/versionCode in AndroidManifest.xml

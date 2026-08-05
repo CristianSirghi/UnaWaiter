@@ -6,6 +6,7 @@
 #include "dataservice.h"
 #include "updatemanager.h"
 #include "paymentcontroller.h"
+#include "printermanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -40,6 +41,9 @@ int main(int argc, char *argv[])
     TranslationManager translationManager;
     DataService dataService;
     UpdateManager updateManager;
+    // Nu depinde de nimic altceva (doar rețea) - poziția în listă e indiferentă,
+    // dar îl ținem lângă celelalte servicii, nu în blocul motorului QML.
+    PrinterManager printerManager;
     // Declarat DUPĂ dataService: se distruge înaintea lui, deci nu ajunge
     // niciodată să-l atingă după ce a dispărut.
     PaymentController paymentController(&dataService);
@@ -55,6 +59,7 @@ int main(int argc, char *argv[])
         ctx->setContextProperty(QStringLiteral("dataService"), &dataService);
         ctx->setContextProperty(QStringLiteral("appUpdateManager"), &updateManager);
         ctx->setContextProperty(QStringLiteral("paymentController"), &paymentController);
+        ctx->setContextProperty(QStringLiteral("printerManager"), &printerManager);
 
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(

@@ -67,17 +67,78 @@
 <context>
     <name>AdminPage</name>
     <message>
-        <location filename="../qml/pages/AdminPage.qml" line="+19"/>
+        <location filename="../qml/pages/AdminPage.qml" line="+23"/>
+        <source>Printer selected: %1</source>
+        <translation>Принтер выбран: %1</translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Administration</source>
         <translation>Администрирование</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+33"/>
         <source>Server</source>
         <translation>Сервер</translation>
     </message>
     <message>
         <location line="+20"/>
+        <location line="+37"/>
+        <source>Printer</source>
+        <translation>Принтер</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No printer selected</source>
+        <translation>Принтер не выбран</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Printer IP</source>
+        <translation>IP принтера</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Port</source>
+        <translation>Порт</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Search printers</source>
+        <translation>Найти принтеры</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Test</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Testing...</source>
+        <translation>Проверка...</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Print test receipt</source>
+        <translation>Печать тестового чека</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Printing...</source>
+        <translation>Печать...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Test receipt sent.</source>
+        <translation>Тестовый чек отправлен.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Не удалось отправить данные на принтер.</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Fiscal terminal</source>
         <translation>Фискальный терминал</translation>
     </message>
@@ -126,14 +187,6 @@
         <location line="+45"/>
         <source>Tables are not available right now.</source>
         <translation>Столы сейчас недоступны.</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Зал</translation>
-    </message>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Терраса</translation>
     </message>
     <message>
         <location line="+122"/>
@@ -340,14 +393,6 @@
 </context>
 <context>
     <name>OrderPage</name>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Терраса</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Зал</translation>
-    </message>
     <message>
         <location filename="../qml/pages/OrderPage.qml" line="+38"/>
         <location line="+1938"/>
@@ -562,22 +607,6 @@
         <translation>Оплата не прошла</translation>
     </message>
     <message>
-        <source>Receipt not printed</source>
-        <translation type="vanished">Чек не напечатан</translation>
-    </message>
-    <message>
-        <source>The payment went through, but the receipt didn&apos;t print: %1</source>
-        <translation type="vanished">Оплата прошла, но чек не напечатался: %1</translation>
-    </message>
-    <message>
-        <source>Print again</source>
-        <translation type="vanished">Напечатать снова</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="vanished">Пропустить</translation>
-    </message>
-    <message>
         <location line="+11"/>
         <source>This terminal has no fiscal memory - pay on a SmartOne terminal.</source>
         <translation>У этого терминала нет фискальной памяти - оплатите на терминале SmartOne.</translation>
@@ -649,10 +678,6 @@
         <location line="+0"/>
         <source>Unknown</source>
         <translation>Неизвестно</translation>
-    </message>
-    <message>
-        <source>This terminal has no fiscal memory - print on a SmartOne terminal.</source>
-        <translation type="vanished">У этого терминала нет фискальной памяти - печатайте на терминале SmartOne.</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -745,10 +770,6 @@
         <location line="+0"/>
         <source>Print receipt again</source>
         <translation>Напечатать чек снова</translation>
-    </message>
-    <message>
-        <source>This order was closed at the register, so the app has no receipt to reprint.</source>
-        <translation type="vanished">Заказ был оплачен на кассе, поэтому у приложения нет чека для повторной печати.</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -936,14 +957,6 @@ It will be retried automatically when the app restarts.</source>
         <translation>Откроет банковское приложение на этом терминале</translation>
     </message>
     <message>
-        <source>Card (separate terminal)</source>
-        <translation type="vanished">Карта (отдельный терминал)</translation>
-    </message>
-    <message>
-        <source>Card already charged elsewhere</source>
-        <translation type="vanished">Карта уже проведена на другом терминале</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Manual RRN</source>
         <translation>RRN вручную</translation>
@@ -992,6 +1005,128 @@ It will be retried automatically when the app restarts.</source>
         <location line="+23"/>
         <source>Pay and print receipt · %1 MDL</source>
         <translation>Оплатить и напечатать чек · %1 MDL</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterDiscoveryDialog</name>
+    <message>
+        <location filename="../qml/components/controls/PrinterDiscoveryDialog.qml" line="+103"/>
+        <source>Find printer</source>
+        <translation>Найти принтер</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Network %1</source>
+        <translation>Сеть %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Local network</source>
+        <translation>Локальная сеть</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Scanning %1/%2</source>
+        <translation>Сканирование %1/%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 printers found</source>
+        <translation>Найдено принтеров: %1</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>SCANNING</source>
+        <translation>СКАНИРОВАНИЕ</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>READY</source>
+        <translation>ГОТОВО</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Raw TCP printer</source>
+        <translation>TCP-принтер</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Scanning...</source>
+        <translation>Сканирование...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No printers found</source>
+        <translation>Принтеры не найдены</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Rescan</source>
+        <translation>Сканировать снова</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Use</source>
+        <translation>Выбрать</translation>
+    </message>
+</context>
+<context>
+    <name>PrinterManager</name>
+    <message>
+        <location filename="../src/printing/printermanager.cpp" line="+77"/>
+        <source>Invalid printer port.</source>
+        <translation>Неверный порт принтера.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No local Wi-Fi network was found for scanning.</source>
+        <translation>Локальная Wi-Fi сеть для сканирования не найдена.</translation>
+    </message>
+    <message>
+        <location line="+264"/>
+        <source>Raw printer candidate %1:%2</source>
+        <translation>Найденный принтер %1:%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 %2:%3</source>
+        <translation>%1 %2:%3</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Printer IP address is not set.</source>
+        <translation>IP-адрес принтера не указан.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Could not connect to printer %1:%2.</source>
+        <translation>Не удалось подключиться к принтеру %1:%2.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+10"/>
+        <source>Failed to send data to printer.</source>
+        <translation>Не удалось отправить данные на принтер.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>IP address is empty.</source>
+        <translation>IP-адрес не указан.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Printer connected successfully.</source>
+        <translation>Принтер успешно подключен.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not connect to printer. Check IP and network.</source>
+        <translation>Не удалось подключиться к принтеру. Проверьте IP и сеть.</translation>
     </message>
 </context>
 <context>
@@ -1111,14 +1246,6 @@ It will be retried automatically when the app restarts.</source>
         <translation>У стола %1 уже есть ваш открытый заказ (#%2). Открыть его?</translation>
     </message>
     <message>
-        <source>Table %1 is already open by %2 (order #%3).</source>
-        <translation type="vanished">Стол %1 уже занят — %2 (заказ #%3).</translation>
-    </message>
-    <message>
-        <source>Table %1 is already open (order #%2).</source>
-        <translation type="vanished">Стол %1 уже занят (заказ #%2).</translation>
-    </message>
-    <message>
         <location line="+54"/>
         <source>Select table</source>
         <translation>Выберите стол</translation>
@@ -1132,14 +1259,6 @@ It will be retried automatically when the app restarts.</source>
         <location line="+17"/>
         <source>Occupied</source>
         <translation>Занят</translation>
-    </message>
-    <message>
-        <source>Hall</source>
-        <translation type="vanished">Зал</translation>
-    </message>
-    <message>
-        <source>Terrace</source>
-        <translation type="vanished">Терраса</translation>
     </message>
     <message>
         <location line="-93"/>
@@ -1182,10 +1301,6 @@ It will be retried automatically when the app restarts.</source>
         <location line="+0"/>
         <source>Your open order</source>
         <translation>Ваш открытый заказ</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">ОК</translation>
     </message>
 </context>
 <context>
@@ -1287,8 +1402,8 @@ It will be retried automatically when the app restarts.</source>
     </message>
     <message>
         <location line="+7"/>
-        <source>Server</source>
-        <translation>Сервер</translation>
+        <source>Server, printer</source>
+        <translation>Сервер, принтер</translation>
     </message>
     <message>
         <location line="+45"/>
@@ -1309,7 +1424,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Фискальная служба недоступна на этом терминале. Чек можно выдать только на терминале SmartOne с фискальной памятью.</translation>
     </message>
     <message>
-        <location line="+365"/>
+        <location line="+374"/>
         <source>The payment was confirmed, but the fiscal service did not respond when issuing the receipt. Do NOT repeat the payment - the receipt must be reissued.</source>
         <translation>Оплата подтверждена, но фискальный сервис не ответил при выдаче чека. НЕ повторяйте оплату — чек нужно перевыпустить.</translation>
     </message>
@@ -1358,27 +1473,15 @@ It will be retried automatically when the app restarts.</source>
         <translation>Все</translation>
     </message>
     <message>
-        <source>Hall</source>
-        <translation type="vanished">Зал</translation>
-    </message>
-    <message>
         <location line="-292"/>
         <location line="+81"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
     <message>
-        <source>Terrace</source>
-        <translation type="vanished">Терраса</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Table %1</source>
         <translation>Стол %1</translation>
-    </message>
-    <message>
-        <source>Unknown table</source>
-        <translation type="vanished">Неизвестный стол</translation>
     </message>
     <message>
         <location line="+143"/>
@@ -1394,14 +1497,6 @@ It will be retried automatically when the app restarts.</source>
         <location line="+1"/>
         <source>Sign out</source>
         <translation>Выйти</translation>
-    </message>
-    <message>
-        <source>Not editable here yet</source>
-        <translation type="vanished">Пока нельзя редактировать здесь</translation>
-    </message>
-    <message>
-        <source>This order was started by another waiter or on another device, so it can&apos;t be opened here.</source>
-        <translation type="vanished">Этот заказ был начат другим официантом или на другом устройстве, поэтому его нельзя открыть здесь.</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -1584,10 +1679,6 @@ It will be retried automatically when the app restarts.</source>
         <location filename="../qml/pages/WelcomePage.qml" line="+76"/>
         <source>Welcome</source>
         <translation>Добро пожаловать</translation>
-    </message>
-    <message>
-        <source>Choose how you&apos;d like to start</source>
-        <translation type="vanished">Выберите, как хотите начать</translation>
     </message>
     <message>
         <location line="+17"/>

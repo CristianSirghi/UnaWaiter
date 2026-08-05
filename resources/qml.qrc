@@ -1,5 +1,5 @@
 <RCC>
-    <!-- build rev 103 -->
+    <!-- build rev 106 -->
     <qresource prefix="/">
         <file alias="main.qml">../qml/main.qml</file>
         <file alias="theme/qmldir">../qml/theme/qmldir</file>
@@ -41,6 +41,7 @@
         <file alias="components/controls/PaymentProgressOverlay.qml">../qml/components/controls/PaymentProgressOverlay.qml</file>
         <file alias="components/controls/PrinterAnimation.qml">../qml/components/controls/PrinterAnimation.qml</file>
         <file alias="components/controls/TextInputField.qml">../qml/components/controls/TextInputField.qml</file>
+        <file alias="components/controls/PrinterDiscoveryDialog.qml">../qml/components/controls/PrinterDiscoveryDialog.qml</file>
         <file alias="components/controls/ChangeTablePicker.qml">../qml/components/controls/ChangeTablePicker.qml</file>
         <file alias="components/controls/LoadingOverlay.qml">../qml/components/controls/LoadingOverlay.qml</file>
         <file alias="components/controls/TouchArea.qml">../qml/components/controls/TouchArea.qml</file>
