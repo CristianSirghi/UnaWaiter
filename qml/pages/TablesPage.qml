@@ -26,6 +26,32 @@ Page {
     property bool ordersReady: false
     property string loadError: ""
 
+    // ——— Geometria grilei de carduri ———
+    // Cardurile stau două pe rând pe un telefon în portret și mai multe pe
+    // ecrane late (landscape, tabletă). Nu e un număr fix: îl calculăm din
+    // lățimea disponibilă, cu 2 ca minim (sub asta cardul n-ar mai fi pătrat)
+    // și 4 ca maxim (peste, textul produselor devine ilizibil de îngust).
+    readonly property real gridSpacing: 12
+    readonly property int gridColumns: tableList.width > 0
+        ? Math.max(2, Math.min(4, Math.floor(tableList.width / 200)))
+        : 2
+    // Math.floor: fără el, suma lățimilor + spațiile poate depăși containerul
+    // cu o fracțiune de pixel, iar ultima coloană sare pe rândul următor.
+    readonly property real cardWidth: Math.floor(
+        (tableList.width - root.gridSpacing * (root.gridColumns - 1)) / root.gridColumns)
+
+    // Toate cardurile au ACEEAȘI înălțime - altfel rândurile grilei se
+    // decalează. Deci nu mai crește cu lista de produse (ca la cardul lat de
+    // dinainte): produsele se taie la trei rânduri cu "…". Înălțimea e suma
+    // rândurilor de text (care se scalează cu fontScale) plus spațiile fixe.
+    readonly property real cardHeight:
+          24                                 // padding sus + jos
+        + 20 * Theme.fontScale               // masa + ora
+        + 5 + 16 * Theme.fontScale           // chelner + #comandă
+        + 5 + 3 * 18 * Theme.fontScale       // trei rânduri de produse
+        + 5 + 1                              // linia despărțitoare
+        + 5 + 22 * Theme.fontScale           // persoane + total
+
     // Pull-to-refresh (trage lista în jos de la vârf ca s-o reîmprospătezi
     // manual, în plus față de poll-ul automat la 25s).
     readonly property real pullThreshold: 70
@@ -168,12 +194,42 @@ Page {
         OrdersStore.pruneMissing(openKeys,
                                  root.showMineOnly ? AppSettings.waiterOficiant : 0)
 
-        items.sort(function(a, b) { return root.zoneRank(a.zone) - root.zoneRank(b.zone) })
+        // Grupare pe zone. Înainte lista era plată și `ListView.section` punea
+        // antetele; grila nu are echivalent (GridView n-are `section`), deci
+        // grupăm noi: un bloc per zonă = antet + o grilă proprie de carduri.
+        var order = []
+        var groups = ({})
+        for (var g = 0; g < items.length; ++g) {
+            var z = items[g].zone
+            if (groups[z] === undefined) {
+                groups[z] = []
+                order.push(z)
+            }
+            groups[z].push(items[g])
+        }
+        order.sort(function(a, b) { return root.zoneRank(a) - root.zoneRank(b) })
+
+        var zoneRows = []
+        for (var k = 0; k < order.length; ++k)
+            zoneRows.push({ code: order[k] })
 
         // Actualizare pe loc, nu clear() + append: poll-ul de 25s (și fiecare
         // revenire pe pagină) resetau altfel derularea listei, aruncând
-        // chelnerul înapoi la prima masă în mijlocul căutării.
-        ListSync.sync(tableOrdersModel, items, "rowKey")
+        // chelnerul înapoi la prima masă în mijlocul căutării. Același motiv
+        // pentru care sincronizăm și cardurile din fiecare zonă, mai jos.
+        ListSync.sync(zonesModel, zoneRows, "code")
+
+        // Repeater creează delegații sincron la schimbarea modelului, deci
+        // blocurile de zonă există deja aici. Le căutăm după `zoneCode`, nu
+        // după indice: dacă o zonă a fost inserată la mijloc, indicii s-au
+        // deplasat, dar codul rămâne al aceluiași bloc.
+        for (var d = 0; d < zoneRepeater.count; ++d) {
+            var block = zoneRepeater.itemAt(d)
+            if (block)
+                block.applyItems(groups[block.zoneCode] !== undefined
+                                 ? groups[block.zoneCode] : [])
+        }
+
         root.ordersReady = true
     }
 
@@ -181,7 +237,9 @@ Page {
         dataService.loadOpenOrders(root.showMineOnly ? String(AppSettings.waiterOficiant) : "")
     }
 
-    ListModel { id: tableOrdersModel }
+    // Doar zonele care au cel puțin o comandă deschisă. Cardurile stau în
+    // câte un ListModel propriu, înăuntrul fiecărui bloc de zonă.
+    ListModel { id: zonesModel }
 
     Connections {
         target: dataService
@@ -427,29 +485,81 @@ Page {
                 }
             }
 
-            ListView {
+            // Cardurile stau într-o grilă, nu într-o listă pe toată lățimea.
+            // De ce Flickable + Column, și NU GridView: GridView n-are
+            // `section`, iar antetele de zonă (Sala / Terasă / La pachet)
+            // trebuie păstrate. Aici fiecare zonă e un bloc propriu - antet +
+            // grila ei - iar Flickable-ul expune exact aceleași proprietăți pe
+            // care se sprijină pull-to-refresh (contentY, dragging, topMargin),
+            // deci mecanismul de mai jos rămâne neschimbat.
+            //
+            // Renunțarea la virtualizarea ListView-ului nu costă nimic la scara
+            // asta: un restaurant are zeci de comenzi deschise, nu mii.
+            Flickable {
                 id: tableList
                 z: 1
                 anchors.fill: parent
-                spacing: 12
                 clip: true
-                // Rămâne mereu vizibilă (chiar și goală) - altfel, cu
-                // visible:false, Flickable-ul nu mai primește gesturi de
-                // tragere deloc și pull-to-refresh nu mai poate fi declanșat
-                // când nu există nicio comandă. Mesajul "Fără comenzi" e desenat
-                // deasupra (vezi mai jos), nu ascunde lista.
-                model: tableOrdersModel
+                // Deliberat FĂRĂ `visible: count > 0`: ascunsă, nu mai primește
+                // gesturi de tragere deloc, deci pull-to-refresh n-ar mai putea
+                // fi declanșat exact când nu există nicio comandă. Mesajul
+                // "Fără comenzi" e desenat deasupra (vezi mai jos), nu în locul ei.
 
-                // Grupăm cardurile pe zonă (Sala / Terasă), cu un antet per grup.
-                section.property: "zone"
-                section.delegate: Label {
-                    width: ListView.view.width
-                    topPadding: 4
-                    bottomPadding: 8
-                    text: root.zoneLabel(section)
-                    font.pixelSize: 18 * Theme.fontScale
-                    font.bold: true
-                    color: Theme.textPrimary
+                contentWidth: width
+                contentHeight: zonesColumn.height
+                // Butonul "+" plutește peste colțul din dreapta-jos; fără
+                // spațiul ăsta ar acoperi ultimul card, care n-ar mai putea fi
+                // atins.
+                bottomMargin: 84
+
+                Column {
+                    id: zonesColumn
+                    width: tableList.width
+                    spacing: 16
+
+                    Repeater {
+                        id: zoneRepeater
+                        model: zonesModel
+
+                        // Un bloc = o zonă: antetul ei și grila comenzilor din
+                        // ea. Cardurile stau într-un ListModel propriu al
+                        // blocului, alimentat din buildOrders prin applyItems -
+                        // tot prin ListSync, deci un poll nu reconstruiește
+                        // cardurile neschimbate.
+                        delegate: Column {
+                            id: zoneBlock
+
+                            // `model.code`, nu `code`: numele s-ar referi la
+                            // proprietatea pe care tocmai o declarăm.
+                            property string zoneCode: model.code
+
+                            function applyItems(arr) {
+                                ListSync.sync(cardsModel, arr, "rowKey")
+                            }
+
+                            width: parent.width
+                            spacing: 8
+
+                            ListModel { id: cardsModel }
+
+                            Label {
+                                text: root.zoneLabel(zoneBlock.zoneCode)
+                                font.pixelSize: 18 * Theme.fontScale
+                                font.bold: true
+                                color: Theme.textPrimary
+                            }
+
+                            Grid {
+                                columns: root.gridColumns
+                                spacing: root.gridSpacing
+
+                                Repeater {
+                                    model: cardsModel
+                                    delegate: cardDelegate
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Permite tragerea dincolo de vârf (efect elastic) - fără asta,
@@ -489,134 +599,169 @@ Page {
                     }
                 }
 
-            // Garantează că punctele de reîmprospătare rămân vizibile cel
-            // puțin pullMinSpinMs, chiar dacă BD răspunde instant.
-            Timer {
-                id: minSpinTimer
-                interval: root.pullMinSpinMs
-                repeat: false
-                onTriggered: {
-                    root.pullMinElapsed = true
-                    root.maybeFinishRefresh()
+                // Garantează că punctele de reîmprospătare rămân vizibile cel
+                // puțin pullMinSpinMs, chiar dacă BD răspunde instant.
+                Timer {
+                    id: minSpinTimer
+                    interval: root.pullMinSpinMs
+                    repeat: false
+                    onTriggered: {
+                        root.pullMinElapsed = true
+                        root.maybeFinishRefresh()
+                    }
                 }
             }
 
-            delegate: Rectangle {
-                width: ListView.view.width
-                height: cardContent.implicitHeight + 28
-                radius: 14
-                color: Theme.surface
-                border.color: Theme.border
+            // Cardul unei comenzi. Lățime și înălțime impuse din afară (toate
+            // identice, altfel rândurile grilei se decalează), deci conținutul
+            // se adaptează: numele mesei și al chelnerului se taie cu "…", iar
+            // lista de produse e limitată la trei rânduri.
+            //
+            // Eticheta de zonă de pe cardul lat a dispărut: acum zona e scrisă
+            // în antetul blocului, deasupra grilei, deci ar fi fost repetată pe
+            // fiecare card fără să aducă nimic.
+            Component {
+                id: cardDelegate
 
-                Components.TouchArea {
-                    anchors.fill: parent
-                    onClicked: root.orderOpened(zone, tableNumber, nrComand)
-                }
+                Rectangle {
+                    width: root.cardWidth
+                    height: root.cardHeight
+                    radius: 14
+                    color: Theme.surface
+                    border.color: Theme.border
 
-                ColumnLayout {
-                    id: cardContent
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.margins: 14
-                    spacing: 6
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 5
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 8
-
-                        Label {
-                            text: tableName
-                            font.pixelSize: 16 * Theme.fontScale
-                            font.bold: true
-                            color: active ? Theme.primary : Theme.textSecondary
-                        }
-
-                        // Etichetă zonă (Sala / Terasă) — distinge masa 1 din sală de masa 1 de pe terasă.
-                        // La pachet ar repeta exact titlul cardului, deci o ascundem.
-                        Rectangle {
-                            visible: !isTakeaway
-                            Layout.alignment: Qt.AlignVCenter
-                            implicitWidth: zoneTag.implicitWidth + 16
-                            implicitHeight: zoneTag.implicitHeight + 6
-                            radius: height / 2
-                            color: Theme.keyBackground
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
 
                             Label {
-                                id: zoneTag
-                                anchors.centerIn: parent
-                                text: root.zoneLabel(zone)
-                                font.pixelSize: 11 * Theme.fontScale
+                                Layout.fillWidth: true
+                                text: tableName
+                                font.pixelSize: 16 * Theme.fontScale
+                                font.bold: true
+                                color: active ? Theme.primary : Theme.textSecondary
+                                elide: Text.ElideRight
+                            }
+
+                            Label {
+                                text: orderTime
+                                font.pixelSize: 12 * Theme.fontScale
                                 color: Theme.textSecondary
                             }
                         }
 
-                        Item { Layout.fillWidth: true }
-                        Label {
-                            text: orderTime
-                            font.pixelSize: 13 * Theme.fontScale
-                            color: Theme.textSecondary
-                        }
-                    }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Label {
-                            text: waiterName
-                            font.pixelSize: 13 * Theme.fontScale
-                            color: Theme.textSecondary
+                            // Pe "Ale mele" toate comenzile sunt ale
+                            // chelnerului logat, deci numele lui pe fiecare card
+                            // ar fi doar zgomot pe un card deja îngust. Rândul
+                            // rămâne însă (cu numărul comenzii), ca înălțimea
+                            // cardului să nu difere între cele două filtre.
+                            // Ca la total: se micșorează întâi fontul și abia
+                            // apoi se taie. Pe "Font mare", un nume întreg scris
+                            // mai mic ("Constantinescu Gheorghe") e mai util
+                            // decât unul mare și ciuntit ("Constan…").
+                            Label {
+                                Layout.fillWidth: true
+                                visible: !root.showMineOnly
+                                text: waiterName
+                                font.pixelSize: 12 * Theme.fontScale
+                                fontSizeMode: Text.HorizontalFit
+                                minimumPixelSize: 9
+                                color: Theme.textSecondary
+                                elide: Text.ElideRight
+                            }
+
+                            Item {
+                                Layout.fillWidth: true
+                                visible: root.showMineOnly
+                            }
+
+                            Label {
+                                text: orderNo
+                                font.pixelSize: 12 * Theme.fontScale
+                                font.bold: true
+                                color: Theme.textPrimary
+                            }
                         }
-                        Item { Layout.fillWidth: true }
+
+                        // `fillHeight` absoarbe diferența dintre înălțimea fixă
+                        // a cardului și cât ocupă textul - fără dependență
+                        // circulară, fiindcă înălțimea cardului nu mai vine din
+                        // conținut, ci din root.cardHeight.
                         Label {
-                            text: orderNo
-                            font.pixelSize: 13 * Theme.fontScale
-                            font.bold: true
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            text: preview
+                            font.pixelSize: 12 * Theme.fontScale
                             color: Theme.textPrimary
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 3
+                            elide: Text.ElideRight
+                            verticalAlignment: Text.AlignTop
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 1
+                            color: Theme.border
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
+
+                            // Numărul de clienți n-are sens la o comandă la pachet
+                            // (nu stă nimeni la masă) - acolo rămâne mereu 1.
+                            Label {
+                                visible: !isTakeaway
+                                text: "👤 " + guestCount
+                                font.pixelSize: 12 * Theme.fontScale
+                                color: Theme.textSecondary
+                            }
+
+                            // Suma PRIMEȘTE spațiul rămas (fillWidth) și e
+                            // aliniată la dreapta - nu mai există un spacer
+                            // separat. Fără fillWidth, Label-ul își lua lățimea
+                            // naturală a textului, iar RowLayout n-avea cum s-o
+                            // strângă: pe "Font mare", "1410,00 MDL" ieșea în
+                            // afara cardului.
+                            //
+                            // HorizontalFit micșorează fontul (până la
+                            // minimumPixelSize) cât să încapă, în loc să taie
+                            // suma cu "…" - un total trunchiat ar fi de-a dreptul
+                            // înșelător. `elide` rămâne doar ca ultimă plasă,
+                            // pentru cazul în care nici la minim n-ar încăpea.
+                            Label {
+                                Layout.fillWidth: true
+                                text: total
+                                font.pixelSize: 14 * Theme.fontScale
+                                fontSizeMode: Text.HorizontalFit
+                                minimumPixelSize: 10
+                                font.bold: true
+                                color: Theme.textPrimary
+                                horizontalAlignment: Text.AlignRight
+                                elide: Text.ElideRight
+                            }
                         }
                     }
 
-                    Label {
-                        text: preview
-                        font.pixelSize: 13 * Theme.fontScale
-                        color: Theme.textPrimary
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                    }
-
-                    // (fără spacer fillHeight aici: cardul e dimensionat exact
-                    // pe conținut - height: cardContent.implicitHeight + 28 -
-                    // deci un Layout.fillHeight în interior crea o dependență
-                    // circulară pe înălțime -> binding loop. N-avea spațiu de
-                    // umplut oricum.)
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 1
-                        color: Theme.border
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-
-                        // Numărul de clienți n-are sens la o comandă la pachet
-                        // (nu stă nimeni la masă) - acolo rămâne mereu 1.
-                        Label {
-                            visible: !isTakeaway
-                            text: "👤 " + guestCount
-                            font.pixelSize: 13 * Theme.fontScale
-                            color: Theme.textSecondary
-                        }
-                        Item { Layout.fillWidth: true }
-                        Label {
-                            text: total
-                            font.pixelSize: 15 * Theme.fontScale
-                            font.bold: true
-                            color: Theme.textPrimary
-                        }
+                    // Ultimul copil, ca voalul de apăsare să se vadă peste
+                    // conținut, nu sub el.
+                    Components.TouchArea {
+                        anchors.fill: parent
+                        veilRadius: 14
+                        onClicked: root.orderOpened(zone, tableNumber, nrComand)
                     }
                 }
             }
-        }
 
         // Empty state — nicio comandă deschisă (doar după ce a sosit primul
         // răspuns real). Desenat DEASUPRA lui tableList (z mai mare), nu ca
@@ -626,7 +771,7 @@ Page {
         ColumnLayout {
             z: 2
             anchors.fill: parent
-            visible: root.ordersReady && root.loadError === "" && tableOrdersModel.count === 0
+            visible: root.ordersReady && root.loadError === "" && zonesModel.count === 0
             spacing: 8
 
             // Blocul nu mai stă la mijlocul ecranului: spațiul liber se împarte
