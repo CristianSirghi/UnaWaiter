@@ -108,6 +108,29 @@ QString DataService::friendlyBackendError(const QString &code)
     if (code == QLatin1String("no_restaurant")) {
         return tr("No restaurant selected. Pick one in Settings.");
     }
+    // --- Editarea meselor din aplicație (add_table / set_table_active) ---
+    if (code == QLatin1String("not_allowed")) {
+        return tr("You don't have permission to change tables.");
+    }
+    if (code == QLatin1String("invalid_table_no")) {
+        return tr("The table number must be a whole number greater than zero.");
+    }
+    if (code == QLatin1String("unknown_zone")) {
+        return tr("That zone no longer exists. Reload the tables and try again.");
+    }
+    if (code == QLatin1String("table_exists")) {
+        // Numărul e unic pe TOT restaurantul, nu pe zonă - deci "n-o văd
+        // nicăieri" înseamnă de obicei că e în altă zonă. Răspunsul lui Oracle
+        // spune și care, dar aici nu mai avem obiectul, doar codul.
+        return tr("A table with this number already exists at this restaurant. "
+                  "Check the other zones too.");
+    }
+    if (code == QLatin1String("table_busy")) {
+        return tr("This table has an open order. Close it first.");
+    }
+    if (code == QLatin1String("unknown_table")) {
+        return tr("This table no longer exists.");
+    }
     return code;
 }
 
@@ -409,11 +432,16 @@ void DataService::login(int oficiant, const QString &pin)
     fields.insert(QStringLiteral("oficiant"), oficiant);
     fields.insert(QStringLiteral("pin"), pin);
 
+    // can_edit_tables NU e în requiredKeys, deși log_in îl trimite mereu de la
+    // 2026-08-07: cerut obligatoriu, un APK nou pus peste un backend încă
+    // neactualizat ar face logarea să eșueze cu totul. Așa, lipsa lui înseamnă
+    // doar "fără drept" - butonul nu apare, restul aplicației merge.
     postObject(QStringLiteral("log_in"), fields,
                {QStringLiteral("oficiant"), QStringLiteral("name")},
                [this](const QVariantMap &obj) {
                    emit loggedIn(obj.value(QStringLiteral("oficiant")).toInt(),
-                                 obj.value(QStringLiteral("name")).toString());
+                                 obj.value(QStringLiteral("name")).toString(),
+                                 obj.value(QStringLiteral("can_edit_tables")).toInt() == 1);
                });
 }
 
@@ -427,6 +455,40 @@ void DataService::setPin(int oficiant, const QString &pin)
                {QStringLiteral("ok")},
                [this, oficiant](const QVariantMap &) {
                    emit pinSet(oficiant);
+               });
+}
+
+void DataService::addTable(const QString &waiter, int tableNo, const QString &zone)
+{
+    QVariantMap fields;
+    fields.insert(QStringLiteral("waiter"), waiter);
+    fields.insert(QStringLiteral("tableNo"), tableNo);
+    fields.insert(QStringLiteral("zone"), zone);
+
+    postObject(QStringLiteral("add_table"), fields,
+               {QStringLiteral("ok")},
+               [this, tableNo](const QVariantMap &obj) {
+                   emit tableAdded(tableNo,
+                                   obj.value(QStringLiteral("reactivated")).toInt() == 1);
+               });
+}
+
+void DataService::setTableActive(const QString &waiter, int tableNo, bool active)
+{
+    QVariantMap fields;
+    fields.insert(QStringLiteral("waiter"), waiter);
+    fields.insert(QStringLiteral("tableNo"), tableNo);
+    // "1"/"0" ca text, nu bool: corpul POST se construiește cu
+    // QVariant::toString(), iar un bool ar pleca drept "true"/"false" - text
+    // nenumeric, pe care Oracle l-ar respinge abia la bind, cu o eroare din care
+    // nu se înțelege nimic.
+    fields.insert(QStringLiteral("active"),
+                  active ? QStringLiteral("1") : QStringLiteral("0"));
+
+    postObject(QStringLiteral("set_table_active"), fields,
+               {QStringLiteral("ok")},
+               [this, tableNo, active](const QVariantMap &) {
+                   emit tableActiveSet(tableNo, active);
                });
 }
 

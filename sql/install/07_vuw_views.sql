@@ -22,6 +22,7 @@ SELECT w.cod_univ,
        w.oficiant,
        w.pin,
        w.active,
+       w.can_edit_tables,                          -- 1 = poate schimba mesele din app
        u.denumirea AS clcoficiantt,                -- nume live din POS
        f.denumirea AS clccod_univt,                -- denumirea filialei
        NVL2(w.pin, 'Y', 'N')    AS ispin,          -- Y = înrolat

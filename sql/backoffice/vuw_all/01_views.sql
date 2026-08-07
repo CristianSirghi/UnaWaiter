@@ -99,7 +99,8 @@ begin
     v_cate := v_cate + 1;
     v_coduri := v_coduri || case when v_coduri is null then '' else ',' end || v_cod;
 
-    v_w := v_w || v_pre || 'select ' || v_cod || ' cod_univ, oficiant, clcoficiantt, pin, active'
+    v_w := v_w || v_pre || 'select ' || v_cod || ' cod_univ, oficiant, clcoficiantt, pin, active,'
+                || ' can_edit_tables'
                 || ' from vuw_waiters@' || v_link || chr(10);
 
     v_z := v_z || v_pre || 'select ' || v_cod || ' cod_univ, zone_code, name_ro, name_ru, name_en,'

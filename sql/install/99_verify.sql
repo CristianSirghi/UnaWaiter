@@ -111,6 +111,11 @@ BEGIN
   chk(v_n = 1, 'coloana RRN pe UW_FISCAL_RECEIPTS',
       'fara ea, plata "RRN manual" cade dupa tiparirea bonului');
 
+  SELECT COUNT(*) INTO v_n FROM user_tab_columns
+   WHERE table_name = 'UW_WAITERS' AND column_name = 'CAN_EDIT_TABLES';
+  chk(v_n = 1, 'coloana CAN_EDIT_TABLES pe UW_WAITERS',
+      'fara ea, pachetul nu compileaza si nu merge nimic');
+
   titlu('Constrangeri si indecsi');
   SELECT COUNT(*) INTO v_n FROM user_constraints
    WHERE constraint_name = 'UW_TABLES_ZONE_FK' AND constraint_type = 'R';
@@ -120,8 +125,9 @@ BEGIN
       'fara el, un DELETE pe zone ia lock de tabel pe mese');
 
   SELECT COUNT(*) INTO v_n FROM user_constraints
-   WHERE constraint_name IN ('UW_ZONES_RESERVED_CK','UW_ZONES_CODE_CK','UW_WAITERS_PIN_CK');
-  chk(v_n = 3, 'cele 3 CHECK-uri de validare', 'gasite ' || v_n || ' din 3');
+   WHERE constraint_name IN ('UW_ZONES_RESERVED_CK','UW_ZONES_CODE_CK',
+                             'UW_WAITERS_PIN_CK','UW_WAITERS_EDIT_CK');
+  chk(v_n = 4, 'cele 4 CHECK-uri de validare', 'gasite ' || v_n || ' din 4');
 
   titlu('View-uri');
   chk(e_valid('VUW_WAITERS','VIEW'), 'VUW_WAITERS valid');

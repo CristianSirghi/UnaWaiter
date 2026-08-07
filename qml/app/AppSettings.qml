@@ -16,6 +16,18 @@ QtObject {
     // Folosit și când creăm comenzi (dataService.createOrder).
     property int waiterOficiant: 0
 
+    // Chelnerul de față poate adăuga/scoate mese din aplicație
+    // (uw_waiters.can_edit_tables). Vine în răspunsul lui log_in.
+    //
+    // NU se persistă, intenționat, deși waiterOficiant/waiterName se persistă:
+    // e un drept care se dă și se retrage din back-office, iar o copie rămasă pe
+    // telefon ar arăta butonul unui chelner căruia i s-a luat dreptul. Fiindcă
+    // se intră cu PIN la fiecare lansare, valoarea e oricum reîmprospătată -
+    // nepersistând-o, cazul cel mai rău e un buton care lipsește o dată, nu unul
+    // care apare fără drept. Decizia finală rămâne oricum a Oracle-ului, care
+    // verifică la fiecare apel.
+    property bool waiterCanEditTables: false
+
     // --- Throttling la introducerea PIN-ului (vezi LoginPage) ---
     // Persistate, NU ținute în pagină: LoginPage e distrusă la fiecare back
     // spre Welcome, deci orice contor local reînvie la zero când reintri -

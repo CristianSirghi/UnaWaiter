@@ -9,10 +9,28 @@ CREATE OR REPLACE PACKAGE pg_mobile_web_waiter AS
   -- 12 Megapolis, 13 Columna, 16 Aleco Russo, 17 M.cel Batrin).
   --
   -- Deleaga la unirest_util.global_dep, adica EXACT ce face clientul UAMenu la
-  -- login (ucLogin.cpp). Pe langa filiala, aia mai seteaza si lista de preturi
-  -- si grupele de produse ale filialei, deci meniul vine cu preturile corecte.
+  -- login (ucLogin.cpp).
+  --
+  -- ⚠️ CE NU FACE, desi codul ei sugereaza ca ar face (masurat pe productie
+  -- 2026-08-07): global_dep incearca sa puna si lista de preturi si grupele de
+  -- produse ale filialei, citindu-le din `vcorresp_params` dupa GlobalDep. La
+  -- clientul asta mecanismul e MORT: singurele chei configurate acolo sunt
+  -- GlobalDep 133 si 1557 -> codprice 1001/1002 si group1 1/2, dar comenzile
+  -- reale au GlobalDep=16, iar in baza exista o SINGURA lista de preturi
+  -- (codprice=1) si un singur group1 (=1). Deci niciun restaurant nu primeste
+  -- preturi proprii pe drumul asta, si nici noi - ceea ce inseamna, pe partea
+  -- buna, ca aplicatia NU poate afisa alte preturi decat casa.
+  -- (global_dep are `if v_value is not null` pe fiecare context, deci o
+  -- potrivire ratata lasa contextul neatins, nu il goleste.)
+  --
   -- Tot din contextul asta isi ia triggerul TRG_ONCOMENZ valoarea pentru
-  -- TMDB_COMENZ.NRSET, deci comanda iese stampilata pe filiala buna.
+  -- TMDB_COMENZ.NRSET. Coloana e insa un simplu PASAGER: cautata peste tot
+  -- (triggerele frontului, cele 5 view-uri peste TMDB_COMENZ, PK_X_Z_REPORT,
+  -- importul de vanzari YPKG_VINZFOISOR, si interogarile formelor din A$ADP),
+  -- NU e folosita nicaieri intr-un filtru sau grupare. Atribuirea pe filiale se
+  -- face dupa BAZA din care se citeste (db link-ul), nu dupa coloana asta. Deci
+  -- comenzile noastre, stampilate cu filiala aleasa in aplicatie (11), difera de
+  -- restul din aceeasi baza (16) fara nicio consecinta functionala.
   FUNCTION set_restaurant(p_cod_univ IN NUMBER) RETURN VARCHAR2;
 
   -- Autentificare: oficiant (COD operator POS, ales din lista get_waiters) +
@@ -37,6 +55,48 @@ CREATE OR REPLACE PACKAGE pg_mobile_web_waiter AS
   FUNCTION get_payment_types RETURN SYS_REFCURSOR;
 
   FUNCTION get_tables RETURN SYS_REFCURSOR;
+
+  -- ---------------------------------------------------------------------------
+  -- MESELE, EDITATE DIN APLICATIE
+  --
+  -- Amandoua cer ca `p_waiter` sa aiba uw_waiters.can_edit_tables = 1 la
+  -- restaurantul curent, altfel intorc {"error":"not_allowed"}. Vezi comentariul
+  -- de la coloana (03_uw_waiters.sql): e o bariera impotriva greselilor, nu una
+  -- de securitate - p_waiter vine de la telefon.
+  --
+  -- Aceleasi reguli ca in forma din back-office (TRG_VUW_TABLES_ALL), fiindca
+  -- cele doua cai scriu in acelasi tabel si n-au voie sa accepte lucruri
+  -- diferite. Ce NU se poate din aplicatie, intentionat: crearea zonelor
+  -- (codul intra in cheile locale din telefon si e imuabil) si renumerotarea
+  -- unei mese existente. Amandoua raman in forma "14. Amplasare mese".
+  -- ---------------------------------------------------------------------------
+
+  -- Adauga masa `p_table_no` in zona `p_zone`.
+  --
+  -- Daca masa exista deja si e ACTIVA -> {"error":"table_exists","zone":"..."}.
+  -- Daca exista dar e INACTIVA (scoasa mai devreme cu set_table_active), o
+  -- REACTIVEAZA in zona ceruta acum si intoarce {"ok":1,"reactivated":1}.
+  -- Fara ramura asta, o masa scoasa n-ar mai putea fi readusa din telefon:
+  -- get_tables intoarce doar mesele active, deci ea nu se vede nicaieri in
+  -- aplicatie, iar o incercare de a o adauga din nou ar cadea pe "exista deja".
+  FUNCTION add_table(
+    p_waiter   IN NUMBER,
+    p_table_no IN NUMBER,
+    p_zone     IN VARCHAR2
+  ) RETURN VARCHAR2;
+
+  -- Scoate (p_active = 0) sau readuce (1) o masa. NU sterge randul: numarul
+  -- mesei e deja scris pe comenzile facute (TMDB_COMENZ.DESK), iar `active` e
+  -- exact mecanismul cu care se inchide terasa pe iarna din back-office.
+  --
+  -- Refuza scoaterea unei mese cu comanda deschisa (state 1 sau 2) ->
+  -- {"error":"table_busy"}: altfel masa ar disparea din ecran de sub chelnerul
+  -- care lucreaza pe ea.
+  FUNCTION set_table_active(
+    p_waiter   IN NUMBER,
+    p_table_no IN NUMBER,
+    p_active   IN NUMBER
+  ) RETURN VARCHAR2;
 
   FUNCTION get_open_orders(p_waiter IN NUMBER DEFAULT NULL) RETURN SYS_REFCURSOR;
 

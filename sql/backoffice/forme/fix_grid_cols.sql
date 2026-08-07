@@ -88,12 +88,17 @@ begin
     ||'CLCDENUMIREA|Restaurant|240|ro;'
     ||'CLCNRCHELNERI|Nr. chelneri|90|ro';
 
+  -- CAN_EDIT_TABLES = dreptul de a adauga/scoate mese DIN APLICATIE. 0 implicit;
+  -- se pune doar administratorului sau chelnerului senior de tura. Titlul e
+  -- lung intentionat: "Editeaza" singur nu spune CE editeaza, iar coloana e
+  -- langa "Activ", cu care s-ar confunda usor.
   v_spec('1996|:fmFS1c:gr01a') :=
       'COD_UNIV|||ro|ascuns;'
     ||'OFICIANT|Cod chelner|100;'
     ||'CLCOFICIANTT|Nume|240|ro;'
     ||'PIN|PIN|70;'
-    ||'ACTIVE|Activ|60';
+    ||'ACTIVE|Activ|60;'
+    ||'CAN_EDIT_TABLES|Poate edita mese|120';
 
   -- Formele separate 1997 "Zone" si 1998 "Mese" au fost sterse pe 2026-07-30,
   -- inlocuite de forma unificata de mai jos. Specificatiile lor nu mai sunt aici.

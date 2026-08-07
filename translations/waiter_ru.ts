@@ -77,7 +77,7 @@
         <translation>Администрирование</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+39"/>
         <source>Server</source>
         <translation>Сервер</translation>
     </message>
@@ -235,6 +235,36 @@
         <translation>Ресторан не выбран. Выберите его в Настройках.</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <source>You don&apos;t have permission to change tables.</source>
+        <translation>У вас нет прав изменять столы.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>The table number must be a whole number greater than zero.</source>
+        <translation>Номер стола должен быть целым числом больше нуля.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>That zone no longer exists. Reload the tables and try again.</source>
+        <translation>Этой зоны больше нет. Обновите список столов и повторите.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>A table with this number already exists at this restaurant. Check the other zones too.</source>
+        <translation>Стол с таким номером уже есть в этом ресторане. Проверьте и другие зоны.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>This table has an open order. Close it first.</source>
+        <translation>На этом столе открыт заказ. Сначала закройте его.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>This table no longer exists.</source>
+        <translation>Этого стола больше нет.</translation>
+    </message>
+    <message>
         <location line="+78"/>
         <source>Invalid response from server: %1</source>
         <translation>Некорректный ответ от сервера: %1</translation>
@@ -296,7 +326,7 @@
         <translation>Подтвердите PIN-код</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+54"/>
         <source>Wrong PIN</source>
         <translation>Неверный PIN-код</translation>
     </message>
@@ -1236,7 +1266,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+92"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+115"/>
         <source>Open the order</source>
         <translation>Открыть заказ</translation>
     </message>
@@ -1246,7 +1276,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>У стола %1 уже есть ваш открытый заказ (#%2). Открыть его?</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+146"/>
         <source>Select table</source>
         <translation>Выберите стол</translation>
     </message>
@@ -1261,7 +1291,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Занят</translation>
     </message>
     <message>
-        <location line="-93"/>
+        <location line="-185"/>
         <source>Table %1 is open by %2 (order #%3). Open that order?</source>
         <translation>Стол %1 открыт официантом %2 (заказ #%3). Открыть этот заказ?</translation>
     </message>
@@ -1271,7 +1301,68 @@ It will be retried automatically when the app restarts.</source>
         <translation>Стол %1 уже открыт (заказ #%2). Открыть этот заказ?</translation>
     </message>
     <message>
-        <location line="+254"/>
+        <location line="+42"/>
+        <location line="+513"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location line="-512"/>
+        <source>Table %1 has an open order (#%2). Close it before removing the table.</source>
+        <translation>На столе %1 открыт заказ (№%2). Закройте его, прежде чем убрать стол.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Remove table?</source>
+        <translation>Убрать стол?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Remove</source>
+        <translation>Убрать</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 will disappear from the list. Orders already made on it are not affected, and it can be added back at any time.</source>
+        <translation>Стол %1 исчезнет из списка. Уже сделанные на нём заказы не затрагиваются, и стол можно вернуть в любой момент.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Table %1 is back, in “%2”.</source>
+        <translation>Стол %1 возвращён в «%2».</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 added to “%2”.</source>
+        <translation>Стол %1 добавлен в «%2».</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Table %1 is back.</source>
+        <translation>Стол %1 возвращён.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 removed.</source>
+        <translation>Стол %1 убран.</translation>
+    </message>
+    <message>
+        <location line="+150"/>
+        <source>Done editing</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Edit tables</source>
+        <translation>Изменить столы</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Tap a table to remove it, or “+” to add one. Numbers must match what the cashier sees in UAMenu.</source>
+        <translation>Нажмите на стол, чтобы убрать его, или на «+», чтобы добавить. Номера должны совпадать с теми, что видит кассир в UAMenu.</translation>
+    </message>
+    <message>
+        <location line="+226"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
     </message>
@@ -1293,12 +1384,53 @@ It will be retried automatically when the app restarts.</source>
         <translation>Загрузка столов…</translation>
     </message>
     <message>
-        <location line="-302"/>
+        <location line="+48"/>
+        <source>Couldn&apos;t change the tables</source>
+        <translation>Не удалось изменить столы</translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Enter a whole number greater than zero.</source>
+        <translation>Введите целое число больше нуля.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Table %1 already exists, in “%2”.</source>
+        <translation>Стол %1 уже существует, в «%2».</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Add table</source>
+        <translation>Добавить стол</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>In zone “%1”. The number must be the one the cashier sees in UAMenu, and it must be unique across the whole restaurant.</source>
+        <translation>В зоне «%1». Номер должен совпадать с тем, что видит кассир в UAMenu, и быть уникальным по всему ресторану.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Table number</source>
+        <translation>Номер стола</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <location line="-741"/>
+        <location line="+50"/>
         <source>Table occupied</source>
         <translation>Стол занят</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="-50"/>
         <source>Your open order</source>
         <translation>Ваш открытый заказ</translation>
     </message>
@@ -1396,7 +1528,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Не выбран</translation>
     </message>
     <message>
-        <location line="+65"/>
+        <location line="+63"/>
         <source>Administration</source>
         <translation>Администрирование</translation>
     </message>
@@ -1463,7 +1595,7 @@ It will be retried automatically when the app restarts.</source>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+355"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+413"/>
         <source>Mine</source>
         <translation>Мои</translation>
     </message>
@@ -1473,7 +1605,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Все</translation>
     </message>
     <message>
-        <location line="-292"/>
+        <location line="-324"/>
         <location line="+81"/>
         <source>Takeaway</source>
         <translation>На вынос</translation>
@@ -1484,7 +1616,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Стол %1</translation>
     </message>
     <message>
-        <location line="+143"/>
+        <location line="+175"/>
         <source>Sign out?</source>
         <translation>Выйти?</translation>
     </message>
@@ -1524,7 +1656,7 @@ It will be retried automatically when the app restarts.</source>
         <translation>Сервер: %1</translation>
     </message>
     <message>
-        <location line="+339"/>
+        <location line="+426"/>
         <source>No open orders</source>
         <translation>Нет открытых заказов</translation>
     </message>

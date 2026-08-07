@@ -98,9 +98,16 @@ Rulează în ordine: tabele → seed (zone și mese) → chei străine → view-
 → verificare. Ordinea nu e arbitrară: cheia străină mese→zone se pune peste rânduri
 deja inserate, deci trebuie să vină după seed.
 
-Mesele instalate: **35 — Sala 1–15, Terasa 16–35**. Numerele vin din comenzile
-reale ale restaurantului. Împărțirea pe zone nu e definitivă și **nu cere
-programator**: se schimbă din forma „Amplasare mese" din back-office.
+Mesele instalate: **24 — Sala 1–12, Terasa 18–29**. Numerele vin din comenzile
+reale ale restaurantului, măsurate **doar de după 1 iulie 2026** — atunci
+restaurantul și-a renumerotat mesele, iar o fereastră mai lungă amestecă cele
+două numerotări (detaliile și cifrele sunt în `seed/seed_11.sql`).
+
+> **Întrebare de pus pe loc, la instalare: „mesele 18–29 sunt cele de afară?"**
+> Datele arată clar două blocuri distincte și că 18–29 e cel secundar, folosit
+> la vârf — dar nu pot spune care e afară. Împărțirea nu e definitivă și **nu
+> cere programator**: se schimbă din forma „Amplasare mese" din back-office, în
+> două minute.
 
 La final trebuie să scrie `REZULTAT: TOTUL E PE LOC`.
 

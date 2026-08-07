@@ -116,8 +116,9 @@ public:
     // Auth (POST): oficiant (POS operator code, chosen from the loadWaiters()
     // list) + 4-digit PIN. The backend accepts it only if the oficiant is in the
     // real waiter roster (VSLRPRM_CALCD_R_502) AND the PIN in uw_waiters matches.
-    // On success emits loggedIn(oficiant, name); on bad credentials the failure
-    // arrives via requestFailed("log_in", "invalid_credentials").
+    // On success emits loggedIn(oficiant, name, canEditTables); on bad
+    // credentials the failure arrives via
+    // requestFailed("log_in", "invalid_credentials").
     Q_INVOKABLE void login(int oficiant, const QString &pin);
 
     // Self-enrollment (POST): a waiter with no PIN yet (has_pin=0 in loadWaiters)
@@ -125,6 +126,26 @@ public:
     // "set_pin", <code>) where code is pin_already_set / not_a_waiter /
     // invalid_pin_format.
     Q_INVOKABLE void setPin(int oficiant, const QString &pin);
+
+    // --- Mesele, editate din aplicație (POST) ---
+    // Cer ca chelnerul să aibă `can_edit_tables = 1` în uw_waiters. Verificarea
+    // REALĂ e în Oracle, la fiecare apel; aici doar nu desenăm butonul, ca să nu
+    // se vadă unul care oricum n-ar merge. Un APK vechi nu poate ocoli nimic.
+    //
+    // La succes emit tableAdded / tableActiveSet. Eșecurile vin ca de obicei
+    // prin requestFailed(<comandă>, <mesaj>) - codurile Oracle sunt traduse în
+    // text citibil de friendlyBackendError.
+    //
+    // reactivated = true înseamnă că masa exista deja, dar era scoasă, iar
+    // apelul a readus-o. Oracle tratează cele două cazuri la fel intenționat:
+    // altfel o masă scoasă ar fi invizibilă în aplicație (get_tables întoarce
+    // doar mesele active) și imposibil de re-adăugat, fiindcă "există deja".
+    Q_INVOKABLE void addTable(const QString &waiter, int tableNo, const QString &zone);
+
+    // active=false scoate masa din listă, true o readuce. NU șterge rândul:
+    // numărul e deja scris pe comenzile făcute (TMDB_COMENZ.DESK). Oracle refuză
+    // scoaterea unei mese cu comandă deschisă (table_busy).
+    Q_INVOKABLE void setTableActive(const QString &waiter, int tableNo, bool active);
 
     // Writes (POST). Results come back through the signals below rather than a
     // property, since they're one-shot actions, not persistent state.
@@ -198,8 +219,13 @@ signals:
     void updateInfoUrlChanged();
 
     // One-shot action results.
-    void loggedIn(int oficiant, const QString &name);
+    // canEditTables vine din uw_waiters și se reîmprospătează la FIECARE logare,
+    // deci un drept retras din back-office dispare de pe telefon la următoarea
+    // intrare, fără să fie nevoie de vreo curățare locală.
+    void loggedIn(int oficiant, const QString &name, bool canEditTables);
     void pinSet(int oficiant);
+    void tableAdded(int tableNo, bool reactivated);
+    void tableActiveSet(int tableNo, bool active);
     void orderCreated(int nrComand);
     void orderLinesAdded(int nrComand, const QVariantList &lines);
     void orderDeskUpdated(int nrComand, int desk);

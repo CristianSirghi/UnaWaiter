@@ -13,7 +13,18 @@ Item {
     property alias readOnly: field.readOnly
     property alias echoMode: field.echoMode
 
+    // Se emite la PIERDEREA focusului sau la Enter - potrivit pentru "salvează
+    // ce s-a tastat" (URL server, IP imprimantă).
     signal editingFinished()
+
+    // Se emite DOAR la Enter/Done de pe tastatură, niciodată la pierderea
+    // focusului. Necesar pentru câmpurile dintr-un dialog cu buton de acțiune:
+    // legat de `editingFinished`, un submit se executa de DOUĂ ori - o dată
+    // fiindcă atingerea butonului scoate focusul din câmp, a doua oară din
+    // butonul însuși. (Pățit pe dialogul de adăugare a mesei: masa se crea, apoi
+    // a doua cerere primea "există deja" și chelnerul vedea o eroare pe o
+    // acțiune reușită.)
+    signal accepted()
 
     implicitHeight: 48
     implicitWidth: 200
@@ -41,5 +52,6 @@ Item {
         // Fără fundal propriu — îl desenăm noi (Rectangle de mai sus).
         background: null
         onEditingFinished: root.editingFinished()
+        onAccepted: root.accepted()
     }
 }

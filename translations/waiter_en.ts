@@ -77,7 +77,7 @@
         <translation>Administration</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+39"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
@@ -235,6 +235,36 @@
         <translation>No restaurant selected. Pick one in Settings.</translation>
     </message>
     <message>
+        <location line="+4"/>
+        <source>You don&apos;t have permission to change tables.</source>
+        <translation>You don&apos;t have permission to change tables.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>The table number must be a whole number greater than zero.</source>
+        <translation>The table number must be a whole number greater than zero.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>That zone no longer exists. Reload the tables and try again.</source>
+        <translation>That zone no longer exists. Reload the tables and try again.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>A table with this number already exists at this restaurant. Check the other zones too.</source>
+        <translation>A table with this number already exists at this restaurant. Check the other zones too.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>This table has an open order. Close it first.</source>
+        <translation>This table has an open order. Close it first.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>This table no longer exists.</source>
+        <translation>This table no longer exists.</translation>
+    </message>
+    <message>
         <location line="+78"/>
         <source>Invalid response from server: %1</source>
         <translation>Invalid response from server: %1</translation>
@@ -296,7 +326,7 @@
         <translation>Confirm your PIN</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+54"/>
         <source>Wrong PIN</source>
         <translation>Wrong PIN</translation>
     </message>
@@ -1236,7 +1266,7 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>SelectTablePage</name>
     <message>
-        <location filename="../qml/pages/SelectTablePage.qml" line="+92"/>
+        <location filename="../qml/pages/SelectTablePage.qml" line="+115"/>
         <source>Open the order</source>
         <translation>Open the order</translation>
     </message>
@@ -1246,7 +1276,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Table %1 already has your open order (#%2). Open it?</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+146"/>
         <source>Select table</source>
         <translation>Select table</translation>
     </message>
@@ -1261,7 +1291,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Occupied</translation>
     </message>
     <message>
-        <location line="-93"/>
+        <location line="-185"/>
         <source>Table %1 is open by %2 (order #%3). Open that order?</source>
         <translation>Table %1 is open by %2 (order #%3). Open that order?</translation>
     </message>
@@ -1271,7 +1301,68 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Table %1 is already open (order #%2). Open that order?</translation>
     </message>
     <message>
-        <location line="+254"/>
+        <location line="+42"/>
+        <location line="+513"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location line="-512"/>
+        <source>Table %1 has an open order (#%2). Close it before removing the table.</source>
+        <translation>Table %1 has an open order (#%2). Close it before removing the table.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Remove table?</source>
+        <translation>Remove table?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Remove</source>
+        <translation>Remove</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 will disappear from the list. Orders already made on it are not affected, and it can be added back at any time.</source>
+        <translation>Table %1 will disappear from the list. Orders already made on it are not affected, and it can be added back at any time.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Table %1 is back, in “%2”.</source>
+        <translation>Table %1 is back, in “%2”.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 added to “%2”.</source>
+        <translation>Table %1 added to “%2”.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Table %1 is back.</source>
+        <translation>Table %1 is back.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Table %1 removed.</source>
+        <translation>Table %1 removed.</translation>
+    </message>
+    <message>
+        <location line="+150"/>
+        <source>Done editing</source>
+        <translation>Done editing</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Edit tables</source>
+        <translation>Edit tables</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Tap a table to remove it, or “+” to add one. Numbers must match what the cashier sees in UAMenu.</source>
+        <translation>Tap a table to remove it, or “+” to add one. Numbers must match what the cashier sees in UAMenu.</translation>
+    </message>
+    <message>
+        <location line="+226"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
     </message>
@@ -1293,12 +1384,53 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Loading tables…</translation>
     </message>
     <message>
-        <location line="-302"/>
+        <location line="+48"/>
+        <source>Couldn&apos;t change the tables</source>
+        <translation>Couldn&apos;t change the tables</translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Enter a whole number greater than zero.</source>
+        <translation>Enter a whole number greater than zero.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Table %1 already exists, in “%2”.</source>
+        <translation>Table %1 already exists, in “%2”.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Add table</source>
+        <translation>Add table</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>In zone “%1”. The number must be the one the cashier sees in UAMenu, and it must be unique across the whole restaurant.</source>
+        <translation>In zone “%1”. The number must be the one the cashier sees in UAMenu, and it must be unique across the whole restaurant.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Table number</source>
+        <translation>Table number</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Add</source>
+        <translation>Add</translation>
+    </message>
+    <message>
+        <location line="-741"/>
+        <location line="+50"/>
         <source>Table occupied</source>
         <translation>Table occupied</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="-50"/>
         <source>Your open order</source>
         <translation>Your open order</translation>
     </message>
@@ -1396,7 +1528,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Not selected</translation>
     </message>
     <message>
-        <location line="+65"/>
+        <location line="+63"/>
         <source>Administration</source>
         <translation>Administration</translation>
     </message>
@@ -1463,7 +1595,7 @@ It will be retried automatically when the app restarts.</translation>
 <context>
     <name>TablesPage</name>
     <message>
-        <location filename="../qml/pages/TablesPage.qml" line="+355"/>
+        <location filename="../qml/pages/TablesPage.qml" line="+413"/>
         <source>Mine</source>
         <translation>Mine</translation>
     </message>
@@ -1473,7 +1605,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>All</translation>
     </message>
     <message>
-        <location line="-292"/>
+        <location line="-324"/>
         <location line="+81"/>
         <source>Takeaway</source>
         <translation>Takeaway</translation>
@@ -1484,7 +1616,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Table %1</translation>
     </message>
     <message>
-        <location line="+143"/>
+        <location line="+175"/>
         <source>Sign out?</source>
         <translation>Sign out?</translation>
     </message>
@@ -1524,7 +1656,7 @@ It will be retried automatically when the app restarts.</translation>
         <translation>Server: %1</translation>
     </message>
     <message>
-        <location line="+339"/>
+        <location line="+426"/>
         <source>No open orders</source>
         <translation>No open orders</translation>
     </message>

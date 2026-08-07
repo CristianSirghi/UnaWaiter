@@ -59,13 +59,21 @@ begin
       raise_application_error(-20023,
 	'Chelnerul '||:new.oficiant||' e deja adaugat la filiala '||v_cod);
     end if;
+    -- can_edit_tables cu NVL 0: un chelner adaugat fara sa se bifeze nimic NU
+    -- primeste dreptul de a schimba mesele. Implicitul trebuie sa fie cel
+    -- inofensiv, nu cel comod.
     execute immediate
-      'insert into uw_waiters@'||v_link||' (cod_univ, oficiant, pin, active) values (:1,:2,:3,:4)'
-      using v_cod, :new.oficiant, :new.pin, nvl(:new.active,1);
+      'insert into uw_waiters@'||v_link||
+      ' (cod_univ, oficiant, pin, active, can_edit_tables) values (:1,:2,:3,:4,:5)'
+      using v_cod, :new.oficiant, :new.pin, nvl(:new.active,1),
+            nvl(:new.can_edit_tables,0);
   elsif updating then
     execute immediate
-      'update uw_waiters@'||v_link||' set pin = :1, active = :2 where cod_univ = :3 and oficiant = :4'
-      using :new.pin, nvl(:new.active,1), v_cod, :new.oficiant;
+      'update uw_waiters@'||v_link||
+      ' set pin = :1, active = :2, can_edit_tables = :3'||
+      ' where cod_univ = :4 and oficiant = :5'
+      using :new.pin, nvl(:new.active,1), nvl(:new.can_edit_tables,0),
+            v_cod, :new.oficiant;
   else
     execute immediate
       'delete from uw_waiters@'||v_link||' where cod_univ = :1 and oficiant = :2'

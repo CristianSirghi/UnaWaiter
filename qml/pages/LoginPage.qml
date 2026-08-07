@@ -231,7 +231,7 @@ Page {
             root.waitersLoaded = true
         }
 
-        function onLoggedIn(oficiant, name) {
+        function onLoggedIn(oficiant, name, canEditTables) {
             if (!root.busy)
                 return
             root.busy = false
@@ -240,6 +240,9 @@ Page {
             root.clearLock()
             AppSettings.waiterOficiant = oficiant
             AppSettings.waiterName = name
+            // Dreptul de a schimba mesele se rescrie la fiecare logare, deci
+            // cine preia telefonul nu moștenește dreptul celui dinainte.
+            AppSettings.waiterCanEditTables = canEditTables === true
             root.enteredPin = ""
             root.errorText = ""
             root.loginConfirmed()

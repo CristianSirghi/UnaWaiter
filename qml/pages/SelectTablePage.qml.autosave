@@ -646,9 +646,6 @@ Page {
         onConfirmed: root.tableSelected(occupiedDialog.zone, occupiedDialog.tableNumber,
                                         occupiedDialog.nrComand)
     }
-
-    // Confirmarea scoaterii unei mese (sau, dacă e ocupată, explicația de ce nu
-    // se poate) - textele se pun din openRemoveDialog.
     Components.ConfirmDialog {
         id: removeDialog
 
@@ -657,20 +654,13 @@ Page {
         destructive: true
 
         onConfirmed: {
-            // infoOnly = masa e ocupată, iar butonul e doar "OK": n-avem ce
-            // trimite. Fără verificarea asta, "OK" ar încerca scoaterea și ar
-            // primi table_busy de la server - exact ce tocmai am explicat că nu
-            // se poate.
             if (removeDialog.infoOnly)
                 return
             root.tableBusy = true
             dataService.setTableActive(String(AppSettings.waiterOficiant),
                                        removeDialog.tableNumber, false)
         }
-    }
-
-    // Eroare de la server (drept retras între timp, masă ocupată, număr deja
-    // folosit în altă zonă…). Mesajul vine tradus din C++.
+    }.
     Components.ConfirmDialog {
         id: errorDialog
 
@@ -678,10 +668,6 @@ Page {
         confirmText: qsTr("OK")
         infoOnly: true
     }
-
-    // Adăugarea unei mese. Popup propriu, nu ConfirmDialog: are nevoie de un
-    // câmp de introducere, iar ConfirmDialog e folosit în toată aplicația și
-    // n-are rost lărgit pentru un singur ecran.
     Popup {
         id: addDialog
 
@@ -690,9 +676,6 @@ Page {
         property string entered: ""
         property string errorText: ""
 
-        // Numărul introdus, sau 0 dacă nu e un întreg pozitiv. Aceleași reguli
-        // ca în Oracle (add_table), verificate aici doar ca să nu plece degeaba
-        // o cerere la server.
         readonly property int tableNo: {
             var n = parseInt(addDialog.entered)
             return (isNaN(n) || n <= 0) ? 0 : n
@@ -714,10 +697,6 @@ Page {
             border.color: Theme.border
         }
 
-        // Golirea se face AICI, nu în openAddDialog, și pe amândouă (câmp și
-        // proprietate): dacă textul e deja gol, scrierea lui "" nu emite
-        // textChanged, deci `entered` ar păstra numărul precedent și "Adaugă"
-        // ar trimite masa dinainte.
         onOpened: {
             addDialog.entered = ""
             addDialog.errorText = ""
@@ -726,27 +705,13 @@ Page {
         }
 
         function submit() {
-            // Plasă de siguranță peste `accepted` vs `editingFinished`: orice
-            // a doua chemare cât timp prima e pe drum se ignoră. Verificarea
-            // locală de duplicat de mai jos NU acoperă cazul ăsta - lista se
-            // reîncarcă abia când vine răspunsul, deci a doua chemare vede încă
-            // lista veche și ar trimite din nou.
             if (root.tableBusy)
                 return
             if (addDialog.tableNo <= 0) {
                 addDialog.errorText = qsTr("Enter a whole number greater than zero.")
                 return
             }
-            // Duplicatul se prinde AICI, din lista deja încărcată, nu din
-            // răspunsul serverului. Două motive, amândouă practice:
-            //   * putem spune ÎN CE ZONĂ e masa, fiindcă zonele sunt în telefon;
-            //     serverul întoarce codul zonei, dar mesajul lui ajunge la noi
-            //     ca text deja tradus, fără câmpuri;
-            //   * dialogul rămâne DESCHIS, cu numărul tastat, deci se corectează
-            //     pe loc - față de un dialog de eroare care trebuie închis și
-            //     ecranul reluat de la capăt.
-            // Verificarea din Oracle rămâne oricum, pentru cursă și pentru
-            // mesele scoase (care nu-s în listă și trebuie reactivate).
+
             var undeE = root.tableZoneLabel(addDialog.tableNo)
             if (undeE !== "") {
                 addDialog.errorText = qsTr("Table %1 already exists, in “%2”.")

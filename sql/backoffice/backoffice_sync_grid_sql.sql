@@ -30,7 +30,14 @@ set serveroutput on size 100000
 
 declare
   type t_map is table of varchar2(30) index by binary_integer;
-  v_obj  constant number := 1999;
+
+  -- obj_id-urile NU mai sunt scrise de mana (era 1999, singur): se iau din
+  -- a$adm dupa sectiunile noastre, deci scriptul acopera automat orice forma
+  -- UnaWaiter, si cea de chelneri si cea de mese. Cand am adaugat coloana
+  -- can_edit_tables in forma 1996, varianta hardcodata ar fi sincronizat tacut
+  -- doar forma de mese si am fi cautat aiurea de ce 1996 ruleaza tot SQL-ul
+  -- vechi - exact simptomul pentru care exista fisierul asta.
+  v_obj  number;
 
   -- lob_name -> prefixul proprietatilor din A$ADP
   type t_grids is table of varchar2(10) index by varchar2(60);
@@ -58,6 +65,12 @@ begin
   v_grids(':fmFS1c:gr01')  := 'SQL';
   v_grids(':fmFS1c:gr01a') := 'XSQL';
   v_grids(':fmFS1c:gr01b') := 'YSQL';
+
+  for f in (select obj_id, name0 from a$adm
+             where section in ('F_UWWAITERT','F_UWPLAN')
+             order by obj_id) loop
+  v_obj := f.obj_id;
+  dbms_output.put_line(f.obj_id||'  '||f.name0);
 
   v_lob := v_grids.first;
   while v_lob is not null loop
@@ -106,6 +119,8 @@ begin
 
     v_lob := v_grids.next(v_lob);
   end loop;
+
+  end loop;   -- forma urmatoare
 
   commit;
 end;

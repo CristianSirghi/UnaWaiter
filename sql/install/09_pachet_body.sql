@@ -168,6 +168,7 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
     v_oficiant NUMBER;
     v_name     VARCHAR2(200);
     v_safe     VARCHAR2(200);
+    v_can_edit NUMBER;
     v_filiala  NUMBER := current_cod_univ;
   BEGIN
     IF v_filiala IS NULL THEN
@@ -177,8 +178,8 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
     -- Trebuie sa fie chelner real (in lista de payroll) SI PIN-ul sa se
     -- potriveasca SI contul sa fie activ SI sa fie inrolat la restaurantul
     -- asta (un PIN de la alta filiala nu deschide usa aici).
-    SELECT v.cod, v.denumirea
-      INTO v_oficiant, v_name
+    SELECT v.cod, v.denumirea, w.can_edit_tables
+      INTO v_oficiant, v_name, v_can_edit
       FROM vms_univers v
       JOIN uw_waiters w ON w.oficiant = v.cod
      WHERE v.cod = p_oficiant
@@ -189,8 +190,14 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
        AND w.active = 1;
 
     v_safe := REPLACE(REPLACE(v_name, '\', '\\'), '"', '\"');
+    -- can_edit_tables e ADAUGAT la coada raspunsului, campurile vechi raman
+    -- neatinse: un APK mai vechi ignora campul necunoscut si se comporta ca
+    -- pana acum, deci pachetul nou se poate pune inaintea aplicatiei noi.
+    -- E doar pentru DESENAREA butonului - dreptul se verifica oricum in
+    -- add_table / set_table_active, la fiecare apel.
     RETURN '{"oficiant":' || v_oficiant
-        || ',"name":"' || v_safe || '"}';
+        || ',"name":"' || v_safe || '"'
+        || ',"can_edit_tables":' || v_can_edit || '}';
   EXCEPTION
     WHEN NO_DATA_FOUND THEN
       RETURN '{"error":"invalid_credentials"}';
@@ -360,6 +367,148 @@ CREATE OR REPLACE PACKAGE BODY pg_mobile_web_waiter AS
                NVL(t.display_order, t.table_no), t.table_no;
     RETURN v_cursor;
   END get_tables;
+
+  -- Are chelnerul asta drept sa schimbe mesele, la restaurantul asta?
+  --
+  -- Verificarea se face AICI, in Oracle, nu in aplicatie. Aplicatia oricum
+  -- ascunde butonul cand flagul e 0 (il primeste in raspunsul lui log_in), dar
+  -- aia e doar ca sa nu se vada un buton care oricum n-ar merge - decizia
+  -- trebuie sa fie a bazei, altfel o versiune veche de APK ar ocoli-o.
+  --
+  -- `active = 1` face parte din conditie: un cont dezactivat nu pastreaza
+  -- dreptul. Altfel scoaterea unui chelner din tura ar cere doua operatii in
+  -- back-office in loc de una, si a doua s-ar uita.
+  FUNCTION may_edit_tables(p_waiter IN NUMBER, p_filiala IN NUMBER) RETURN BOOLEAN IS
+    v_n NUMBER;
+  BEGIN
+    SELECT COUNT(*) INTO v_n
+      FROM uw_waiters
+     WHERE cod_univ = p_filiala
+       AND oficiant = p_waiter
+       AND active = 1
+       AND can_edit_tables = 1;
+    RETURN v_n > 0;
+  END may_edit_tables;
+
+  FUNCTION add_table(
+    p_waiter   IN NUMBER,
+    p_table_no IN NUMBER,
+    p_zone     IN VARCHAR2
+  ) RETURN VARCHAR2 IS
+    v_filiala NUMBER := current_cod_univ;
+    v_n       NUMBER;
+    v_zona    VARCHAR2(20);
+    v_active  NUMBER;
+  BEGIN
+    IF v_filiala IS NULL THEN
+      RETURN '{"error":"no_restaurant"}';
+    END IF;
+    IF NOT may_edit_tables(p_waiter, v_filiala) THEN
+      RETURN '{"error":"not_allowed"}';
+    END IF;
+
+    -- Numarul ajunge in TMDB_COMENZ.DESK si e exact cel pe care il vede
+    -- casierul in UAMenu: fara fractii, fara zero, fara negative.
+    IF p_table_no IS NULL OR p_table_no <= 0 OR p_table_no <> TRUNC(p_table_no) THEN
+      RETURN '{"error":"invalid_table_no"}';
+    END IF;
+
+    -- Zona trebuie sa existe SI sa fie activa. Intr-o zona inchisa masa s-ar
+    -- crea, dar n-ar aparea in aplicatie (get_tables cere z.active = 1) - iar
+    -- chelnerul ar vedea "s-a adaugat" si nicio masa noua pe ecran.
+    SELECT COUNT(*) INTO v_n
+      FROM uw_zones
+     WHERE cod_univ = v_filiala AND zone_code = p_zone AND active = 1;
+    IF v_n = 0 THEN
+      RETURN '{"error":"unknown_zone"}';
+    END IF;
+
+    -- Masa poate exista deja in doua feluri, si se rezolva DIFERIT:
+    --   activa   -> chiar e in lista, n-are ce sa adauge; ii spunem si in ce
+    --               zona e, fiindca numarul e unic pe tot restaurantul si o
+    --               masa "care nu apare" e de fapt in alta zona;
+    --   inactiva -> a fost scoasa mai devreme, deci NU se vede in aplicatie;
+    --               chelnerul o adauga de buna credinta. O reactivam.
+    BEGIN
+      SELECT zone, active INTO v_zona, v_active
+        FROM uw_tables
+       WHERE cod_univ = v_filiala AND table_no = p_table_no;
+
+      IF v_active = 1 THEN
+        -- v_zona nu se escapeaza: uw_zones_code_ck garanteaza litere mici,
+        -- cifre si '_', deci n-are ce sa strice JSON-ul.
+        RETURN '{"error":"table_exists","zone":"' || v_zona || '"}';
+      END IF;
+
+      UPDATE uw_tables
+         SET zone = p_zone, active = 1
+       WHERE cod_univ = v_filiala AND table_no = p_table_no;
+      COMMIT;
+      RETURN '{"ok":1,"reactivated":1}';
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        NULL;   -- masa chiar nu exista - se insereaza mai jos
+    END;
+
+    INSERT INTO uw_tables (cod_univ, table_no, zone, active)
+    VALUES (v_filiala, p_table_no, p_zone, 1);
+    COMMIT;
+    RETURN '{"ok":1}';
+  EXCEPTION
+    -- Doi chelneri care adauga acelasi numar in aceeasi secunda: primul trece,
+    -- al doilea cade pe cheia primara. CHEIA prinde cursa, deci nu e nevoie de
+    -- DBMS_LOCK ca la create_order (acolo numarul se GENERA, aici vine dat) -
+    -- dar ORA-00001 n-are ce cauta pe ecranul unui chelner.
+    --
+    -- Fara ROLLBACK: un INSERT picat se anuleaza singur (statement-level
+    -- rollback), iar un ROLLBACK explicit ar da inapoi si eventualul lucru
+    -- necomis al altei cereri de pe aceeasi conexiune persistenta.
+    WHEN DUP_VAL_ON_INDEX THEN
+      RETURN '{"error":"table_exists"}';
+  END add_table;
+
+  FUNCTION set_table_active(
+    p_waiter   IN NUMBER,
+    p_table_no IN NUMBER,
+    p_active   IN NUMBER
+  ) RETURN VARCHAR2 IS
+    v_filiala NUMBER := current_cod_univ;
+    v_n       NUMBER;
+  BEGIN
+    IF v_filiala IS NULL THEN
+      RETURN '{"error":"no_restaurant"}';
+    END IF;
+    IF NOT may_edit_tables(p_waiter, v_filiala) THEN
+      RETURN '{"error":"not_allowed"}';
+    END IF;
+    -- NULL se verifica INAINTE: `NULL NOT IN (0,1)` e NULL, nu TRUE, deci un
+    -- IF scris doar cu NOT IN ar lasa NULL sa treaca mai departe.
+    IF p_active IS NULL OR p_active NOT IN (0,1) THEN
+      RETURN '{"error":"invalid_active"}';
+    END IF;
+
+    -- O masa nu dispare de sub o comanda deschisa. Aceeasi regula ca la
+    -- renumerotarea din back-office (TRG_VUW_TABLES_ALL): acolo pentru ca se
+    -- schimba numarul scris pe comanda, aici pentru ca masa iese din ecran.
+    IF p_active = 0 THEN
+      SELECT COUNT(*) INTO v_n
+        FROM tmdb_comenz
+       WHERE desk = p_table_no AND state IN (1, 2);
+      IF v_n > 0 THEN
+        RETURN '{"error":"table_busy"}';
+      END IF;
+    END IF;
+
+    UPDATE uw_tables
+       SET active = p_active
+     WHERE cod_univ = v_filiala AND table_no = p_table_no;
+    IF SQL%ROWCOUNT = 0 THEN
+      -- Fara COMMIT: n-avem ce salva, iar mesajul spune de ce.
+      RETURN '{"error":"unknown_table"}';
+    END IF;
+    COMMIT;
+    RETURN '{"ok":1}';
+  END set_table_active;
 
   FUNCTION get_open_orders(p_waiter IN NUMBER DEFAULT NULL) RETURN SYS_REFCURSOR IS
     v_cursor SYS_REFCURSOR;

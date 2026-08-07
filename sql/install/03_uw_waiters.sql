@@ -27,6 +27,21 @@ CREATE TABLE uw_waiters (
                                         -- = TMDB_COMENZ.OFICIANT
     pin       VARCHAR2(4),              -- NULL = alocat restaurantului, neînrolat încă
     active    NUMBER(1) DEFAULT 1 NOT NULL,
+    -- Dreptul de a adăuga/scoate mese DIN APLICAȚIE (add_table,
+    -- set_table_active). DEFAULT 0: un chelner obișnuit nu-l are.
+    --
+    -- Nu e o restricție de dragul restricției. Lista de mese e ecranul pe care
+    -- lucrează toată tura, iar o masă adăugată greșit rămâne acolo pentru toți —
+    -- și n-are cine s-o cureţe, fiindcă nimeni de la restaurant nu deschide
+    -- back-office-ul. Cu 24 de mese pe un ecran de telefon, zece intrări de
+    -- prisos sunt o problemă reală de folosire, nu una de curățenie.
+    --
+    -- ⚠️ E o barieră împotriva GREȘELILOR, nu o măsură de securitate: `p_waiter`
+    -- vine de la telefon, ca în toate funcțiile pachetului, deci cine trimite alt
+    -- cod de oficiant trece de ea. O barieră reală ar cere PIN-ul la operație,
+    -- ceea ce înseamnă ca aplicația să-l țină după login (acum nu-l ține).
+    -- Scris aici ca să nu se presupună altceva citind coloana.
+    can_edit_tables NUMBER(1) DEFAULT 0 NOT NULL,
     CONSTRAINT uw_waiters_pk PRIMARY KEY (cod_univ, oficiant),
     -- Exact 4 cifre. Scris cu LENGTH + TRANSLATE, nu cu REGEXP_LIKE: cerinta
     -- clientului e sa nu folosim regexp_* in constrangeri (standardul lor pentru
@@ -35,7 +50,8 @@ CREATE TABLE uw_waiters (
     -- '#' e ancora: al treilea argument al lui TRANSLATE nu poate fi gol.
     CONSTRAINT uw_waiters_pin_ck CHECK (pin IS NULL
       OR (LENGTH(pin) = 4 AND TRANSLATE(pin, '#0123456789', '#') IS NULL)),
-    CONSTRAINT uw_waiters_active_ck CHECK (active IN (0,1))
+    CONSTRAINT uw_waiters_active_ck CHECK (active IN (0,1)),
+    CONSTRAINT uw_waiters_edit_ck   CHECK (can_edit_tables IN (0,1))
 );
 
 -- PIN-ul e TEXT, nu număr: un PIN care începe cu 0 (ex. 0123) s-ar pierde ca număr.

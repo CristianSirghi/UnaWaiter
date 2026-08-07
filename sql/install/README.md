@@ -28,13 +28,22 @@ pachetului n-ar fi compilat DELOC, nu doar auto-update-ul. Funcția a fost mutat
 în PHP, care e oricum conectat la back-office. Pachetul n-are acum nicio
 referință în afara schemei aplicației. `99_verify.sql` verifică și asta.
 
-**Mesele pentru filiala 11 sunt stabilite.** `seed/seed_11.sql` conține 35 de
-mese — **Sala 1–15, Terasa 16–35**, numerotare continuă. Numerele vin din
-comenzile reale de pe producție; împărțirea pe zone e decizia lui Kristian.
-29 și 30 n-au comenzi dar sunt incluse ca să nu existe salt în numerotare, iar
-cele patru greșeli de tastare (121, 147, 222, 2088 — câte o comandă fiecare) sunt
-lăsate afară. Nu e definitivă: mesele se mută între zone din forma „14. Amplasare
-mese", fără programator și fără APK nou.
+**Mesele pentru filiala 11 sunt stabilite.** `seed/seed_11.sql` conține 24 de
+mese — **Sala 1–12, Terasa 18–29**, două blocuri continue. Recalculat pe
+2026-08-07 **doar pe comenzile de după 1 iulie 2026**: restaurantul și-a
+renumerotat mesele atunci, iar versiunea precedentă (35 de mese, Sala 1–15 /
+Terasa 16–35) măsura o fereastră care amesteca vechea și noua numerotare, deci
+conținea ~12 mese care nu mai există.
+
+Mesele fără comenzi din interiorul blocurilor (18, 19, 25) sunt incluse ca să nu
+existe salt în numerotare; golul 13–17 dintre blocuri e păstrat gol, fiindcă
+13–16 au fost retrase de restaurant. Greșelile de tastare (121, 147, 222, 2088 —
+câte o comandă fiecare) sunt lăsate afară.
+
+Împărțirea pe zone e alegerea noastră: datele arată două blocuri distincte și că
+18–29 e cel secundar (folosit la vârf), dar **nu** pot spune care e afară. Se
+confirmă cu o întrebare pusă la instalare. Nu e definitivă — mesele se mută între
+zone din forma „14. Amplasare mese", fără programator și fără APK nou.
 
 ---
 
@@ -56,6 +65,26 @@ mese", fără programator și fără APK nou.
 | `99_verify.sql` | verifică totul; iese cu eroare dacă ceva lipsește |
 | `install_front.bat` | conexiune + log + confirmare |
 | `verify_front.bat` | doar verificarea, read-only |
+| `upgrade_2026-08-07_can_edit_tables.sql` | **doar pentru baze deja instalate** — vezi mai jos |
+
+### Upgrade-uri pentru baze deja instalate
+
+Fișierele numerotate creează de la zero, deci nu se pot rula peste o bază unde
+UnaWaiter e deja instalat. Pentru astea există fișiere `upgrade_<data>_<ce>.sql`,
+idempotente (rulate de două ori nu strică nimic) și care recompilează singure ce
+depinde de schimbare.
+
+**`upgrade_2026-08-07_can_edit_tables.sql`** — coloana `uw_waiters.can_edit_tables`,
+dreptul de a adăuga/scoate mese **din aplicație**. Rulat pe frontul de test
+2026-08-07. Perechea lui din back-office e
+`sql/backoffice/forme/upgrade_2026-08-07_can_edit_tables.sql`, și **ordinea contează**:
+întâi frontul, apoi `vuw_all/00_install_vuw_all.sql`, apoi forma. Upgrade-ul de
+formă verifică singur că frontul a fost făcut și se oprește cu mesaj clar dacă nu.
+
+Stau în același folder cu `07_`/`08_`/`09_`, nu într-un subfolder, fiindcă le
+cheamă cu `@@`. Dintr-un subfolder, `@@../07_…` a dat `SP2-0310` — iar `SP2-0310`
+**nu** declanșează `WHENEVER SQLERROR`, deci scriptul mergea mai departe fără să
+recompileze nimic (aceeași capcană ca la seed-ul lipsă din `00_install_front.sql`).
 
 ## De ce e împărțit așa
 
